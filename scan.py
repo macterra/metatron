@@ -24,5 +24,12 @@ for height in range(block_count, block_count-10, -1):
     txns = block['tx']
     for txid in txns:
         print(txid)
-        raw = rpc_connection.getrawtransaction(txid, 1)
-        print(raw)
+        tx = rpc_connection.getrawtransaction(txid, 1)
+        #print(tx)
+        for vout in tx['vout']:
+            #print(vout)
+            scriptPubKey = vout['scriptPubKey']
+            script_type = scriptPubKey['type']
+            if script_type == 'nulldata':
+                data = scriptPubKey['hex']
+                print("data>>", data)
