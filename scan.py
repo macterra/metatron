@@ -19,3 +19,10 @@ for height in range(block_count, block_count-10, -1):
     timestamp = utc.astimezone(tz.tzlocal()).strftime('%Y-%m-%d %H:%M:%S')
 
     print(height, block_hash, block_time, utc, timestamp)
+    print(block)
+
+    txns = block['tx']
+    for txid in txns:
+        print(txid)
+        raw = rpc_connection.getrawtransaction(txid, 1)
+        print(raw)
