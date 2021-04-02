@@ -46,10 +46,14 @@ def authorize(filename):
         print('first version of', xid)
         prev = []
 
-    cid = make_cid(hashcid)
     scheme = binascii.hexlify(str.encode("CID1")).decode()
-    print('cid', cid, scheme, cid.multihash.hex())
-    output = { "data": scheme + cid.multihash.hex() }
+    
+    cid = make_cid(hashcid)
+    cid1 = binascii.hexlify(cid.to_v1().buffer).decode()
+    hexdata = scheme + cid1
+
+    print('cid', cid, hexdata)
+    output = { "data": hexdata }
 
     rawtxn = rpc_connection.createrawtransaction(prev, [output])
     print('raw', rawtxn)
@@ -66,4 +70,4 @@ def authorize(filename):
     txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
     print('txid', txid)
 
-authorize('meta-v2.json')
+authorize('meta-v0.json')
