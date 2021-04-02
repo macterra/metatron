@@ -17,21 +17,14 @@ print(info)
 newaddr = rpc_connection.getnewaddress('bech32')
 print(newaddr)
 
-inputs = [ 
-    { 
-        "txid": "f749e7bbf77f20d2aa2a4cdf63870b9e34400f0a8d39f7590fcf1ddef440a132", 
-        "vout": 1 
-    } 
-]
+prev = { "txid": "78e189eff6ce7b6437d207ff5c5727126a61b3d7d573ef61c450c54302d90bb0", "vout": 0 } 
 
-cid = make_cid("QmeuJTFYWaLv3CMQv3m6FaWDrEQ6HwJZjE3YYrkAGZZGcs")
+cid = make_cid("QmUZc1UF25Q5R6nu2W83Yi6RNREXjxD43T1xzSw9rxLrEp")
 scheme = binascii.hexlify(str.encode("CID1")).decode()
-
 print('cid', cid, scheme, cid.multihash.hex())
-
 output = { "data": scheme + cid.multihash.hex() }
 
-rawtxn = rpc_connection.createrawtransaction([], [output])
+rawtxn = rpc_connection.createrawtransaction([prev], [output])
 print('raw', rawtxn)
 
 funtxn = rpc_connection.fundrawtransaction(rawtxn)
