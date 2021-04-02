@@ -1,4 +1,6 @@
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from cid import make_cid
+import binascii
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
@@ -22,13 +24,14 @@ inputs = [
     } 
 ]
 
-outputs = [ 
-    { 
-        "data": "010203040506" 
-    }
-]
+cid = make_cid("QmeuJTFYWaLv3CMQv3m6FaWDrEQ6HwJZjE3YYrkAGZZGcs")
+scheme = binascii.hexlify(str.encode("CID1")).decode()
 
-rawtxn = rpc_connection.createrawtransaction([], outputs)
+print('cid', cid, scheme, cid.multihash.hex())
+
+output = { "data": scheme + cid.multihash.hex() }
+
+rawtxn = rpc_connection.createrawtransaction([], [output])
 print('raw', rawtxn)
 
 funtxn = rpc_connection.fundrawtransaction(rawtxn)
