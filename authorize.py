@@ -11,7 +11,7 @@ from credentials import connect
 rpc_connection = AuthServiceProxy(connect, timeout=120)
 client = ipfshttpclient.connect()
 
-print(client.id())
+#print(client.id())
 
 with open("db.json", "r") as read_file:
     db = json.load(read_file)
@@ -53,9 +53,13 @@ def authorize(filename):
     hexdata = scheme + cid1
 
     print('cid', cid, hexdata)
-    output = { "data": hexdata }
+    nulldata = { "data": hexdata }
 
-    rawtxn = rpc_connection.createrawtransaction(prev, [output])
+    addr = rpc_connection.getnewaddress("bech32")
+    print('addr', addr)
+    authtxn = { addr: "0.000010000" }
+
+    rawtxn = rpc_connection.createrawtransaction(prev, [authtxn, nulldata])
     print('raw', rawtxn)
 
     funtxn = rpc_connection.fundrawtransaction(rawtxn)
@@ -67,7 +71,11 @@ def authorize(filename):
     dectxn = rpc_connection.decoderawtransaction(sigtxn['hex'])
     print('dec', dectxn)
 
-    txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
-    print('txid', txid)
+    acctxn = rpc_connection.testmempoolaccept([sigtxn['hex']])
+    print('acc', acctxn)
 
-authorize('meta-v1.json')
+    if acctxn[0]['allowed']:
+        txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
+        print('txid', txid)
+
+authorize('meta-v0.json')
