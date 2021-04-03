@@ -8,6 +8,7 @@ from dateutil import tz
 import cid
 import json
 import ipfshttpclient
+import decimal
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
@@ -40,6 +41,10 @@ def findCid(tx):
                     cid0 = str(cid1.to_v0())
                     return cid0
     return None
+
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal): return float(obj)
 
 def addVersion(tx, cid):
     print('addVersion', cid)
@@ -76,8 +81,30 @@ def updateVersion(tx, oldCid, newCid):
     print('cert', cert)
     print('verify xid', xid1 == cert['id'])
     print('verify meta', oldCid == cert['meta'])
+    version = cert['version']
 
     print("OK to update block-cert")
+
+    cert = {
+        "type": "block-cert",
+        "id": xid1,
+        "meta": newCid,
+        "version": version+1,
+        "prev": certcid,
+        "chain": "tBTC",
+        "tx": tx
+    }
+
+    print('cert', cert)
+
+    with open("block-cert.json", "w") as write_file:
+        json.dump(cert, write_file, cls = Encoder, indent=4)
+
+    res = client.add("block-cert.json")
+    db[xid1] = res['Hash']
+    
+    with open("db.json", "w") as write_file:
+        json.dump(db, write_file, cls = Encoder, indent=4)
 
 def verifyTx(tx, newCid):
     for vin in tx['vin']:
