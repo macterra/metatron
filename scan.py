@@ -41,7 +41,6 @@ class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
-
 def writeCert(tx, cid, xid, version, prevCert):
     block = btc_client.getblock(tx['blockhash'])
     height = block['height']
@@ -187,3 +186,6 @@ print(count)
 #     scanBlock(height)
 
 scanBlock(1969830)
+scanBlock(1969831)
+scanBlock(1969832)
+scanBlock(1969833)

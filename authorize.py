@@ -81,4 +81,4 @@ def authorize(filename):
         txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
 
-authorize('meta-v2.json')
+authorize('meta-v3.json')
