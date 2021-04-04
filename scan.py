@@ -185,7 +185,8 @@ print(count)
 # for height in range(count-9, count+1):
 #     scanBlock(height)
 
-scanBlock(1969830)
-scanBlock(1969831)
-scanBlock(1969832)
-scanBlock(1969833)
+# scanBlock(1969830)
+# scanBlock(1969831)
+# scanBlock(1969832)
+# scanBlock(1969833)
+scanBlock(1969843)

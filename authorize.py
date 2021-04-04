@@ -3,26 +3,55 @@ from cid import make_cid
 import binascii
 import json
 import ipfshttpclient
+from decimal import Decimal
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
 from credentials import connect
     
-rpc_connection = AuthServiceProxy(connect, timeout=120)
-client = ipfshttpclient.connect()
+btc_client = AuthServiceProxy(connect, timeout=120)
+ipfs_client = ipfshttpclient.connect()
 
-#print(client.id())
-
-with open("db.json", "r") as read_file:
-    db = json.load(read_file)
+try:
+    with open("wallet.json", "r") as read_file:
+        db = json.load(read_file)
+except:
+    db = {}
 
 print(db)
 
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal): return float(obj)
+
+def writeWallet(xid, cid, tx):
+
+    n = -1
+    for vout in tx['vout']:
+        val = vout['value']
+        if val.compare(Decimal("0.00001234")) == 0:
+            n = vout['n']
+            break
+
+    if n < 0:
+        print("error, can't find auth txn")
+        return
+
+    db[xid] = {
+        "meta": cid,
+        "auth": { "txid": tx['txid'], "vout": n },
+        "tx": tx
+    }
+    
+    with open("wallet.json", "w") as write_file:
+        json.dump(db, write_file, cls = Encoder, indent=4)
+
+
 def authorize(filename):
-    res = client.add(filename)
+    res = ipfs_client.add(filename)
     print('res', res)
     hashcid = res['Hash']
-    meta = json.loads(client.cat(hashcid))
+    meta = json.loads(ipfs_client.cat(hashcid))
     print(meta)
 
     xid = meta['id']
@@ -31,17 +60,14 @@ def authorize(filename):
     if xid in db:
         print('found xid', xid)
 
-        certcid = db[xid]
-        print('certcid', certcid)
+        last = db[xid]
+        print('last', last)
 
-        cert = json.loads(client.cat(certcid))
-        print('cert', cert)
-        print('verify xid', xid == cert['id'])
+        if hashcid == last['meta']:
+            print("error, already submitted")
+            return
 
-        # txid = cert['tx']['txid']
-        # print('txid', txid)
-
-        ownertx = cert['owner']['tx']
+        ownertx = last['auth']
         print('ownertx', ownertx)
 
         prev = [ ownertx ]
@@ -58,27 +84,28 @@ def authorize(filename):
     print('cid', cid, hexdata)
     nulldata = { "data": hexdata }
 
-    addr = rpc_connection.getnewaddress("bech32")
+    addr = btc_client.getnewaddress("bech32")
     print('addr', addr)
     authtxn = { addr: "0.00001234" }
 
-    rawtxn = rpc_connection.createrawtransaction(prev, [authtxn, nulldata])
+    rawtxn = btc_client.createrawtransaction(prev, [authtxn, nulldata])
     print('raw', rawtxn)
 
-    funtxn = rpc_connection.fundrawtransaction(rawtxn)
+    funtxn = btc_client.fundrawtransaction(rawtxn)
     print('fun', funtxn)
 
-    sigtxn = rpc_connection.signrawtransactionwithwallet(funtxn['hex'])
+    sigtxn = btc_client.signrawtransactionwithwallet(funtxn['hex'])
     print('sig', sigtxn)
 
-    dectxn = rpc_connection.decoderawtransaction(sigtxn['hex'])
+    dectxn = btc_client.decoderawtransaction(sigtxn['hex'])
     print('dec', dectxn)
 
-    acctxn = rpc_connection.testmempoolaccept([sigtxn['hex']])
+    acctxn = btc_client.testmempoolaccept([sigtxn['hex']])
     print('acc', acctxn)
 
     if acctxn[0]['allowed']:
-        txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
+        txid = btc_client.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
+        writeWallet(xid, hashcid, dectxn)
 
-authorize('meta-v3.json')
+authorize('meta-v2.json')
