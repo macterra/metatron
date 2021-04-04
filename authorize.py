@@ -84,7 +84,7 @@ def authorize(filename):
     print('cid', cid, hexdata)
     nulldata = { "data": hexdata }
 
-    addr = btc_client.getnewaddress("bech32")
+    addr = btc_client.getnewaddress("auth", "bech32")
     print('addr', addr)
     authtxn = { addr: "0.00001234" }
 
@@ -108,4 +108,4 @@ def authorize(filename):
         print('txid', txid)
         writeWallet(xid, hashcid, dectxn)
 
-authorize('meta-v2.json')
+authorize('meta-v4.json')
