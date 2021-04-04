@@ -38,8 +38,8 @@ def authorize(filename):
         print('cert', cert)
         print('verify xid', xid == cert['id'])
 
-        txid = cert['tx']['txid']
-        print('txid', txid)
+        # txid = cert['tx']['txid']
+        # print('txid', txid)
 
         ownertx = cert['owner']['tx']
         print('ownertx', ownertx)
@@ -81,4 +81,4 @@ def authorize(filename):
         txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
 
-authorize('meta-v1.json')
+authorize('meta-v2.json')
