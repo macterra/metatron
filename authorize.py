@@ -41,7 +41,10 @@ def authorize(filename):
         txid = cert['tx']['txid']
         print('txid', txid)
 
-        prev = [{ "txid": txid, "vout": 0 }]
+        ownertx = cert['owner']['tx']
+        print('ownertx', ownertx)
+
+        prev = [ ownertx ]
     else:
         print('first version of', xid)
         prev = []
@@ -57,7 +60,7 @@ def authorize(filename):
 
     addr = rpc_connection.getnewaddress("bech32")
     print('addr', addr)
-    authtxn = { addr: "0.000010000" }
+    authtxn = { addr: "0.00001234" }
 
     rawtxn = rpc_connection.createrawtransaction(prev, [authtxn, nulldata])
     print('raw', rawtxn)
@@ -78,4 +81,4 @@ def authorize(filename):
         txid = rpc_connection.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
 
-authorize('meta-v0.json')
+authorize('meta-v1.json')
