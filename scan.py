@@ -5,10 +5,10 @@
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
+from decimal import Decimal
 import cid
 import json
 import ipfshttpclient
-import decimal
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
@@ -39,26 +39,31 @@ def findCid(tx):
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, decimal.Decimal): return float(obj)
+        if isinstance(obj, Decimal): return float(obj)
 
 
-def writeCert(tx, cid, xid, version):
+def writeCert(tx, cid, xid, version, prevCert):
     block = btc_client.getblock(tx['blockhash'])
     height = block['height']
+    
+    block_time = block['time']
+    utc = datetime.utcfromtimestamp(block_time).replace(tzinfo=tz.tzutc())
 
     txid = tx['txid']
     index = block['tx'].index(txid)
 
-    if tx['vout'][0]['value'] > 0:
-        n = 0
-    else:
-        n = 1
+    n = -1
+    for vout in tx['vout']:
+        val = vout['value']
+        if val.compare(Decimal("0.00001234")) == 0:
+            n = vout['n']
+            break
 
     urn = f"urn:chain:tBTC:{height}:{index}:{n}"
 
     owner = {
         "id": urn,
-        "tx": { "txid": txid, "n": n },
+        "tx": { "txid": txid, "vout": n },
         "addresses": tx['vout'][n]['scriptPubKey']['addresses']
     }
 
@@ -67,8 +72,9 @@ def writeCert(tx, cid, xid, version):
         "id": xid,
         "meta": cid,
         "version": version,
-        "prev": "",
+        "prev": prevCert,
         "chain": "tBTC",
+        "time": str(utc),
         "owner": owner,
         "tx": tx
     }
@@ -98,23 +104,24 @@ def addVersion(tx, cid):
         return
 
     print("OK to add new block-cert")
-    writeCert(tx, cid, xid, 0)
+    writeCert(tx, cid, xid, 0, "")
 
-def updateVersion(tx, oldCid, newCid):
+def updateVersion(tx, oldCid, newTx, newCid):
     print('updateVersion', oldCid, newCid)
     
     meta1 = json.loads(ipfs_client.cat(oldCid))
     meta2 = json.loads(ipfs_client.cat(newCid))
 
     xid = meta1['id']
+    xid2 = meta2['id']
 
-    if xid != meta2['id']:
-        print("error, ids do not match", xid1, xid2)
+    if xid != xid2:
+        print("error, ids do not match", xid, xid2)
         return
     
     if not xid in db:
-        print("error, can't find id in db", xid)
-        return
+        print("warning, can't find id in db", xid)
+        return addVersion(newTx, newCid)
     
     certcid = db[xid]
     print('certcid', certcid)
@@ -133,16 +140,16 @@ def updateVersion(tx, oldCid, newCid):
     print("OK to update block-cert")
 
     version = cert['version'] + 1
-    writeCert(tx, newCid, xid, version)
+    writeCert(tx, newCid, xid, version, certcid)
 
-def verifyTx(tx, newCid):
-    for vin in tx['vin']:
+def verifyTx(newTx, newCid):
+    for vin in newTx['vin']:
         txid = vin['txid']
-        tx = btc_client.getrawtransaction(txid, 1)
-        cid = findCid(tx)
+        oldTx = btc_client.getrawtransaction(txid, 1)
+        oldCid = findCid(oldTx)
         if cid:
-            return updateVersion(tx, cid, newCid)
-    return addVersion(tx, newCid)
+            return updateVersion(oldTx, oldCid, newTx, newCid)
+    return addVersion(newTx, newCid)
 
 def scanBlock(height):
     block_hash = btc_client.getblockhash(height)
@@ -162,5 +169,14 @@ def scanBlock(height):
             verifyTx(tx, cid)
 
                   
-scanBlock(1969654)
-scanBlock(1969665)
+#scanBlock(1969654)
+#scanBlock(1969665)
+#scanBlock(1969666)
+
+count = btc_client.getblockcount()
+print(count)
+
+# for height in range(count-9, count+1):
+#     scanBlock(height)
+
+scanBlock(1969816)
