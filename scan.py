@@ -106,7 +106,7 @@ def addVersion(tx, cid):
     print("OK to add new block-cert")
     writeCert(tx, cid, xid, 0, "")
 
-def updateVersion(tx, oldCid, newTx, newCid):
+def updateVersion(oldTx, oldCid, newTx, newCid):
     print('updateVersion', oldCid, newCid)
     
     meta1 = json.loads(ipfs_client.cat(oldCid))
@@ -140,15 +140,22 @@ def updateVersion(tx, oldCid, newTx, newCid):
     print("OK to update block-cert")
 
     version = cert['version'] + 1
-    writeCert(tx, newCid, xid, version, certcid)
+    writeCert(newTx, newCid, xid, version, certcid)
+
+def isAuthTx(tx, n):
+    vout = tx['vout'][n]
+    val = vout['value']
+    return val.compare(Decimal("0.00001234")) == 0
 
 def verifyTx(newTx, newCid):
     for vin in newTx['vin']:
         txid = vin['txid']
+        vout = vin['vout']
         oldTx = btc_client.getrawtransaction(txid, 1)
-        oldCid = findCid(oldTx)
-        if cid:
-            return updateVersion(oldTx, oldCid, newTx, newCid)
+        if isAuthTx(oldTx, vout):
+            oldCid = findCid(oldTx)
+            if oldCid:
+                return updateVersion(oldTx, oldCid, newTx, newCid)
     return addVersion(newTx, newCid)
 
 def scanBlock(height):
@@ -179,4 +186,4 @@ print(count)
 # for height in range(count-9, count+1):
 #     scanBlock(height)
 
-scanBlock(1969816)
+scanBlock(1969830)
