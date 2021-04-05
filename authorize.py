@@ -1,9 +1,10 @@
-from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from cid import make_cid
+import sys
 import binascii
 import json
 import ipfshttpclient
 from decimal import Decimal
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from cid import make_cid
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
@@ -108,4 +109,10 @@ def authorize(filename):
         print('txid', txid)
         writeWallet(xid, hashcid, dectxn)
 
-authorize('meta-v4.json')
+def main():
+    for arg in sys.argv[1:]:
+        authorize(arg)
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
