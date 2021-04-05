@@ -175,11 +175,11 @@ def scanBlock(height):
             verifyTx(tx, cid)
 
           
-# count = btc_client.getblockcount()
-# print(count)
+count = btc_client.getblockcount()
+print(count)
 
-# for height in range(count-9, count+1):
-#     scanBlock(height)
+for height in range(count-9, count+1):
+    scanBlock(height)
 
 # scanBlock(1969830)
 # scanBlock(1969831)
