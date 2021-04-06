@@ -174,15 +174,29 @@ def scanBlock(height):
         if cid:
             verifyTx(tx, cid)
 
-          
-count = btc_client.getblockcount()
-print(count)
 
-for height in range(count-9, count+1):
-    scanBlock(height)
+def updateScan():          
+    count = btc_client.getblockcount()
+    print(count)
+
+    try:
+        last = db['scan']['tBTC']
+    except:
+        last = count
+
+    for height in range(last, count+1):
+        scanBlock(height)
+
+    db['scan']['tBTC'] = count
+
+    with open("db.json", "w") as write_file:
+        json.dump(db, write_file, cls = Encoder, indent=4)
+    
 
 # scanBlock(1969830)
 # scanBlock(1969831)
 # scanBlock(1969832)
 # scanBlock(1969833)
 # scanBlock(1969843)
+
+updateScan()
