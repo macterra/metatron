@@ -123,11 +123,8 @@ def addVersion(tx, cid):
 def updateVersion(oldTx, oldCid, newTx, newCid):
     print('updateVersion', oldCid, newCid)
     
-    meta1 = json.loads(ipfs_client.cat(oldCid))
-    meta2 = json.loads(ipfs_client.cat(newCid))
-
-    xid = meta1['id']
-    xid2 = meta2['id']
+    xid = getIdx(oldCid)
+    xid2 = getIdx(newCid)
 
     if xid != xid2:
         print("error, ids do not match", xid, xid2)
@@ -184,11 +181,14 @@ def scanBlock(height):
 
     txns = block['tx']
     for txid in txns:
-        print(txid)
+        #print(txid)
+        print('.', end='', flush=True)
         tx = btc_client.getrawtransaction(txid, 1)        
         cid = findCid(tx)
         if cid:
             verifyTx(tx, cid)
+    print()
+    print(f"scanned {len(txns)} transactions")
 
 
 def updateScan():          
@@ -196,19 +196,19 @@ def updateScan():
     print(count)
 
     try:
-        last = db['scan']['BTC']
+        last = db['scan'][chain]
     except:
         last = count
 
     for height in range(last, count+1):
         scanBlock(height)
 
-    db['scan']['BTC'] = count
+    db['scan'][chain] = count
 
     with open("db.json", "w") as write_file:
         json.dump(db, write_file, cls = Encoder, indent=4)
     
 
-scanBlock(678788)
+# scanBlock(678788)
 
-# updateScan()
+updateScan()

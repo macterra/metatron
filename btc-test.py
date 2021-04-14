@@ -1,4 +1,3 @@
-lear
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from cid import make_cid
 
