@@ -82,10 +82,10 @@ def authorize(filename):
     cid = make_cid(cidhash)
 
     # CIDv0
-    hexdata = cid.multihash.hex()
+    #hexdata = cid.multihash.hex()
 
     # CIDv1
-    #hexdata = binascii.hexlify(cid.to_v1().buffer).decode()
+    hexdata = binascii.hexlify(cid.to_v1().buffer).decode()
 
     print('cid', hexdata)
     nulldata = { "data": hexdata }
