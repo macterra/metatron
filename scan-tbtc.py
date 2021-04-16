@@ -6,16 +6,22 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
 from decimal import Decimal
+#import uuid
 import cid
 import json
-import ipfshttpclient
+#import ipfshttpclient
+from xidb import *
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
-from credentials import connect
+import credentials
     
-btc_client = AuthServiceProxy(connect, timeout=120)
-ipfs_client = ipfshttpclient.connect()
+connect = credentials.tbtc_connect
+chain = 'tBTC'    
+magic = '0.00001111'
+
+blockchain = AuthServiceProxy(connect, timeout=120)
+ipfs = ipfshttpclient.connect()
 
 with open("db.json", "r") as read_file:
     db = json.load(read_file)
@@ -23,18 +29,20 @@ with open("db.json", "r") as read_file:
 print(db)
 
 def findCid(tx):
-    #print('findCid', tx) 
     for vout in tx['vout']:
         scriptPubKey = vout['scriptPubKey']
         script_type = scriptPubKey['type']
         if script_type == 'nulldata':
             hexdata = scriptPubKey['hex']
             data = bytes.fromhex(hexdata)
-            if data[0] == 0x6a and data[1] == 40:
-                if data[2:6] == b'CID1':
-                    cid1 = cid.make_cid(data[6:])
-                    cid0 = str(cid1.to_v0())
-                    return cid0
+            if data[0] == 0x6a:
+                if data[1] == 34: # len of CIDv0
+                    cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
+                    return str(cid0)
+                elif data[2] == 36: # len of CIDv1?
+                    cid1 = cid.make_cid(data[2:])
+                    cid0 = cid1.to_v0()
+                    return str(cid0)
     return None
 
 class Encoder(json.JSONEncoder):
@@ -42,7 +50,7 @@ class Encoder(json.JSONEncoder):
         if isinstance(obj, Decimal): return float(obj)
 
 def writeCert(tx, cid, xid, version, prevCert):
-    block = btc_client.getblock(tx['blockhash'])
+    block = blockchain.getblock(tx['blockhash'])
     height = block['height']
     
     block_time = block['time']
@@ -54,11 +62,11 @@ def writeCert(tx, cid, xid, version, prevCert):
     n = -1
     for vout in tx['vout']:
         val = vout['value']
-        if val.compare(Decimal("0.00001234")) == 0:
+        if val.compare(Decimal(magic)) == 0:
             n = vout['n']
             break
 
-    urn = f"urn:chain:tBTC:{height}:{index}:{n}"
+    urn = f"urn:chain:{chain}:{height}:{index}:{n}"
 
     owner = {
         "id": urn,
@@ -68,11 +76,11 @@ def writeCert(tx, cid, xid, version, prevCert):
 
     cert = {
         "type": "block-cert",
-        "id": xid,
-        "meta": cid,
+        "xid": xid,
+        "cid": cid,
         "version": version,
         "prev": prevCert,
-        "chain": "tBTC",
+        "chain": chain,
         "time": str(utc),
         "owner": owner,
         "tx": tx
@@ -86,7 +94,7 @@ def writeCert(tx, cid, xid, version, prevCert):
     with open(certFile, "w") as write_file:
         json.dump(cert, write_file, cls = Encoder, indent=4)
 
-    res = ipfs_client.add(certFile)
+    res = ipfs.add(certFile)
     db[xid] = res['Hash']
     
     with open("db.json", "w") as write_file:
@@ -94,10 +102,8 @@ def writeCert(tx, cid, xid, version, prevCert):
 
 def addVersion(tx, cid):
     print('addVersion', cid)
-    meta = json.loads(ipfs_client.cat(cid))
-    print(meta)
-    xid = meta['id']
 
+    xid = getXid(cid)    
     if xid in db:
         print("error, xid already claimed")
         return
@@ -108,49 +114,46 @@ def addVersion(tx, cid):
 def updateVersion(oldTx, oldCid, newTx, newCid):
     print('updateVersion', oldCid, newCid)
     
-    meta1 = json.loads(ipfs_client.cat(oldCid))
-    meta2 = json.loads(ipfs_client.cat(newCid))
+    oldXid = getXid(oldCid)
+    newXid = getXid(newCid)
 
-    xid = meta1['id']
-    xid2 = meta2['id']
-
-    if xid != xid2:
+    if oldXid != newXid:
         print("error, ids do not match", xid, xid2)
         return
     
-    if not xid in db:
+    if not oldXid in db:
         print("warning, can't find id in db", xid)
         return addVersion(newTx, newCid)
     
-    certcid = db[xid]
+    certcid = db[oldXid]
     print('certcid', certcid)
 
-    cert = json.loads(ipfs_client.cat(certcid))
+    cert = json.loads(ipfs.cat(certcid))
     print('cert', cert)
 
-    if xid != cert['id']:
-        print("error, cert does not match xid", xid)
+    if oldXid != cert['xid']:
+        print("error, cert does not match xid", newXid)
         return
 
-    if oldCid != cert['meta']:
+    if oldCid != cert['cid']:
         print("error, cert does not match meta", oldCid)
         return
         
     print("OK to update block-cert")
 
     version = cert['version'] + 1
-    writeCert(newTx, newCid, xid, version, certcid)
+    writeCert(newTx, newCid, newXid, version, certcid)
 
 def isAuthTx(tx, n):
     vout = tx['vout'][n]
     val = vout['value']
-    return val.compare(Decimal("0.00001234")) == 0
+    return val.compare(Decimal(magic)) == 0
 
 def verifyTx(newTx, newCid):
     for vin in newTx['vin']:
         txid = vin['txid']
         vout = vin['vout']
-        oldTx = btc_client.getrawtransaction(txid, 1)
+        oldTx = blockchain.getrawtransaction(txid, 1)
         if isAuthTx(oldTx, vout):
             oldCid = findCid(oldTx)
             if oldCid:
@@ -158,8 +161,8 @@ def verifyTx(newTx, newCid):
     return addVersion(newTx, newCid)
 
 def scanBlock(height):
-    block_hash = btc_client.getblockhash(height)
-    block = btc_client.getblock(block_hash)
+    block_hash = blockchain.getblockhash(height)
+    block = blockchain.getblock(block_hash)
     
     block_time = block['time']
     utc = datetime.utcfromtimestamp(block_time).replace(tzinfo=tz.tzutc())
@@ -169,34 +172,34 @@ def scanBlock(height):
 
     txns = block['tx']
     for txid in txns:
-        tx = btc_client.getrawtransaction(txid, 1)        
+        #print(txid)
+        print('.', end='', flush=True)
+        tx = blockchain.getrawtransaction(txid, 1)        
         cid = findCid(tx)
         if cid:
             verifyTx(tx, cid)
+    print()
+    print(f"scanned {len(txns)} transactions")
 
 
 def updateScan():          
-    count = btc_client.getblockcount()
+    count = blockchain.getblockcount()
     print(count)
 
     try:
-        last = db['scan']['tBTC']
+        last = db['scan'][chain]
     except:
         last = count
 
     for height in range(last, count+1):
         scanBlock(height)
 
-    db['scan']['tBTC'] = count
+    db['scan'][chain] = count
 
     with open("db.json", "w") as write_file:
         json.dump(db, write_file, cls = Encoder, indent=4)
     
 
-# scanBlock(1969830)
-# scanBlock(1969831)
-# scanBlock(1969832)
-# scanBlock(1969833)
-# scanBlock(1969843)
+scanBlock(1971668)
 
-updateScan()
+#updateScan()
