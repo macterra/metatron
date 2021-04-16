@@ -6,10 +6,8 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
 from decimal import Decimal
-#import uuid
 import cid
 import json
-#import ipfshttpclient
 from xidb import *
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
@@ -36,13 +34,17 @@ def findCid(tx):
             hexdata = scriptPubKey['hex']
             data = bytes.fromhex(hexdata)
             if data[0] == 0x6a:
-                if data[1] == 34: # len of CIDv0
-                    cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
-                    return str(cid0)
-                elif data[2] == 36: # len of CIDv1?
-                    cid1 = cid.make_cid(data[2:])
-                    cid0 = cid1.to_v0()
-                    return str(cid0)
+                print("data len", data[1])
+                try:
+                    if data[1] == 34: # len of CIDv0
+                        cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
+                        return str(cid0)
+                    elif data[1] == 36: # len of CIDv1?
+                        cid1 = cid.make_cid(data[2:])
+                        cid0 = cid1.to_v0()
+                        return str(cid0)
+                except:
+                    print('cid parser fail')
     return None
 
 class Encoder(json.JSONEncoder):
@@ -118,11 +120,11 @@ def updateVersion(oldTx, oldCid, newTx, newCid):
     newXid = getXid(newCid)
 
     if oldXid != newXid:
-        print("error, ids do not match", xid, xid2)
-        return
+        print("error, ids do not match", oldXid, newXid)
+        return addVersion(newTx, newCid)
     
     if not oldXid in db:
-        print("warning, can't find id in db", xid)
+        print("warning, can't find id in db", oldXid)
         return addVersion(newTx, newCid)
     
     certcid = db[oldXid]
@@ -177,6 +179,7 @@ def scanBlock(height):
         tx = blockchain.getrawtransaction(txid, 1)        
         cid = findCid(tx)
         if cid:
+            print(f"found cid {cid}")
             verifyTx(tx, cid)
     print()
     print(f"scanned {len(txns)} transactions")
@@ -200,6 +203,6 @@ def updateScan():
         json.dump(db, write_file, cls = Encoder, indent=4)
     
 
-scanBlock(1971684)
+scanBlock(1971687)
 
 #updateScan()
