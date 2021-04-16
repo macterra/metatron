@@ -12,9 +12,9 @@ from cid import make_cid
 import credentials
 
 magic = '0.00001111'
-wallet = 'btc-wallet.json'    
-btc_client = AuthServiceProxy(credentials.btc_connect, timeout=120)
-ipfs_client = ipfshttpclient.connect()
+wallet = 'tbtc-wallet.json'    
+blockchain = AuthServiceProxy(credentials.tbtc_connect, timeout=120)
+ipfs = ipfshttpclient.connect()
 
 try:
     with open(wallet, "r") as read_file:
@@ -28,7 +28,7 @@ class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
-def writeWallet(idx, cid, tx):
+def writeWallet(xid, cid, tx):
 
     n = -1
     for vout in tx['vout']:
@@ -41,8 +41,8 @@ def writeWallet(idx, cid, tx):
         print("error, can't find auth txn")
         return
 
-    db[idx] = {
-        "meta": cid,
+    db[xid] = {
+        "cid": cid,
         "auth": { "txid": tx['txid'], "vout": n },
         "tx": tx
     }
@@ -51,30 +51,39 @@ def writeWallet(idx, cid, tx):
         json.dump(db, write_file, cls = Encoder, indent=4)
 
 
-def authorize(filename):
-    if filename[:2] == "Qm":
-        hashcid = filename
-    else:
-        res = ipfs_client.add(filename)
-        print('res', res)
-        hashcid = res['Hash']
+def getXid(cid):
+    xid = None
 
     try:
-        meta = json.loads(ipfs_client.cat(hashcid))
-        print(meta)
-        idx = meta['idx']
+        meta = json.loads(ipfs.cat(cid))
+        print(meta)        
+        xid = meta['xid']
     except:
-        idx = ipfs_client.cat(hashcid + '/idx').decode().strip()
-        idx = str(uuid.UUID(idx))
-        print('idx', idx)
+        xid = ipfs.cat(cid + '/xid').decode().strip()
+        xid = str(uuid.UUID(xid))
+        
+    print('xid', xid)
+    return xid
 
-    if idx in db:
-        print('found idx', idx)
+def authorize(filename):
+    if filename[:2] == "Qm":
+        cid = filename
+    else:
+        res = ipfs.add(filename)
+        print('res', res)
+        cid = res['Hash']
 
-        last = db[idx]
+    xid = getXid(cid)
+
+    # validate xid
+
+    if xid in db:
+        print('found xid', xid)
+
+        last = db[xid]
         print('last', last)
 
-        if hashcid == last['meta']:
+        if cid == last['meta']:
             print("error, already submitted")
             return
 
@@ -83,41 +92,42 @@ def authorize(filename):
 
         prev = [ ownertx ]
     else:
-        print('first version of', idx)
+        print('first version of', xid)
         prev = []
 
-    scheme = binascii.hexlify(str.encode("CID1")).decode()
+    #scheme = binascii.hexlify(str.encode("CID1")).decode()
     
-    cid = make_cid(hashcid)
-    cid1 = binascii.hexlify(cid.to_v1().buffer).decode()
-    hexdata = scheme + cid1
+    cid = make_cid(cid)
+    hexdata = cid.multihash.hex()
+    #hexdata = binascii.hexlify(cid.to_v1().buffer).decode()
+    #hexdata = scheme + cid1
 
-    print('cid', cid, hexdata)
+    print('cid', hexdata)
     nulldata = { "data": hexdata }
 
-    addr = btc_client.getnewaddress("auth", "bech32")
+    addr = blockchain.getnewaddress("auth", "bech32")
     print('addr', addr)
     authtxn = { addr: magic }
 
-    rawtxn = btc_client.createrawtransaction(prev, [authtxn, nulldata])
+    rawtxn = blockchain.createrawtransaction(prev, [authtxn, nulldata])
     print('raw', rawtxn)
 
-    funtxn = btc_client.fundrawtransaction(rawtxn)
+    funtxn = blockchain.fundrawtransaction(rawtxn)
     print('fun', funtxn)
 
-    sigtxn = btc_client.signrawtransactionwithwallet(funtxn['hex'])
+    sigtxn = blockchain.signrawtransactionwithwallet(funtxn['hex'])
     print('sig', sigtxn)
 
-    dectxn = btc_client.decoderawtransaction(sigtxn['hex'])
+    dectxn = blockchain.decoderawtransaction(sigtxn['hex'])
     print('dec', dectxn)
 
-    acctxn = btc_client.testmempoolaccept([sigtxn['hex']])
+    acctxn = blockchain.testmempoolaccept([sigtxn['hex']])[0]
     print('acc', acctxn)
 
-    if acctxn[0]['allowed']:
-        txid = btc_client.sendrawtransaction(sigtxn['hex'])
+    if acctxn['allowed']:
+        txid = blockchain.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
-        writeWallet(idx, hashcid, dectxn)
+        writeWallet(xid, cid, dectxn)
 
 def main():
     for arg in sys.argv[1:]:
@@ -125,4 +135,5 @@ def main():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    main()
+    #main()
+    authorize('QmSWCMGhWLbLEWKZst3x1f5QrqiPfbMsu1hKszadDrKcSt')
