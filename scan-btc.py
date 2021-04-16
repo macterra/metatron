@@ -61,7 +61,7 @@ def writeCert(tx, cid, xid, version, prevCert):
             n = vout['n']
             break
 
-    urn = f"urn:chain:BTC:{height}:{index}:{n}"
+    urn = f"urn:chain:{chain}:{height}:{index}:{n}"
 
     owner = {
         "id": urn,
