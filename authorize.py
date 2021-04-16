@@ -1,28 +1,25 @@
 import sys
 import binascii
 import json
-import uuid
-import ipfshttpclient
 from decimal import Decimal
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from cid import make_cid
+from xidb import *
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
 # rpc_user and rpc_password are set in the bitcoin.conf file
 import credentials
 
 magic = '0.00001111'
+connect = credentials.tbtc_connect
 wallet = 'tbtc-wallet.json'    
-blockchain = AuthServiceProxy(credentials.tbtc_connect, timeout=120)
-ipfs = ipfshttpclient.connect()
+blockchain = AuthServiceProxy(connect, timeout=120)
 
 try:
     with open(wallet, "r") as read_file:
         db = json.load(read_file)
 except:
     db = {}
-
-#print(db)
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -51,31 +48,18 @@ def writeWallet(xid, cid, tx):
         json.dump(db, write_file, cls = Encoder, indent=4)
 
 
-def getXid(cid):
-    xid = None
-
-    try:
-        meta = json.loads(ipfs.cat(cid))
-        print(meta)        
-        xid = meta['xid']
-    except:
-        xid = ipfs.cat(cid + '/xid').decode().strip()
-        xid = str(uuid.UUID(xid))
-        
-    print('xid', xid)
-    return xid
-
 def authorize(filename):
     if filename[:2] == "Qm":
         cidhash = filename
     else:
         res = ipfs.add(filename)
-        print('res', res)
         cidhash = res['Hash']
 
     xid = getXid(cidhash)
 
-    # validate xid
+    if not xid:
+        print(f"{cidhash} includes no valid xid")
+        return
 
     if xid in db:
         print('found xid', xid)
@@ -136,5 +120,4 @@ def main():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    #main()
-    authorize('QmSWCMGhWLbLEWKZst3x1f5QrqiPfbMsu1hKszadDrKcSt')
+    main()
