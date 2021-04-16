@@ -67,13 +67,13 @@ def getXid(cid):
 
 def authorize(filename):
     if filename[:2] == "Qm":
-        cid = filename
+        cidhash = filename
     else:
         res = ipfs.add(filename)
         print('res', res)
-        cid = res['Hash']
+        cidhash = res['Hash']
 
-    xid = getXid(cid)
+    xid = getXid(cidhash)
 
     # validate xid
 
@@ -83,7 +83,7 @@ def authorize(filename):
         last = db[xid]
         print('last', last)
 
-        if cid == last['meta']:
+        if cidhash == last['cid']:
             print("error, already submitted")
             return
 
@@ -94,13 +94,14 @@ def authorize(filename):
     else:
         print('first version of', xid)
         prev = []
-
-    #scheme = binascii.hexlify(str.encode("CID1")).decode()
     
-    cid = make_cid(cid)
+    cid = make_cid(cidhash)
+
+    # CIDv0
     hexdata = cid.multihash.hex()
+
+    # CIDv1
     #hexdata = binascii.hexlify(cid.to_v1().buffer).decode()
-    #hexdata = scheme + cid1
 
     print('cid', hexdata)
     nulldata = { "data": hexdata }
@@ -127,7 +128,7 @@ def authorize(filename):
     if acctxn['allowed']:
         txid = blockchain.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
-        writeWallet(xid, cid, dectxn)
+        writeWallet(xid, cidhash, dectxn)
 
 def main():
     for arg in sys.argv[1:]:
