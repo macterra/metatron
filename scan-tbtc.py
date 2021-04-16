@@ -200,6 +200,6 @@ def updateScan():
         json.dump(db, write_file, cls = Encoder, indent=4)
     
 
-scanBlock(1971668)
+scanBlock(1971684)
 
 #updateScan()
