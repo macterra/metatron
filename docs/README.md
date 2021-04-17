@@ -1,6 +1,14 @@
 # metatron
 
-Secure version control for metadata
+
+## xid indexicals
+
+The system provides a way to establish ownership of 128-bit random numbers called `xid` (for eXtensible IDentifier)
+
+The value of the `xid` must be a random [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
+- any UUID that can be compressed by zlib to less than its original length of 16 bytes will be considered invalid
+- the xid should be a pure indexical, it should be able to point to any digital content without bias, including nothing in the case it is retired or disabled
+- therefore the xid should contain no internal information (though it is always possible to encode encrypted information via the UUID5 standard)
 
 ## rules of ownership 
 
@@ -11,13 +19,15 @@ Secure version control for metadata
 - every metatron node may decide which blockchains to scan
     - this means that a node that scans only bitcoin may not recognize the ownership claims submitted to RavenCoin for example
     - let the market decide which blockchains should be used for this purpose
-### BTC-derived blockchains
+### Bitcoin-derived blockchains
 - ownership claims are submitted in special txns called auth txns (short for authorization transactions)
-- the auth txn must contain one unspendable nulldata txo encoding the CID as a v1 multihash with a "CID1" prefix (80 hex digits encoding 40 bytes)
-- the CID must resolve on IPFS to data transformable to a JSON object, the metadata document or metadoc for short
-- the metadoc must have a top level property named `id` with a value of type `urn:xid:uuid` or xid for short
-- the auth txn must contain one spendable txo with a value of "0.00001234" that establishes ownership of the metadoc
-    - values below 6450(?) sats are prohibited by the bitcoin consensus as "dust"
+- the auth txn must contain one unspendable nulldata txo encoding IPFS CID (v0 or v1 multihash)
+- the metadoc must have a top level property named `xid` with a value of type `urn:uuid` 
+    - if the CID resolves to a file, the file must be a JSON file with a top-level property named `xid`
+    - if the CID resolves to a directory, it must have a top-level file named `xid` that contains the xid
+    - if the CID resolves to a IPLD node, it must have a top-level property named `xid`
+- the auth txn must contain one spendable txo with a (magic) value of "0.00001111" that establishes ownership of the metadoc
+    - sufficiently low valued transactions are prohibited by the bitcoin consensus as "dust" because it costs more in transaction fees to spend them than they are worth
     - since we need a positive value we might as well use it to distinguish auth txos
         - the relatively low value was selected deliberately to minimize value locked up in ownership claims
         - and also to make it unlikely that these txos will randomly be selected to cover fees
