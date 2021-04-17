@@ -1,31 +1,32 @@
-# metatron
+# Metatron
 
-
-## xid indexicals
+## The Extensible Identifier (xid)
 
 The system provides a way to establish ownership of 128-bit random numbers called `xid` (for eXtensible IDentifier)
 
-The value of the `xid` must be a random [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
+The value of the xid must be a random [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
 - any UUID that can be compressed by zlib to less than its original length of 16 bytes will be considered invalid
 - the xid should be a pure indexical, it should be able to point to any digital content without bias, including nothing in the case it is retired or disabled
 - therefore the xid should contain no internal information (though it is always possible to encode encrypted information via the UUID5 standard)
 
-## rules of ownership 
+The xid is associated with digital content by mapping it to a content identifier (CID) on IPFS
+- if the CID resolves to a file, the file must be a JSON file with a top-level property named `xid`
+- if the CID resolves to a directory, it must have a top-level file named `xid` that contains the xid
+- if the CID resolves to a IPLD node, it must have a top-level property named `xid`
 
-### precedence
+## Rules of ownership 
+
+### Precedence
 
 - blockchain agnostic, precedence by block time
 - testnet claims are provisional and may be overridden by any mainnet
 - every metatron node may decide which blockchains to scan
     - this means that a node that scans only bitcoin may not recognize the ownership claims submitted to RavenCoin for example
     - let the market decide which blockchains should be used for this purpose
+
 ### Bitcoin-derived blockchains
 - ownership claims are submitted in special txns called auth txns (short for authorization transactions)
 - the auth txn must contain one unspendable nulldata txo encoding IPFS CID (v0 or v1 multihash)
-- the metadoc must have a top level property named `xid` with a value of type `urn:uuid` 
-    - if the CID resolves to a file, the file must be a JSON file with a top-level property named `xid`
-    - if the CID resolves to a directory, it must have a top-level file named `xid` that contains the xid
-    - if the CID resolves to a IPLD node, it must have a top-level property named `xid`
 - the auth txn must contain one spendable txo with a (magic) value of "0.00001111" that establishes ownership of the metadoc
     - sufficiently low valued transactions are prohibited by the bitcoin consensus as "dust" because it costs more in transaction fees to spend them than they are worth
     - since we need a positive value we might as well use it to distinguish auth txos
@@ -38,6 +39,8 @@ The value of the `xid` must be a random [UUID](https://en.wikipedia.org/wiki/Uni
     - it is the responsibility of the authorization software to ensure that auth txos are used only to update ownership claims, not for fees
 
 ### Operation
+
+The system scans new blocks for auth transactions, validates them, generates block certificates (block-certs) for valid ones, and updates the version database. Instances of the system that implement that same consensus rules and scan the same set of blockchains will necessarily converge on the same version database state analogously to the unspent transaction output (UTXO) set for a particular blockchain.
 
 ![](diagrams/verified-versions-v4.png)
 
@@ -53,5 +56,3 @@ The value of the `xid` must be a random [UUID](https://en.wikipedia.org/wiki/Uni
 10. A new [metadoc](meta-v2.json) is created and added to IPFS.
 11. An auth txn is submitted that references the new metadoc and spends the txo from the last auth txn.
 12. The scanner discovers the new auth txn on the blockchain, verifies all the references are valid, creates a new [block-cert](block-cert-v3.json), adds it to IPFS, and updates the db so that the idx is mapped to the latest version.
-
-
