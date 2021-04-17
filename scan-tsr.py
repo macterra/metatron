@@ -34,7 +34,7 @@ def findCid(tx):
             hexdata = scriptPubKey['hex']
             data = bytes.fromhex(hexdata)
             if data[0] == 0x6a:
-                print("data len", data[1])
+                # print("data len", data[1])
                 try:
                     if data[1] == 34: # len of CIDv0
                         cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
@@ -44,7 +44,8 @@ def findCid(tx):
                         cid0 = cid1.to_v0()
                         return str(cid0)
                 except:
-                    print('cid parser fail')
+                    # print('cid parser fail')
+                    pass
     return None
 
 class Encoder(json.JSONEncoder):
@@ -192,7 +193,7 @@ def updateScan():
     try:
         last = db['scan'][chain]
     except:
-        last = count
+        last = 91796
 
     for height in range(last, count+1):
         scanBlock(height)
@@ -203,6 +204,6 @@ def updateScan():
         json.dump(db, write_file, cls = Encoder, indent=4)
     
 
-scanBlock(91796)
+#scanBlock(91796)
 
-#updateScan()
+updateScan()
