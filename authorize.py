@@ -11,8 +11,8 @@ from xidb import *
 import credentials
 
 magic = '0.00001111'
-connect = credentials.tbtc_connect
-wallet = 'tbtc-wallet.json'    
+connect = credentials.tsr_connect
+wallet = 'tsr-wallet.json'    
 blockchain = AuthServiceProxy(connect, timeout=120)
 
 try:
@@ -94,25 +94,27 @@ def authorize(filename):
     print('addr', addr)
     authtxn = { addr: magic }
 
-    rawtxn = blockchain.createrawtransaction(prev, [authtxn, nulldata])
+    #rawtxn = blockchain.createrawtransaction(prev, [authtxn, nulldata])
+    rawtxn = blockchain.createrawtransaction(prev, { addr: magic, "data": hexdata })
     print('raw', rawtxn)
 
     funtxn = blockchain.fundrawtransaction(rawtxn)
     print('fun', funtxn)
 
-    sigtxn = blockchain.signrawtransactionwithwallet(funtxn['hex'])
+    #sigtxn = blockchain.signrawtransactionwithwallet(funtxn['hex'])
+    sigtxn = blockchain.signrawtransaction(funtxn['hex'])
     print('sig', sigtxn)
 
     dectxn = blockchain.decoderawtransaction(sigtxn['hex'])
     print('dec', dectxn)
 
-    acctxn = blockchain.testmempoolaccept([sigtxn['hex']])[0]
-    print('acc', acctxn)
+    # acctxn = blockchain.testmempoolaccept([sigtxn['hex']])[0]
+    # print('acc', acctxn)
 
-    if acctxn['allowed']:
-        txid = blockchain.sendrawtransaction(sigtxn['hex'])
-        print('txid', txid)
-        writeWallet(xid, cidhash, dectxn)
+    #if acctxn['allowed']:
+    txid = blockchain.sendrawtransaction(sigtxn['hex'])
+    print('txid', txid)
+    writeWallet(xid, cidhash, dectxn)
 
 def main():
     for arg in sys.argv[1:]:
