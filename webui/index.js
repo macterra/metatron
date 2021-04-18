@@ -34,8 +34,8 @@ app.post('/meta', (req, res) => {
     
     resolve.then(certs => {
         console.log('certs', certs)
-        certs = JSON.stringify(certs,null,2);   
-        res.render('meta', {cid, certs})     
+        rawcerts = JSON.stringify(certs,null,2);   
+        res.render('meta', {cid, certs, rawcerts})     
     })    
 })
 

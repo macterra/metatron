@@ -3,11 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPFS Files</title>
+    <title>Metatron</title>
+    
+    <style>
+        table { 
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        td { 
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Metatron</h1>
+    <h1>metadoc versions</h1>
     <p>Link: <a href="https://ipfs.io/ipfs/<%= cid %>"><%= cid %></a></p>
-    <pre><%= certs %></pre>
+    <table>
+        <tr>
+            <th>version</th>
+            <th>time</th>
+            <th>metadoc</th>
+            <th>txid</th>
+        </tr>
+        
+        <% certs.forEach(function(cert) { %>
+            <tr>
+                <td><pre><%= cert.version %></pre></td>
+                <td><pre><%= cert.time %></pre></td>
+                <td><pre><a href="https://ipfs.io/ipfs/<%= cert.cid %>"><%= cert.cid %></pre></td> 
+                <td><pre><a href="https://blockstream.info/testnet/tx/<%= cert.tx.txid %>"><%= cert.tx.txid %></pre></td>                 
+            </tr>
+        <% }) %>
+    </table>
+    <p></p>
+    <details>
+        <summary>Block cert details</summary>
+        <pre><%= rawcerts %></pre>
+    </details>
 </body>
 </html>
