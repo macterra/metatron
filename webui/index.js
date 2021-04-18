@@ -69,23 +69,20 @@ const resolveCid = async (cid) => {
     meta = await getFile(cert.cid)
     meta = JSON.parse(meta)
     console.log('meta', meta)
-}
 
-const resolveCid2 = async (cid) => {
-    cert = getFile(cid)
-    
-    cert.then(data => {
-        //console.log('before:', data)
-        data = JSON.parse(data)
-        //console.log('after:', data)
-        console.log('xid', data.xid)
-    
-        head = getHead(data.xid)
-    
-        head.then(data => {
-            console.log('head:', data)
-        })
-    })
+    certs = [ cert ]
+
+    while (cert.prev) {
+        data = await getFile(cert.prev)
+        cert = JSON.parse(data)
+        certs.push(cert)
+    }
+
+    console.log('certs:', certs)
+
+    for (const cert of certs.reverse()) {
+        console.log(cert.version, cert.time, cert.cid)
+    }
 }
 
 // app.listen(3000,'127.0.0.1', () => {
