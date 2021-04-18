@@ -1,5 +1,7 @@
 const ipfsClient = require('ipfs-http-client')
 const express = require('express')
+const bodyParser = require('body-parser')
+const fileUpload = require('express-fileupload')
 const fs = require('fs')
 const fsp = require('fs').promises
 const CID = require('cids')
@@ -11,23 +13,30 @@ const ipfs = new ipfsClient({host:'localhost', port: '5001', protocol:'http'})
 const app = express()
 
 app.set('view engine','ejs')
+app.use(bodyParser.urlencoded({extended:true}))
+app.use(fileUpload())
+
 
 app.get('/', (req,res) => {
     res.render('home')
     console.log('home hit')
     console.log(uuidv4())
+    
+    cid = 'QmTpkUxYfEXg1ZzFVYGr62P78HAGN9TSV1v6vMGp333vcv'
+    resolveCid(cid)
 })
 
-app.post('/download', (req, res) => {
+app.post('/meta', (req, res) => {
     const cid = req.body.cid
-    const content = getFile(cid)
 
-    content.then(data => {
-        data = JSON.stringify(JSON.parse(data),null,2); 
+    console.log('meta', cid)
+    const resolve = resolveCid(cid)
     
-        console.log('downloaded:', data)          
-        res.render('download', {cid, data})
-    })        
+    resolve.then(certs => {
+        console.log('certs', certs)
+        certs = JSON.stringify(certs,null,2);   
+        res.render('meta', {cid, certs})     
+    })    
 })
 
 const getFile = async (cid) => {
@@ -83,12 +92,10 @@ const resolveCid = async (cid) => {
     for (const cert of certs.reverse()) {
         console.log(cert.version, cert.time, cert.cid)
     }
+
+    return certs
 }
 
-// app.listen(3000,'127.0.0.1', () => {
-//     console.log('Server is running on port 3000')
-// })
-
-cid = 'QmTpkUxYfEXg1ZzFVYGr62P78HAGN9TSV1v6vMGp333vcv'
-
-resolveCid(cid)
+app.listen(3000,'127.0.0.1', () => {
+    console.log('Server is running on port 3000')
+})
