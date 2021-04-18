@@ -20,7 +20,24 @@
 </head>
 <body>
     <h1>metadoc versions</h1>
-    <p>Link: <a href="https://ipfs.io/ipfs/<%= cid %>"><%= cid %></a></p>
+ 
+    <table>
+        <tr>
+            <td>cid</td>
+            <td><a href="https://ipfs.io/ipfs/<%= cid %>"><%= cid %></a></td>
+        </tr>
+        <tr>
+            <td>xid</td>
+            <td><%= orig.xid %></td>
+        </tr>
+        <tr>
+            <td>asset</td>
+            <td><a href="https://ipfs.io/ipfs/<%= orig.asset.cid %>"><%= orig.asset.cid %></a></td>
+        </tr>
+    </table>
+
+    <p></p>
+
     <table>
         <tr>
             <th>version</th>

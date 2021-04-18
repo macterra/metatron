@@ -32,10 +32,11 @@ app.post('/meta', (req, res) => {
     console.log('meta', cid)
     const resolve = resolveCid(cid)
     
-    resolve.then(certs => {
-        console.log('certs', certs)
-        rawcerts = JSON.stringify(certs,null,2);   
-        res.render('meta', {cid, certs, rawcerts})     
+    resolve.then(data => {
+        console.log('certs', data.certs)
+        console.log('orig', data.orig)
+        rawcerts = JSON.stringify(data.certs,null,2);   
+        res.render('meta', {cid, data, rawcerts})     
     })    
 })
 
@@ -63,11 +64,11 @@ const getHead = async (xid) => {
 }
 
 const resolveCid = async (cid) => {
-    data = await getFile(cid)
-    data = JSON.parse(data)
-    console.log('xid', data.xid)
+    orig = await getFile(cid)
+    orig = JSON.parse(orig)
+    console.log('xid', orig.xid)
 
-    head = await getHead(data.xid)
+    head = await getHead(orig.xid)
     console.log('head:', head)
     
     cert = await getFile(head)
@@ -93,7 +94,10 @@ const resolveCid = async (cid) => {
         console.log(cert.version, cert.time, cert.cid)
     }
 
-    return certs
+    return {
+        "orig": orig,
+        "certs": certs
+    }
 }
 
 app.listen(3000,'127.0.0.1', () => {
