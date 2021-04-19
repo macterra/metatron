@@ -76,9 +76,9 @@ const resolveCid = async (cid) => {
     console.log('head cert', cert)
     console.log('head cid', cert.cid)
     
-    meta = await getFile(cert.cid)
-    meta = JSON.parse(meta)
-    console.log('meta', meta)
+    // meta = await getFile(cert.cid)
+    // meta = JSON.parse(meta)
+    // console.log('meta', meta)
 
     certs = [ cert ]
 
