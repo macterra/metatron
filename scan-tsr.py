@@ -21,9 +21,10 @@ class Encoder(json.JSONEncoder):
         if isinstance(obj, Decimal): return float(obj)
 
 class Scanner:
-    def __init__(self, chain, connect):
+    def __init__(self, chain, connect, first):        
         self.chain = chain
         self.blockchain = AuthServiceProxy(connect, timeout=120)
+        self.first = first
 
         with open("db.json", "r") as read_file:
             self.db = json.load(read_file)
@@ -196,12 +197,13 @@ class Scanner:
         try:
             last = self.db['scan'][self.chain]
         except:
-            last = 91796
+            last = self.first-1
 
         for height in range(last+1, count+1):
             self.scanBlock(height)
 
-#scanBlock(91796)
-
-scanner = Scanner('TSR', credentials.tsr_connect)
-scanner.updateScan()
+if __name__ == "__main__":
+    scanner = Scanner('TSR', credentials.tsr_connect, 91796)
+    #scanner = Scanner('tBTC', credentials.tbtc_connect, 1972048)
+    #scanner = Scanner('tBTC', credentials.btc_connect, 679432)
+    scanner.updateScan()
