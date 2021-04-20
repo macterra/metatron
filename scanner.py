@@ -190,7 +190,8 @@ class Scanner:
         with open("db.json", "w") as write_file:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
 
-    def updateScan(self):          
+    def updateScan(self):    
+        print(f"scanning {self.chain}")      
         count = self.blockchain.getblockcount()
         print(count)
 
@@ -204,6 +205,8 @@ class Scanner:
 
 if __name__ == "__main__":
     scanner = Scanner('TSR', credentials.tsr_connect, 91796)
-    #scanner = Scanner('tBTC', credentials.tbtc_connect, 1972048)
-    #scanner = Scanner('tBTC', credentials.btc_connect, 679432)
+    scanner.updateScan()
+    scanner = Scanner('tBTC', credentials.tbtc_connect, 1972048)
+    scanner.updateScan()
+    scanner = Scanner('BTC', credentials.btc_connect, 679432)
     scanner.updateScan()
