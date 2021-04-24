@@ -6,6 +6,7 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
 from decimal import Decimal
+import time
 import cid
 import json
 from xidb import *
@@ -42,7 +43,7 @@ class Scanner:
                         if data[1] == 34: # len of CIDv0
                             cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
                             return str(cid0)
-                        elif data[1] == 36: # len of CIDv1?
+                        elif data[1] == 36: # len of CIDv1
                             cid1 = cid.make_cid(data[2:])
                             cid0 = cid1.to_v0()
                             return str(cid0)
@@ -114,6 +115,7 @@ class Scanner:
         print("OK to add new block-cert")
         self.writeCert(tx, cid, xid, 0, "")
 
+    # don't need oldTx?
     def updateVersion(self, oldTx, oldCid, newTx, newCid):
         print('updateVersion', oldCid, newCid)
         
@@ -131,7 +133,7 @@ class Scanner:
         certcid = self.db[oldXid]
         print('certcid', certcid)
 
-        cert = json.loads(ipfs.cat(certcid))
+        cert = getCert(certcid)
         print('cert', cert)
 
         if oldXid != cert['xid']:
@@ -203,10 +205,15 @@ class Scanner:
         for height in range(last+1, count+1):
             self.scanBlock(height)
 
-if __name__ == "__main__":
+def scanAll():
     scanner = Scanner('TSR', credentials.tsr_connect, 91796)
     scanner.updateScan()
     scanner = Scanner('tBTC', credentials.tbtc_connect, 1972048)
     scanner.updateScan()
     scanner = Scanner('BTC', credentials.btc_connect, 679432)
     scanner.updateScan()
+
+if __name__ == "__main__":
+    while True:
+        scanAll()
+        time.sleep(10)

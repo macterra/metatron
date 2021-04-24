@@ -3,7 +3,8 @@ import uuid
 import json
 import zlib
 
-ipfs = ipfshttpclient.connect()
+def getIpfs():
+    return ipfshttpclient.connect('/dns/ipfs/tcp/5001/http')
 
 def verifyXid(xid):
     try:
@@ -19,6 +20,7 @@ def verifyXid(xid):
 
 def getXid(cid):
     xid = None
+    ipfs = getIpfs()
 
     try:
         meta = json.loads(ipfs.cat(cid))
@@ -27,3 +29,12 @@ def getXid(cid):
         xid = ipfs.cat(cid + '/xid').decode().strip()
         
     return verifyXid(xid)
+
+def getCert(cid):
+    ipfs = getIpfs()
+    return json.loads(ipfs.cat(cid))
+
+def addCert(certfile):
+    ipfs = getIpfs()
+    res = ipfs.add(certFile)
+    return res['Hash']

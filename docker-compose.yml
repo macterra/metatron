@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  scanner:
+    build: .
+    # command: tail -F /dev/null
+    volumes:
+      - .:/code
+    depends_on: 
+      - ipfs
+
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    ports:
+      - 4001:4001
+      - 127.0.0.1:8080:8080
+      - 127.0.0.1:5001:5001
+    volumes:
+      - ipfs_staging:/export
+      - ipfs_data:/data/ipfs
+
+volumes:
+    ipfs_staging:
+    ipfs_data:
+  
