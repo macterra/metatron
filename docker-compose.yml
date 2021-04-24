@@ -5,7 +5,8 @@ services:
     build: .
     # command: tail -F /dev/null
     volumes:
-      - .:/code
+      #- .:/code
+      - ./data:/app/data
     depends_on: 
       - ipfs
 

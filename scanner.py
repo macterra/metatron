@@ -16,6 +16,7 @@ from xidb import *
 import credentials
      
 magic = '0.00001111'
+dbfile = 'data/db.json'
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -27,7 +28,7 @@ class Scanner:
         self.blockchain = AuthServiceProxy(connect, timeout=120)
         self.first = first
 
-        with open("db.json", "r") as read_file:
+        with open(dbfile, "r") as read_file:
             self.db = json.load(read_file)
 
     def findCid(self, tx):
@@ -101,7 +102,7 @@ class Scanner:
         res = ipfs.add(certFile)
         self.db[xid] = res['Hash']
         
-        with open("db.json", "w") as write_file:
+        with open(dbfile, "w") as write_file:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
 
     def addVersion(self, tx, cid):
@@ -189,7 +190,7 @@ class Scanner:
         
         self.db['scan'][self.chain] = height
 
-        with open("db.json", "w") as write_file:
+        with open(dbfile, "w") as write_file:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
 
     def updateScan(self):    
