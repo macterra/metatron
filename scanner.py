@@ -6,6 +6,7 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
 from decimal import Decimal
+import os
 import time
 import cid
 import json
@@ -25,7 +26,7 @@ class Encoder(json.JSONEncoder):
 class Scanner:
     def __init__(self, chain, connect, first):        
         self.chain = chain
-        self.blockchain = AuthServiceProxy(connect, timeout=120)
+        self.blockchain = AuthServiceProxy(connect, timeout=30)
         self.first = first
 
         try:
@@ -197,10 +198,9 @@ class Scanner:
         with open(dbfile, "w") as write_file:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
 
-    def updateScan(self):    
-        print(f"scanning {self.chain}", flush=True)      
+    def updateScan(self):         
         count = self.blockchain.getblockcount()
-        print(count)
+        print(f"{datetime.now()} scanning {self.chain} height={count}", flush=True) 
 
         try:
             last = self.db['scan'][self.chain]
@@ -210,18 +210,31 @@ class Scanner:
         for height in range(last+1, count+1):
             self.scanBlock(height)
 
-def scanAll():
-    scanner = Scanner('TSR', credentials.tsr_connect, 91796)
-    scanner.updateScan()
-    scanner = Scanner('tBTC', credentials.tbtc_connect, 1972048)
-    scanner.updateScan()
-    scanner = Scanner('BTC', credentials.btc_connect, 679432)
-    scanner.updateScan()
+def main():
+    chain = os.environ.get('SCANNER_CHAIN')
+    connect = os.environ.get('SCANNER_CONNECT')
+    start = os.environ.get('SCANNER_START')
+
+    if not chain:
+        print("missing SCANNER_CHAIN")
+        return
+
+    if not connect:
+        print("missing SCANNER_CONNECT")
+        return
+
+    if not start:
+        print("missing SCANNER_START")
+        return
+
+    if not checkIpfs():
+        print("can't connect to IPFS")
+        return
+
+    while True:
+        scanner = Scanner(chain, connect, start)
+        scanner.updateScan()
+        time.sleep(10)
 
 if __name__ == "__main__":
-    if checkIpfs():
-        while True:
-            scanAll()
-            time.sleep(10)
-    else:
-        print("can't connect to IPFS")
+    main()

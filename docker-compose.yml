@@ -1,17 +1,47 @@
 version: "3.7"
 
 services:
-  scanner:
+  scanner_tsr:
     image: macterra/metatron:latest
-    #command: tail -F /dev/null
     volumes:
       - ./data:/app/data
     depends_on: 
       - ipfs
+    environment: 
+      - SCANNER_CHAIN=TSR
+      - SCANNER_START=91796
+      - IPFS_CONNECT=/dns/ipfs/tcp/5001/http
+    env_file:
+      - credentials.tsr.env
+      
+  scanner_tbtc:
+    image: macterra/metatron:latest
+    volumes:
+      - ./data:/app/data
+    depends_on: 
+      - ipfs
+    environment: 
+      - SCANNER_CHAIN=tBTC
+      - SCANNER_START=1972048
+      - IPFS_CONNECT=/dns/ipfs/tcp/5001/http
+    env_file:
+      - credentials.tbtc.env
+      
+  scanner_btc:
+    image: macterra/metatron:latest
+    volumes:
+      - ./data:/app/data
+    depends_on: 
+      - ipfs
+    environment: 
+      - SCANNER_CHAIN=BTC
+      - SCANNER_START=679432
+      - IPFS_CONNECT=/dns/ipfs/tcp/5001/http
+    env_file:
+      - credentials.btc.env
 
   webui:
     image: macterra/metatron-webui:latest
-    #command: tail -F /dev/null
     ports:
       - "3000:3000"
     volumes:

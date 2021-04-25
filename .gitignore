@@ -1,5 +1,5 @@
 __pycache__
-credentials.py
+credentials.*
 block-cert*.json
 node_modules
 package-lock.json

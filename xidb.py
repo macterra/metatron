@@ -3,10 +3,15 @@ import uuid
 import json
 import zlib
 import time
+import os
 
 def getIpfs():
-    return ipfshttpclient.connect('/dns/ipfs/tcp/5001/http')
-    #return ipfshttpclient.connect()
+    connect = os.environ.get('IPFS_CONNECT')
+
+    if connect:
+        return ipfshttpclient.connect(connect)
+    else:
+        return ipfshttpclient.connect()
 
 def checkIpfs():
     for i in range(10):
