@@ -2,10 +2,19 @@ version: "3.7"
 
 services:
   scanner:
-    build: .
-    # command: tail -F /dev/null
+    image: macterra/metatron:latest
+    #command: tail -F /dev/null
     volumes:
-      #- .:/code
+      - ./data:/app/data
+    depends_on: 
+      - ipfs
+
+  webui:
+    image: macterra/metatron-webui:latest
+    #command: tail -F /dev/null
+    ports:
+      - "3000:3000"
+    volumes:
       - ./data:/app/data
     depends_on: 
       - ipfs
@@ -13,14 +22,11 @@ services:
   ipfs:
     image: ipfs/go-ipfs:latest
     ports:
-      - 4001:4001
-      - 127.0.0.1:8080:8080
-      - 127.0.0.1:5001:5001
+      - "4001"
+      - "8080"
+      - "5001"
     volumes:
-      - ipfs_staging:/export
-      - ipfs_data:/data/ipfs
+      - ./data/export:/export
+      - ./data/ipfs:/data/ipfs
 
-volumes:
-    ipfs_staging:
-    ipfs_data:
   

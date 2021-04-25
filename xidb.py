@@ -2,9 +2,22 @@ import ipfshttpclient
 import uuid
 import json
 import zlib
+import time
 
 def getIpfs():
     return ipfshttpclient.connect('/dns/ipfs/tcp/5001/http')
+    #return ipfshttpclient.connect()
+
+def checkIpfs():
+    for i in range(10):
+        try:
+            ipfs = getIpfs()
+            print(ipfs.id())
+            return True
+        except:
+            print(i, "attempting to connect to IPFS...")
+            time.sleep(1)
+    return False
 
 def verifyXid(xid):
     try:
@@ -34,7 +47,7 @@ def getCert(cid):
     ipfs = getIpfs()
     return json.loads(ipfs.cat(cid))
 
-def addCert(certfile):
+def addCert(cert):
     ipfs = getIpfs()
-    res = ipfs.add(certFile)
+    res = ipfs.add(cert)
     return res['Hash']

@@ -9,13 +9,11 @@ const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const { v4: uuidv4 } = require('uuid')
 
-const ipfs = new ipfsClient({host:'localhost', port: '5001', protocol:'http'})
 const app = express()
 
 app.set('view engine','ejs')
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(fileUpload())
-
 
 app.get('/', (req,res) => {
     res.render('home')
@@ -42,7 +40,8 @@ app.post('/meta', (req, res) => {
 
 const getFile = async (cid) => {
     
-    const chunks = []
+    const chunks = []    
+    const ipfs = new ipfsClient({host:'ipfs', port: '5001', protocol:'http'})
     
     for await (const chunk of ipfs.cat(cid)) {
         chunks.push(chunk)
@@ -55,7 +54,7 @@ const getFile = async (cid) => {
 }
 
 const getHead = async (xid) => {
-    db = await fsp.readFile('db.json', 'utf8')
+    db = await fsp.readFile('data/db.json', 'utf8')
     db = JSON.parse(db)
 
     console.log(db)
@@ -100,6 +99,6 @@ const resolveCid = async (cid) => {
     }
 }
 
-app.listen(3000,'127.0.0.1', () => {
+app.listen(3000,'0.0.0.0', () => {
     console.log('Server is running on port 3000')
 })

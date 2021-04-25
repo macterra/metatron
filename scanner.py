@@ -28,8 +28,13 @@ class Scanner:
         self.blockchain = AuthServiceProxy(connect, timeout=120)
         self.first = first
 
-        with open(dbfile, "r") as read_file:
-            self.db = json.load(read_file)
+        try:
+            with open(dbfile, "r") as read_file:
+                self.db = json.load(read_file)
+        except:
+            self.db = {
+                "scan": {}
+            }
 
     def findCid(self, tx):
         for vout in tx['vout']:
@@ -99,8 +104,7 @@ class Scanner:
         with open(certFile, "w") as write_file:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
-        res = ipfs.add(certFile)
-        self.db[xid] = res['Hash']
+        self.db[xid] = addCert(certFile)
         
         with open(dbfile, "w") as write_file:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
@@ -194,7 +198,7 @@ class Scanner:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
 
     def updateScan(self):    
-        print(f"scanning {self.chain}")      
+        print(f"scanning {self.chain}", flush=True)      
         count = self.blockchain.getblockcount()
         print(count)
 
@@ -215,6 +219,9 @@ def scanAll():
     scanner.updateScan()
 
 if __name__ == "__main__":
-    while True:
-        scanAll()
-        time.sleep(10)
+    if checkIpfs():
+        while True:
+            scanAll()
+            time.sleep(10)
+    else:
+        print("can't connect to IPFS")
