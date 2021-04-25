@@ -10,6 +10,7 @@ import os
 import time
 import cid
 import json
+import traceback
 from xidb import *
 
 # credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
@@ -34,8 +35,15 @@ class Scanner:
                 self.db = json.load(read_file)
         except:
             self.db = {
-                "scan": {}
+                "scan": {
+                    self.chain: self.first
+                }
             }
+            self.writeDb()
+
+    def writeDb(self):
+        with open(dbfile, "w") as write_file:
+            json.dump(self.db, write_file, cls = Encoder, indent=4)
 
     def findCid(self, tx):
         for vout in tx['vout']:
@@ -106,9 +114,7 @@ class Scanner:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
         self.db[xid] = addCert(certFile)
-        
-        with open(dbfile, "w") as write_file:
-            json.dump(self.db, write_file, cls = Encoder, indent=4)
+        self.writeDb()
 
     def addVersion(self, tx, cid):
         print('addVersion', cid)
@@ -130,11 +136,11 @@ class Scanner:
 
         if oldXid != newXid:
             print("error, ids do not match", oldXid, newXid)
-            return addVersion(newTx, newCid)
+            return self.addVersion(newTx, newCid)
         
         if not oldXid in self.db:
             print("warning, can't find id in db", oldXid)
-            return addVersion(newTx, newCid)
+            return self.addVersion(newTx, newCid)
         
         certcid = self.db[oldXid]
         print('certcid', certcid)
@@ -191,12 +197,11 @@ class Scanner:
                 print(f"found cid {cid}")
                 self.verifyTx(tx, cid)
         print()
-        print(f"scanned {len(txns)} transactions")
+        print(f"scanned {len(txns)} transactions", flush=True)
         
         self.db['scan'][self.chain] = height
 
-        with open(dbfile, "w") as write_file:
-            json.dump(self.db, write_file, cls = Encoder, indent=4)
+        self.writeDb()
 
     def updateScan(self):         
         count = self.blockchain.getblockcount()
@@ -232,8 +237,12 @@ def main():
         return
 
     while True:
-        scanner = Scanner(chain, connect, start)
-        scanner.updateScan()
+        try:
+            scanner = Scanner(chain, connect, int(start))
+            scanner.updateScan()
+        except Exception as e:
+            print("error", e)
+            print(traceback.format_exc())
         time.sleep(10)
 
 if __name__ == "__main__":
