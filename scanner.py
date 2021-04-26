@@ -13,10 +13,6 @@ import json
 import traceback
 from xidb import *
 
-# credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
-# rpc_user and rpc_password are set in the bitcoin.conf file
-import credentials
-     
 magic = '0.00001111'
 dbfile = 'data/db.json'
 
