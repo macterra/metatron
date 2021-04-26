@@ -1,17 +1,15 @@
 import sys
+import os
 import binascii
 import json
+
 from decimal import Decimal
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from cid import make_cid
 from xidb import *
 
-# credentials should export a connect string like "http://rpc_user:rpc_password@server:port"
-# rpc_user and rpc_password are set in the bitcoin.conf file
-import credentials
-
 magic = '0.00001111'
-connect = credentials.tsr_connect
+connect = os.environ.get('CHAIN_CONNECT')
 wallet = 'tsr-wallet.json'    
 blockchain = AuthServiceProxy(connect, timeout=120)
 

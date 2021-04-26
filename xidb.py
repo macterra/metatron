@@ -44,7 +44,9 @@ def getXid(cid):
         meta = json.loads(ipfs.cat(cid))
         xid = meta['xid']
     except:
-        xid = ipfs.cat(cid + '/xid').decode().strip()
+        meta = json.loads(ipfs.cat(cid + '/meta.json'))
+        xid = meta['xid']
+        #xid = ipfs.cat(cid + '/xid').decode().strip()
         
     return verifyXid(xid)
 
