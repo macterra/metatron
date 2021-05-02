@@ -115,7 +115,11 @@ class Scanner:
     def addVersion(self, tx, cid):
         print('addVersion', cid)
 
-        xid = getXid(cid)    
+        xid = getXid(cid)
+
+        if not xid:
+            return
+
         if xid in self.db:
             print("error, xid already claimed")
             return
@@ -128,7 +132,14 @@ class Scanner:
         print('updateVersion', oldCid, newCid)
         
         oldXid = getXid(oldCid)
+
+        if not oldXid:
+            return
+
         newXid = getXid(newCid)
+
+        if not newXid:
+            return
 
         if oldXid != newXid:
             print("error, ids do not match", oldXid, newXid)
