@@ -25,19 +25,27 @@ class Scanner:
         self.chain = chain
         self.blockchain = AuthServiceProxy(connect, timeout=30)
         self.first = first
+        self.height = 0
+        self.time = ''
 
         try:
             with open(dbfile, "r") as read_file:
                 self.db = json.load(read_file)
         except:
-            self.db = {
-                "scan": {
-                    self.chain: self.first
-                }
-            }
-            self.writeDb()
+            self.db = { "scan": { } }
+
+        try:
+            self.last = self.db['scan'][self.chain]['last']
+        except:
+            self.last = self.first-1
 
     def writeDb(self):
+        self.db['scan'][self.chain] = {
+            "first": self.first,
+            "last": self.last,
+            "height": self.height,
+            "time": self.time
+        }
         with open(dbfile, "w") as write_file:
             json.dump(self.db, write_file, cls = Encoder, indent=4)
 
@@ -206,26 +214,24 @@ class Scanner:
         print()
         print(f"scanned {len(txns)} transactions", flush=True)
         
-        self.db['scan'][self.chain] = height
+        self.last = height
+        self.time = f"{utc}"
 
         self.writeDb()
 
     def updateScan(self):         
-        count = self.blockchain.getblockcount()
-        print(f"{datetime.now()} scanning {self.chain} height={count}", flush=True) 
+        self.height = self.blockchain.getblockcount()
+        print(f"{datetime.now()} scanning {self.chain} height={self.height}", flush=True) 
 
-        try:
-            last = self.db['scan'][self.chain]
-        except:
-            last = self.first-1
-
-        for height in range(last+1, count+1):
+        for height in range(self.last+1, self.height+1):
             self.scanBlock(height)
+
+        return self.height
 
 def main():
     chain = os.environ.get('SCANNER_CHAIN')
     connect = os.environ.get('SCANNER_CONNECT')
-    start = os.environ.get('SCANNER_START')
+    start = int(os.environ.get('SCANNER_START'))
 
     if not chain:
         print("missing SCANNER_CHAIN")
@@ -245,7 +251,7 @@ def main():
 
     while True:
         try:
-            scanner = Scanner(chain, connect, int(start))
+            scanner = Scanner(chain, connect, start)
             scanner.updateScan()
         except Exception as e:
             print("error", e)
