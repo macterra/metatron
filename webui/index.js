@@ -16,12 +16,18 @@ app.use(bodyParser.urlencoded({extended:true}))
 app.use(fileUpload())
 
 app.get('/', (req,res) => {
-    res.render('home')
-    console.log('home hit')
-    console.log(uuidv4())
+
+    getDb().then(db => {
+        console.log(db)
+        db = JSON.stringify(db, null, 2)
+        res.render('home', {db})
+    })
+
+    // console.log('home hit')
+    // console.log(uuidv4())
     
-    cid = 'QmTpkUxYfEXg1ZzFVYGr62P78HAGN9TSV1v6vMGp333vcv'
-    resolveCid(cid)
+    // cid = 'QmTpkUxYfEXg1ZzFVYGr62P78HAGN9TSV1v6vMGp333vcv'
+    // resolveCid(cid)
 })
 
 app.post('/meta', (req, res) => {
@@ -33,7 +39,7 @@ app.post('/meta', (req, res) => {
     resolve.then(data => {
         console.log('certs', data.certs)
         console.log('orig', data.orig)
-        rawcerts = JSON.stringify(data.certs,null,2);   
+        rawcerts = JSON.stringify(data.certs, null, 2)
         res.render('meta', {cid, data, rawcerts})     
     })    
 })
@@ -41,7 +47,9 @@ app.post('/meta', (req, res) => {
 const getFile = async (cid) => {
     
     const chunks = []    
-    const ipfs = new ipfsClient({host:'ipfs', port: '5001', protocol:'http'})
+    const ipfs = new ipfsClient({host:'localhost', port: '5001', protocol:'http'})
+
+    cid = cid.trim()
     
     for await (const chunk of ipfs.cat(cid)) {
         chunks.push(chunk)
@@ -51,6 +59,11 @@ const getFile = async (cid) => {
     content = uint8ArrayToString(data)
 
     return content
+}
+
+const getDb = async () => {
+    db = await fsp.readFile('data/db.json', 'utf8')
+    return JSON.parse(db)
 }
 
 const getHead = async (xid) => {

@@ -1,16 +1,20 @@
 
 # pip install bitcoinrpc
 # pip install py-cid
+# pip install redis
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
 from decimal import Decimal
+
 import os
 import time
 import cid
 import json
 import traceback
+import redis
+
 from xidb import *
 
 magic = '0.00001111'
@@ -28,26 +32,19 @@ class Scanner:
         self.height = 0
         self.time = ''
 
-        try:
-            with open(dbfile, "r") as read_file:
-                self.db = json.load(read_file)
-        except:
-            self.db = { "scan": { } }
+        self.db = redis.Redis(host='localhost', port=6379, db=0)
+        self.last = self.db.get(f"scanner/{self.chain}/last")
 
-        try:
-            self.last = self.db['scan'][self.chain]['last']
-        except:
+        if self.last:
+            self.last = int(self.last)
+        else:
+            self.db.set(f"scanner/{self.chain}/first", self.first)
             self.last = self.first-1
 
     def writeDb(self):
-        self.db['scan'][self.chain] = {
-            "first": self.first,
-            "last": self.last,
-            "height": self.height,
-            "time": self.time
-        }
-        with open(dbfile, "w") as write_file:
-            json.dump(self.db, write_file, cls = Encoder, indent=4)
+        self.db.set(f"scanner/{self.chain}/last", self.last)
+        self.db.set(f"scanner/{self.chain}/height", self.height)
+        self.db.set(f"scanner/{self.chain}/time", self.time)
 
     def findCid(self, tx):
         for vout in tx['vout']:
@@ -117,7 +114,7 @@ class Scanner:
         with open(certFile, "w") as write_file:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
-        self.db[xid] = addCert(certFile)
+        self.db.set(f"xid/{xid}", addCert(certFile))
         self.writeDb()
 
     def addVersion(self, tx, cid):
