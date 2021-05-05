@@ -28,9 +28,6 @@ class Scanner:
     def __init__(self, chain, connect, first):        
         self.chain = chain
         self.blockchain = AuthServiceProxy(connect, timeout=30)
-        self.first = first
-        self.height = 0
-        self.time = ''
 
         self.db = redis.Redis(host='localhost', port=6379, db=0)
         self.last = self.db.get(f"scanner/{self.chain}/last")
@@ -38,13 +35,8 @@ class Scanner:
         if self.last:
             self.last = int(self.last)
         else:
-            self.db.set(f"scanner/{self.chain}/first", self.first)
-            self.last = self.first-1
-
-    def writeDb(self):
-        self.db.set(f"scanner/{self.chain}/last", self.last)
-        self.db.set(f"scanner/{self.chain}/height", self.height)
-        self.db.set(f"scanner/{self.chain}/time", self.time)
+            self.db.set(f"scanner/{self.chain}/first", first)
+            self.last = first-1
 
     def findCid(self, tx):
         for vout in tx['vout']:
@@ -67,7 +59,6 @@ class Scanner:
                         # print('cid parser fail')
                         pass
         return None
-
 
     def writeCert(self, tx, cid, xid, version, prevCert):
         block = self.blockchain.getblock(tx['blockhash'])
@@ -115,7 +106,6 @@ class Scanner:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
         self.db.set(f"xid/{xid}", addCert(certFile))
-        self.writeDb()
 
     def addVersion(self, tx, cid):
         print('addVersion', cid)
@@ -189,7 +179,7 @@ class Scanner:
                     return self.updateVersion(oldTx, oldCid, newTx, newCid)
         return self.addVersion(newTx, newCid)
 
-    def scanBlock(self, height):
+    def scanBlock(self, height, max):
         block_hash = self.blockchain.getblockhash(height)
         block = self.blockchain.getblock(block_hash)
         
@@ -197,7 +187,7 @@ class Scanner:
         utc = datetime.utcfromtimestamp(block_time).replace(tzinfo=tz.tzutc())
         timestamp = utc.astimezone(tz.tzlocal()).strftime('%Y-%m-%d %H:%M:%S')
 
-        print(height, block_hash, block_time, utc, timestamp)
+        print(f"{height}/{max}", block_hash, block_time, utc, timestamp)
 
         txns = block['tx']
         for txid in txns:
@@ -211,19 +201,17 @@ class Scanner:
         print()
         print(f"scanned {len(txns)} transactions", flush=True)
         
-        self.last = height
-        self.time = f"{utc}"
+        self.db.set(f"scanner/{self.chain}/last", height)
+        self.db.set(f"scanner/{self.chain}/time", f"{utc}")
 
-        self.writeDb()
+    def updateScan(self):
+        height = self.blockchain.getblockcount()        
+        self.db.set(f"scanner/{self.chain}/height", height)
 
-    def updateScan(self):         
-        self.height = self.blockchain.getblockcount()
-        print(f"{datetime.now()} scanning {self.chain} height={self.height}", flush=True) 
+        print(f"{datetime.now()} scanning {self.chain} height={height}", flush=True) 
 
-        for height in range(self.last+1, self.height+1):
-            self.scanBlock(height)
-
-        return self.height
+        for block in range(self.last+1, height+1):
+            self.scanBlock(block, height)
 
 def main():
     chain = os.environ.get('SCANNER_CHAIN')
