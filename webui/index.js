@@ -8,6 +8,19 @@ const CID = require('cids')
 const uint8ArrayConcat = require('uint8arrays/concat')
 const uint8ArrayToString = require('uint8arrays/to-string')
 const { v4: uuidv4 } = require('uuid')
+const redis = require('redis')
+const { promisifyAll } = require('bluebird');
+
+promisifyAll(redis);
+
+const client = redis.createClient({
+    host: 'localhost',
+    port: 6379
+})
+
+client.on('error', err => {
+    console.log('Error ' + err);
+})
 
 const app = express()
 
@@ -16,12 +29,8 @@ app.use(bodyParser.urlencoded({extended:true}))
 app.use(fileUpload())
 
 app.get('/', (req,res) => {
-
-    getDb().then(db => {
-        console.log(db)
-        db = JSON.stringify(db, null, 2)
-        res.render('home', {db})
-    })
+    db = "TBD"
+    res.render('home', {db})
 
     // console.log('home hit')
     // console.log(uuidv4())
@@ -29,6 +38,28 @@ app.get('/', (req,res) => {
     // cid = 'QmTpkUxYfEXg1ZzFVYGr62P78HAGN9TSV1v6vMGp333vcv'
     // resolveCid(cid)
 })
+
+app.get('/status', (req,res) => {
+    getStatus().then(status => {
+        status = JSON.stringify(status, null, 2)
+        res.render('status', {status})
+    })
+})
+
+const getStatus = async () => {
+    keys = await client.keysAsync("scanner/*")
+    console.log(keys)
+
+    status = {}
+        
+    for (const key of keys.sort()) {
+        val = await client.getAsync(key)
+        status[key] = val
+        console.log(key, val)
+    }
+
+    return status
+}
 
 app.post('/meta', (req, res) => {
     const cid = req.body.cid
