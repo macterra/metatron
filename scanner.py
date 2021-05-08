@@ -18,18 +18,16 @@ import redis
 from xidb import *
 
 magic = '0.00001111'
-dbfile = 'data/db.json'
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
 class Scanner:
-    def __init__(self, chain, connect, first):        
+    def __init__(self, chain, blockchain, db, first):        
         self.chain = chain
-        self.blockchain = AuthServiceProxy(connect, timeout=30)
-
-        self.db = redis.Redis(host='redis', port=6379, db=0)
+        self.blockchain = blockchain
+        self.db = db
         self.last = self.db.get(f"scanner/{self.chain}/last")
 
         if self.last:
@@ -234,9 +232,12 @@ def main():
         print("can't connect to IPFS")
         return
 
+    blockchain = AuthServiceProxy(connect, timeout=30)
+    db = redis.Redis(host='localhost', port=6379, db=0)
+
     while True:
         try:
-            scanner = Scanner(chain, connect, start)
+            scanner = Scanner(chain, blockchain, db, start)
             scanner.updateScan()
         except Exception as e:
             print("error", e)
