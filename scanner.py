@@ -29,7 +29,7 @@ class Scanner:
         self.chain = chain
         self.blockchain = AuthServiceProxy(connect, timeout=30)
 
-        self.db = redis.Redis(host='localhost', port=6379, db=0)
+        self.db = redis.Redis(host='redis', port=6379, db=0)
         self.last = self.db.get(f"scanner/{self.chain}/last")
 
         if self.last:
