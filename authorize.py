@@ -9,7 +9,7 @@ from cid import make_cid
 from xidb import *
 
 magic = '0.00001111'
-connect = os.environ.get('CHAIN_CONNECT')
+connect = os.environ.get('SCANNER_CONNECT')
 wallet = 'tsr-wallet.json'    
 blockchain = AuthServiceProxy(connect, timeout=120)
 
@@ -106,18 +106,51 @@ def authorize(filename):
     dectxn = blockchain.decoderawtransaction(sigtxn['hex'])
     print('dec', dectxn)
 
+    vin = dectxn['vin'][1]
+    print('vin', vin)
+
+    txin = blockchain.getrawtransaction(vin['txid'], 1)
+    print('txin', txin)
+
     # acctxn = blockchain.testmempoolaccept([sigtxn['hex']])[0]
     # print('acc', acctxn)
 
     #if acctxn['allowed']:
-    txid = blockchain.sendrawtransaction(sigtxn['hex'])
-    print('txid', txid)
-    writeWallet(xid, cidhash, dectxn)
+    # txid = blockchain.sendrawtransaction(sigtxn['hex'])
+    # print('txid', txid)
+    # writeWallet(xid, cidhash, dectxn)
+
+class Authorizer:
+    def __init__(self, blockchain):
+        self.blockchain = blockchain
+
+    def updateWallet(self):
+        unspent = self.blockchain.listunspent()
+        print(unspent)
+        for tx in unspent:
+            print(f"{tx['txid']} {tx['amount']}")
+
+    def authorize(self, cid):
+        print(f"authorizing {cid}")
+        
+        xid = getXid(cid)
+
+        if not xid:
+            print(f"{cid} includes no valid xid")
+            return
+
+        print(f"found xid {xid}")
+
+        self.updateWallet()    
 
 def main():
+    connect = os.environ.get('SCANNER_CONNECT')
+    blockchain = AuthServiceProxy(connect, timeout=120)
+
+    authorizer = Authorizer(blockchain)
+
     for arg in sys.argv[1:]:
-        authorize(arg)
+        authorizer.authorize(arg)
 
 if __name__ == "__main__":
-    # execute only if run as a script
     main()
