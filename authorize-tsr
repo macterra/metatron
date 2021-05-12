@@ -1,5 +1,5 @@
 #!/bin/bash
 
-. .credentials.tsr.env
+. ../credentials.tsr.env
 
-python3 authorize.py QmdTeEaRUdBsuVwNP8fstzPdFvzpvm42FiR7g8535UvEG6
+python3 authorize.py QmPkUgeuRmuqwZRWmDHhMzAaiL1KKsaM1LF951BKG8enfk

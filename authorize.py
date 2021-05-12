@@ -10,116 +10,10 @@ from xidb import *
 
 magic = Decimal('0.00001111')
 txfee = Decimal('0.00002222')
-connect = os.environ.get('SCANNER_CONNECT')
-wallet = 'tsr-wallet.json'    
-blockchain = AuthServiceProxy(connect, timeout=120)
-
-try:
-    with open(wallet, "r") as read_file:
-        db = json.load(read_file)
-except:
-    db = {}
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
-
-def writeWallet(xid, cid, tx):
-
-    n = -1
-    for vout in tx['vout']:
-        val = vout['value']
-        if val.compare(Decimal(magic)) == 0:
-            n = vout['n']
-            break
-
-    if n < 0:
-        print("error, can't find auth txn")
-        return
-
-    db[xid] = {
-        "cid": cid,
-        "auth": { "txid": tx['txid'], "vout": n },
-        "tx": tx
-    }
-    
-    with open(wallet, "w") as write_file:
-        json.dump(db, write_file, cls = Encoder, indent=4)
-
-
-def authorize(filename):
-    if filename[:2] == "Qm":
-        cidhash = filename
-    else:
-        res = ipfs.add(filename)
-        cidhash = res['Hash']
-
-    xid = getXid(cidhash)
-
-    if not xid:
-        print(f"{cidhash} includes no valid xid")
-        return
-
-    if xid in db:
-        print('found xid', xid)
-
-        last = db[xid]
-        print('last', last)
-
-        if cidhash == last['cid']:
-            print("error, already submitted")
-            return
-
-        ownertx = last['auth']
-        print('ownertx', ownertx)
-
-        prev = [ ownertx ]
-    else:
-        print('first version of', xid)
-        prev = []
-    
-    cid = make_cid(cidhash)
-
-    # CIDv0
-    #hexdata = cid.multihash.hex()
-
-    # CIDv1
-    hexdata = binascii.hexlify(cid.to_v1().buffer).decode()
-
-    print('cid', hexdata)
-    nulldata = { "data": hexdata }
-
-    addr = blockchain.getnewaddress("auth", "bech32")
-    print('addr', addr)
-    authtxn = { addr: magic }
-
-    #rawtxn = blockchain.createrawtransaction(prev, [authtxn, nulldata])
-    rawtxn = blockchain.createrawtransaction(prev, { addr: magic, "data": hexdata })
-    print('raw', rawtxn)
-
-    funtxn = blockchain.fundrawtransaction(rawtxn)
-    print('fun', funtxn)
-
-    #sigtxn = blockchain.signrawtransactionwithwallet(funtxn['hex'])
-    sigtxn = blockchain.signrawtransaction(funtxn['hex'])
-    print('sig', sigtxn)
-
-    dectxn = blockchain.decoderawtransaction(sigtxn['hex'])
-    print('dec', dectxn)
-
-    vin = dectxn['vin'][1]
-    print('vin', vin)
-
-    txin = blockchain.getrawtransaction(vin['txid'], 1)
-    print('txin', txin)
-
-    # acctxn = blockchain.testmempoolaccept([sigtxn['hex']])[0]
-    # print('acc', acctxn)
-
-    #if acctxn['allowed']:
-    # txid = blockchain.sendrawtransaction(sigtxn['hex'])
-    # print('txid', txid)
-    # writeWallet(xid, cidhash, dectxn)
 
 class Authorizer:
     def __init__(self, blockchain):
@@ -149,7 +43,7 @@ class Authorizer:
 
     def updateWallet(self):
         unspent = self.blockchain.listunspent()
-        print(unspent)
+        #print(unspent)
         auths = []
         funds = []
         for tx in unspent:
@@ -165,10 +59,10 @@ class Authorizer:
             cid = self.findCid(txin)
             xid = getXid(cid)
             #print(json.dumps(txin, indent=2, cls=Encoder), cid)
-            print(cid, xid)
+            print('>>', cid, xid)
             xids[xid] = tx
 
-        print(xids)
+        #print(xids)
 
         for tx in funds:
             print(f"{tx['txid']} {tx['amount']}")
@@ -201,40 +95,47 @@ class Authorizer:
         else:
             print(f"claiming xid {xid}")
 
+        amount = Decimal('0')
+        for funtxn in self.funds:
+            funinp = {
+                "txid": funtxn['txid'],
+                "vout": funtxn['vout']
+            }
+            inputs.append(funtxn)
+            amount += funtxn['amount']
+            if amount > (magic + txfee):
+                break
 
-        funtxn = self.funds[0]
-        funinp = {
-            "txid": funtxn['txid'],
-            "vout": funtxn['vout']
-        }
-        inputs.append(funtxn)
+        if amount < (magic + txfee):
+            print('not enough funds in account', amount)
+            return
 
         # CIDv1
         realcid = make_cid(cid)
         hexdata = binascii.hexlify(realcid.to_v1().buffer).decode()
 
-        print('cid', hexdata)
+        #print('cid', hexdata)
         nulldata = { "data": hexdata }
 
-        authAddr = blockchain.getnewaddress("auth", "bech32")
-        changeAddr = blockchain.getnewaddress("auth", "bech32")
+        authAddr = self.blockchain.getnewaddress("auth", "bech32")
+        changeAddr = self.blockchain.getnewaddress("auth", "bech32")
         change = funtxn['amount'] - magic - txfee
 
         outputs = { authAddr: str(magic), "data": hexdata, changeAddr: change }
 
-        print('inputs', inputs)
-        print('outputs', outputs)
+        #print('inputs', inputs)
+        #print('outputs', outputs)
 
-        rawtxn = blockchain.createrawtransaction(inputs, outputs)
-        print('raw', rawtxn)
+        rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
+        #print('raw', rawtxn)
 
-        sigtxn = blockchain.signrawtransaction(rawtxn)
-        print('sig', sigtxn)
+        sigtxn = self.blockchain.signrawtransaction(rawtxn)
+        #print('sig', sigtxn)
         
-        dectxn = blockchain.decoderawtransaction(sigtxn['hex'])
+        dectxn = self.blockchain.decoderawtransaction(sigtxn['hex'])
         print('dec', json.dumps(dectxn, indent=2, cls=Encoder))
         
-        txid = blockchain.sendrawtransaction(sigtxn['hex'])
+        txid = self.blockchain.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
 
 def main():
