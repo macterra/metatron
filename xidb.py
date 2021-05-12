@@ -48,7 +48,12 @@ def getXid(cid):
             meta = json.loads(ipfs.cat(cid + '/meta.json'))
             xid = meta['xid']
         except:
-            print(f"error: unable to retrieve xid for {cid}")
+            try:
+                # deprecated
+                xid = ipfs.cat(cid + '/xid')
+                xid = xid.decode().strip()
+            except:
+                print(f"error: unable to retrieve xid for {cid}")
         
     return verifyXid(xid)
 
