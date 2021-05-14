@@ -4,6 +4,8 @@ import json
 import zlib
 import time
 import os
+import cid
+import binascii
 
 def getIpfs():
     connect = os.environ.get('IPFS_CONNECT')
@@ -65,3 +67,29 @@ def addCert(cert):
     ipfs = getIpfs()
     res = ipfs.add(cert)
     return res['Hash']
+
+def findCid(tx):
+    for vout in tx['vout']:
+        scriptPubKey = vout['scriptPubKey']
+        script_type = scriptPubKey['type']
+        if script_type == 'nulldata':
+            hexdata = scriptPubKey['hex']
+            data = bytes.fromhex(hexdata)
+            if data[0] == 0x6a:
+                #print("data len", data[1])
+                try:
+                    if data[1] == 34: # len of CIDv0
+                        cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
+                        return str(cid0)
+                    elif data[1] == 36: # len of CIDv1
+                        cid1 = cid.make_cid(data[2:])
+                        cid0 = cid1.to_v0()
+                        return str(cid0)
+                except:
+                    #print('cid parser fail')
+                    pass
+    return None
+
+def encodeCid(hash):
+    cid1 = cid.make_cid(hash)
+    return binascii.hexlify(cid1.to_v1().buffer).decode()

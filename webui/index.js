@@ -14,7 +14,7 @@ const { promisifyAll } = require('bluebird');
 promisifyAll(redis);
 
 const client = redis.createClient({
-    host: 'localhost',
+    host: process.env.DB_HOST,
     port: 6379
 })
 
@@ -47,11 +47,20 @@ app.get('/status', (req,res) => {
 })
 
 const getStatus = async () => {
+    status = {}
+
     keys = await client.keysAsync("scanner/*")
     console.log(keys)
-
-    status = {}
         
+    for (const key of keys.sort()) {
+        val = await client.getAsync(key)
+        status[key] = val
+        console.log(key, val)
+    }
+    
+    keys = await client.keysAsync("xid/*")
+    console.log(keys)
+
     for (const key of keys.sort()) {
         val = await client.getAsync(key)
         status[key] = val
@@ -78,7 +87,7 @@ app.post('/meta', (req, res) => {
 const getFile = async (cid) => {
     
     const chunks = []    
-    const ipfs = new ipfsClient({host:'localhost', port: '5001', protocol:'http'})
+    const ipfs = new ipfsClient({host: process.env.IPFS_HOST, port: '5001', protocol:'http'})
 
     cid = cid.trim()
     

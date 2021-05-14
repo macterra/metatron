@@ -7,3 +7,9 @@ keys.sort()
 
 for key in keys:
     print(f"{key.decode():20} {r.get(key).decode()}")
+
+keys = r.keys("xid/*")
+keys.sort()
+
+for key in keys:
+    print(f"{key.decode():20} {r.get(key).decode()}")

@@ -1,11 +1,9 @@
 import sys
 import os
-import binascii
 import json
 
 from decimal import Decimal
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from cid import make_cid
 from xidb import *
 
 magic = Decimal('0.00001111')
@@ -18,28 +16,6 @@ class Encoder(json.JSONEncoder):
 class Authorizer:
     def __init__(self, blockchain):
         self.blockchain = blockchain
-
-    def findCid(self, tx):
-        for vout in tx['vout']:
-            scriptPubKey = vout['scriptPubKey']
-            script_type = scriptPubKey['type']
-            if script_type == 'nulldata':
-                hexdata = scriptPubKey['hex']
-                data = bytes.fromhex(hexdata)
-                if data[0] == 0x6a:
-                    #print("data len", data[1])
-                    try:
-                        if data[1] == 34: # len of CIDv0
-                            cid0 = make_cid(0, cid.CIDv0.CODEC, data[2:])
-                            return str(cid0)
-                        elif data[1] == 36: # len of CIDv1
-                            cid1 = make_cid(data[2:])
-                            cid0 = cid1.to_v0()
-                            return str(cid0)
-                    except:
-                        #print('cid parser fail')
-                        pass
-        return None
 
     def updateWallet(self):
         unspent = self.blockchain.listunspent()
@@ -56,11 +32,14 @@ class Authorizer:
         for tx in auths:
             print(f"{tx['txid']} {tx['amount']}")
             txin = self.blockchain.getrawtransaction(tx['txid'], 1)
-            cid = self.findCid(txin)
+            cid = findCid(txin)
             xid = getXid(cid)
             #print(json.dumps(txin, indent=2, cls=Encoder), cid)
             print('>>', cid, xid)
-            xids[xid] = tx
+            xids[xid] = {
+                "utxo": tx,
+                "cid": cid
+            }
 
         #print(xids)
 
@@ -87,9 +66,14 @@ class Authorizer:
 
         if xid in self.xids:  
             print(f"found xid {xid} in wallet")
+            if cid == self.xids[xid]['cid']:
+                print(f"xid is already up to date with {cid}")
+                return                
+            utxo = self.xids[xid]['utxo']
+            print(utxo)
             input = {
-                "txid": self.xids[xid]['txid'],
-                "vout": self.xids[xid]['vout']
+                "txid": utxo['txid'],
+                "vout": utxo['vout']
             }
             inputs.append(input)
         else:
@@ -110,10 +94,7 @@ class Authorizer:
             print('not enough funds in account', amount)
             return
 
-        # CIDv1
-        realcid = make_cid(cid)
-        hexdata = binascii.hexlify(realcid.to_v1().buffer).decode()
-
+        hexdata = encodeCid(cid)        
         #print('cid', hexdata)
         nulldata = { "data": hexdata }
 

@@ -24,10 +24,36 @@ class Encoder(json.JSONEncoder):
         if isinstance(obj, Decimal): return float(obj)
 
 class Scanner:
-    def __init__(self, chain, blockchain, db, first):        
+    def __init__(self):
+        
+        if not checkIpfs():
+            print("can't connect to IPFS")
+            return
+
+        chain = os.environ.get('SCANNER_CHAIN')
+        connect = os.environ.get('SCANNER_CONNECT')
+        start = int(os.environ.get('SCANNER_START'))
+
+        if not chain:
+            print("missing SCANNER_CHAIN")
+            return
+
+        if not connect:
+            print("missing SCANNER_CONNECT")
+            return
+
+        if not start:
+            print("missing SCANNER_START")
+            return
+
+        dbhost = os.environ.get('SCANNER_DBHOST')
+
+        if not dbhost:
+            dbhost = 'localhost'
+      
         self.chain = chain
-        self.blockchain = blockchain
-        self.db = db
+        self.blockchain = AuthServiceProxy(connect, timeout=30)
+        self.db = redis.Redis(host=dbhost, port=6379, db=0)
         self.last = self.db.get(f"scanner/{self.chain}/last")
 
         if self.last:
@@ -36,6 +62,7 @@ class Scanner:
             self.db.set(f"scanner/{self.chain}/first", first)
             self.last = first-1
 
+    # move to xidb
     def findCid(self, tx):
         for vout in tx['vout']:
             scriptPubKey = vout['scriptPubKey']
@@ -75,12 +102,13 @@ class Scanner:
                 n = vout['n']
                 break
 
-        urn = f"urn:chain:{self.chain}:{height}:{index}:{n}"
-
-        owner = {
-            "id": urn,
+        auth = {
+            "chain": self.chain,
+            "time": str(utc),
+            "id": f"urn:chain:{self.chain}:{height}:{index}:{n}",
             "tx": { "txid": txid, "vout": n },
-            "addresses": tx['vout'][n]['scriptPubKey']['addresses']
+            "addresses": tx['vout'][n]['scriptPubKey']['addresses'],
+            "blockhash": tx['blockhash']
         }
 
         cert = {
@@ -89,10 +117,7 @@ class Scanner:
             "cid": cid,
             "version": version,
             "prev": prevCert,
-            "chain": self.chain,
-            "time": str(utc),
-            "owner": owner,
-            "tx": tx
+            "auth": auth
         }
 
         print('cert', cert)
@@ -177,7 +202,7 @@ class Scanner:
                     return self.updateVersion(oldTx, oldCid, newTx, newCid)
         return self.addVersion(newTx, newCid)
 
-    def scanBlock(self, height, max):
+    def scanBlock(self, height):
         block_hash = self.blockchain.getblockhash(height)
         block = self.blockchain.getblock(block_hash)
         
@@ -185,7 +210,7 @@ class Scanner:
         utc = datetime.utcfromtimestamp(block_time).replace(tzinfo=tz.tzutc())
         timestamp = utc.astimezone(tz.tzlocal()).strftime('%Y-%m-%d %H:%M:%S')
 
-        print(f"{height}/{max}", block_hash, block_time, utc, timestamp)
+        print(f"{height}", block_hash, block_time, utc, timestamp)
 
         txns = block['tx']
         for txid in txns:
@@ -209,35 +234,12 @@ class Scanner:
         print(f"{datetime.now()} scanning {self.chain} height={height}", flush=True) 
 
         for block in range(self.last+1, height+1):
-            self.scanBlock(block, height)
+            self.scanBlock(block)
 
-def main():
-    chain = os.environ.get('SCANNER_CHAIN')
-    connect = os.environ.get('SCANNER_CONNECT')
-    start = int(os.environ.get('SCANNER_START'))
-
-    if not chain:
-        print("missing SCANNER_CHAIN")
-        return
-
-    if not connect:
-        print("missing SCANNER_CONNECT")
-        return
-
-    if not start:
-        print("missing SCANNER_START")
-        return
-
-    if not checkIpfs():
-        print("can't connect to IPFS")
-        return
-
-    blockchain = AuthServiceProxy(connect, timeout=30)
-    db = redis.Redis(host='localhost', port=6379, db=0)
-
+def scanAll():
     while True:
         try:
-            scanner = Scanner(chain, blockchain, db, start)
+            scanner = Scanner()
             scanner.updateScan()
         except Exception as e:
             print("error", e)
@@ -245,4 +247,7 @@ def main():
         time.sleep(10)
 
 if __name__ == "__main__":
-    main()
+    #scanAll()
+            
+    scanner = Scanner()
+    scanner.scanBlock(95302)
