@@ -1,7 +1,7 @@
 added QmakYPCucH4uiydNR6AVisx5nLZ6RJtgYSAhSvoZS1uDgA metatron/Dockerfile
 added QmQMpnczoLk2XxzxhS1DLcaeWqC2LT7hCqrJ3P5j6RDsE3 metatron/LICENSE
 added Qmf8Lbj4unEThwVVxndfYovKPguLBA4Jrtz1r942zdnuV5 metatron/README.md
-added QmVMgj8QefbCEzfnjyn41TpXKGvH44QoZvtuUi9VESQpcy metatron/authorize-tsr
+added QmQaWmGb1HMierw2nrc9xi192yGqqBHzNC2nUn6LDexygF metatron/authorize-tsr
 added QmcwfzTiFK1mFHfhcpphBffbzm6VNjij9PeBjAMiDBvDx5 metatron/authorize.py
 added QmUQgwvfBGdV1x9KUAD3CHvpu92pnEnrLe4tJ48KhNRHPt metatron/btc-test.py
 added QmXL6eXfrwqLn3KmwujTN3GkrYiUsAApuuiaYwpLxoFCM7 metatron/btc-wallet.json
@@ -27,7 +27,7 @@ added QmTpkUxYfEXg1ZzFVYGr62P78HAGN9TSV1v6vMGp333vcv metatron/docs/meta-v0.json
 added QmQp9hc41cFAApXnEHfdmMb2cDoxJMDdPsrs1x47sHufxB metatron/docs/meta-v1.json
 added QmPDzjVrqP4jdRYD1fU3SnicUZA6CHp2rHy1vPA5abwwut metatron/docs/meta-v2.json
 added QmWpfBdb6NyunupW8FxsFNFWwFDiE6X7B5cWZj7g5D4DeU metatron/docs/meta-v3.json
-added QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH metatron/index
+added QmS5CDiJZ6BtD93kBuxda64b3wdr7h9MGjTM52u1YUwvxX metatron/index
 added QmYTeSrPK5PmncfFA2BgoirFjMUPXfe1mdP9rGtYupg2sj metatron/install-ipfshttpclient.sh
 added QmbJdHZPufT3qD4Kg7XUha1x96LzgTM6mCmmnSwzP1p4Mo metatron/ipfs-test.py
 added QmYGueRyJGU56Vvpt6QLk5CEPT2CPaJ6HfYKtF4dnsyjPH metatron/media/gamebtc.png
@@ -159,4 +159,4 @@ added QmZAwvqwMvrkhDZ8hqFxNBrUBpUF9a4EPQpBWNswSfouoc metatron/py-ipfs-http-clien
 added QmXYosnpnD1N6SVEpyk1VoPFonnkvGuyzu2zcv67GJkybX metatron/py-ipfs-http-client
 added QmeHZaEojM8pLD3yZ1suR1oJNaWetCyYxGJaYsf1aWemDA metatron/webui/views
 added QmYxyDctnuasBTH1CteYrdwQMFWUKB63iqFF3iSBGPCjoC metatron/webui
-added QmbpsaC6dLjGTit3mVjvguBp7ok7W1Fb8i32oxkp9G61vE metatron
+added QmQwyTW6SetZXMggAGQGq5FcU86H5wizHQzR9mMqBatTG4 metatron
