@@ -17,9 +17,17 @@
 
     <p></p>
 
+    <h2>authorized</h2>
+    
+    <ul>
+    <% certs.forEach(function(cert) { %>
+        <li><a href="/cid/<%= cert %>"><%= cert %></li>
+    <% }) %>
+    </ul>
+
     <details>
         <summary>debug</summary>
-        <pre><%= db %></pre>
+        <pre><%= certs %></pre>
     </details>
 </body>
 </html>
