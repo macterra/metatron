@@ -10,7 +10,7 @@ from decimal import Decimal
 
 import os
 import time
-import cid
+#import cid
 import json
 import traceback
 import redis
@@ -59,31 +59,8 @@ class Scanner:
         if self.last:
             self.last = int(self.last)
         else:
-            self.db.set(f"scanner/{self.chain}/first", first)
-            self.last = first-1
-
-    # move to xidb
-    def findCid(self, tx):
-        for vout in tx['vout']:
-            scriptPubKey = vout['scriptPubKey']
-            script_type = scriptPubKey['type']
-            if script_type == 'nulldata':
-                hexdata = scriptPubKey['hex']
-                data = bytes.fromhex(hexdata)
-                if data[0] == 0x6a:
-                    # print("data len", data[1])
-                    try:
-                        if data[1] == 34: # len of CIDv0
-                            cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
-                            return str(cid0)
-                        elif data[1] == 36: # len of CIDv1
-                            cid1 = cid.make_cid(data[2:])
-                            cid0 = cid1.to_v0()
-                            return str(cid0)
-                    except:
-                        # print('cid parser fail')
-                        pass
-        return None
+            self.db.set(f"scanner/{self.chain}/first", start)
+            self.last = start-1
 
     def writeCert(self, tx, cid, xid, version, prevCert):
         block = self.blockchain.getblock(tx['blockhash'])
@@ -161,20 +138,28 @@ class Scanner:
 
         if oldXid != newXid:
             print("error, ids do not match", oldXid, newXid)
-            return self.addVersion(newTx, newCid)
-        
-        if not oldXid in self.db:
-            print("warning, can't find id in db", oldXid)
-            return self.addVersion(newTx, newCid)
-        
-        certcid = self.db[oldXid]
-        print('certcid', certcid)
+            return
 
-        cert = getCert(certcid)
+        xid = newXid
+        
+        # !!! what is the logic here?
+        certCid = self.db.get(f"xid/{xid}")
+        if not certCid:
+            print("warning, can't find cert cid in db", xid)
+            return
+
+        certCid = certCid.decode()
+        print('certCid', certCid)
+
+        if certCid == newCid:
+            print(f"error, certCid {certCid} already assigned to xid {xid}")
+            return
+        
+        cert = getCert(certCid)
         print('cert', cert)
 
         if oldXid != cert['xid']:
-            print("error, cert does not match xid", newXid)
+            print("error, cert does not match xid", xid)
             return
 
         if oldCid != cert['cid']:
@@ -197,7 +182,7 @@ class Scanner:
             vout = vin['vout']
             oldTx = self.blockchain.getrawtransaction(txid, 1)
             if self.isAuthTx(oldTx, vout):
-                oldCid = self.findCid(oldTx)
+                oldCid = findCid(oldTx)
                 if oldCid:
                     return self.updateVersion(oldTx, oldCid, newTx, newCid)
         return self.addVersion(newTx, newCid)
@@ -217,7 +202,7 @@ class Scanner:
             #print(txid)
             print('.', end='', flush=True)
             tx = self.blockchain.getrawtransaction(txid, 1)        
-            cid = self.findCid(tx)
+            cid = findCid(tx)
             if cid:
                 print(f"found cid {cid}")
                 self.verifyTx(tx, cid)
@@ -250,4 +235,4 @@ if __name__ == "__main__":
     #scanAll()
             
     scanner = Scanner()
-    scanner.scanBlock(95302)
+    scanner.scanBlock(95832)
