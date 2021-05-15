@@ -101,26 +101,15 @@ const getFile = async (cid) => {
     return content
 }
 
-const getDb = async () => {
-    db = await fsp.readFile('data/db.json', 'utf8')
-    return JSON.parse(db)
-}
-
-const getHead = async (xid) => {
-    db = await fsp.readFile('data/db.json', 'utf8')
-    db = JSON.parse(db)
-
-    console.log(db)
-
-    return db[xid]
-}
-
 const resolveCid = async (cid) => {
-    orig = await getFile(cid)
+
+    meta = cid.trim() + '/meta.json'
+    console.log('resolveCid', meta)
+    orig = await getFile(meta)
     orig = JSON.parse(orig)
     console.log('xid', orig.xid)
 
-    head = await getHead(orig.xid)
+    head = await client.getAsync('xid/' + orig.xid)
     console.log('head:', head)
     
     cert = await getFile(head)
@@ -128,10 +117,6 @@ const resolveCid = async (cid) => {
     console.log('head cert', cert)
     console.log('head cid', cert.cid)
     
-    // meta = await getFile(cert.cid)
-    // meta = JSON.parse(meta)
-    // console.log('meta', meta)
-
     certs = [ cert ]
 
     while (cert.prev) {

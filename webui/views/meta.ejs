@@ -45,9 +45,9 @@
         <% certs.forEach(function(cert) { %>
             <tr>
                 <td><pre><%= cert.version %></pre></td>
-                <td><pre><%= cert.time %></pre></td>
+                <td><pre><%= cert.auth.time %></pre></td>
                 <td><pre><a href="https://ipfs.io/ipfs/<%= cert.cid %>"><%= cert.cid %></pre></td> 
-                <td><pre><a href="https://blockstream.info/testnet/tx/<%= cert.tx.txid %>"><%= cert.tx.txid %></pre></td>                 
+                <td><pre><a href="https://openchains.info/coin/tesseract/tx/<%= cert.auth.tx.txid %>"><%= cert.auth.tx.txid %></pre></td>                 
             </tr>
         <% }) %>
     </table>
