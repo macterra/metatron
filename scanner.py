@@ -169,7 +169,7 @@ class Scanner:
         print("OK to update block-cert")
 
         version = cert['version'] + 1
-        self.writeCert(newTx, newCid, newXid, version, certcid)
+        self.writeCert(newTx, newCid, newXid, version, certCid)
 
     def isAuthTx(self, tx, n):
         vout = tx['vout'][n]
@@ -232,7 +232,7 @@ def scanAll():
         time.sleep(10)
 
 if __name__ == "__main__":
-    #scanAll()
+    scanAll()
             
-    scanner = Scanner()
-    scanner.scanBlock(95832)
+    # scanner = Scanner()
+    # scanner.scanBlock(95832)
