@@ -101,9 +101,29 @@ const getFile = async (cid) => {
     return content
 }
 
+const isDirectory = async (cid) => {
+    const ipfs = new ipfsClient({host: process.env.IPFS_HOST, port: '5001', protocol:'http'})
+
+    cid = cid.trim()
+
+    status = await ipfs.files.stat('/ipfs/' + cid)
+
+    console.log('stat', status)
+
+    return status.type === 'directory'
+}
+
 const resolveCid = async (cid) => {
 
-    meta = cid.trim() + '/meta.json'
+    isDir = await isDirectory(cid)
+
+    if (isDir) {
+        meta = cid.trim() + '/meta.json'
+    }
+    else {
+        meta = cid.trim()
+    }
+
     console.log('resolveCid', meta)
     orig = await getFile(meta)
     orig = JSON.parse(orig)
@@ -128,7 +148,7 @@ const resolveCid = async (cid) => {
     console.log('certs:', certs)
 
     for (const cert of certs.reverse()) {
-        console.log(cert.version, cert.time, cert.cid)
+        console.log(cert.version, cert.cid, cert.auth.time, cert.auth.id)
     }
 
     return {
