@@ -2,4 +2,4 @@
 
 . ../credentials.tsr.env
 
-python3 authorize.py QmcV1wLURDAC8K6NvdSScAWx9g8Go6HzPte4cJbY49uE1i
+python3 authorize.py QmUfehtmn3EuicxmKR3e7TwAY7ieyoj7pSWKUxmesSGWuA
