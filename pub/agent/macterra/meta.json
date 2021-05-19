@@ -1,5 +1,11 @@
 {
-    "xid": "8d7595e9-6ffc-45e4-ad4d-dfead7d0a5fc",
-    "type": "QmdJiFtL1uoqCefwgXuLYzL44qZhXKQuh6EhRHE2mcWdqc/agent",
-    "name": "macterra"
+    "cid": "8d7595e9-6ffc-45e4-ad4d-dfead7d0a5fc",
+    "files": {
+        "macterra": {
+            "type": "QmdJiFtL1uoqCefwgXuLYzL44qZhXKQuh6EhRHE2mcWdqc/agent"
+        },
+        "media/ferry.png": {
+            "type": "QmdJiFtL1uoqCefwgXuLYzL44qZhXKQuh6EhRHE2mcWdqc/agent"
+        }
+    }
 }

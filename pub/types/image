@@ -1,0 +1,9 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "description": "An XIDB image",
+    "type": "object",
+    "properties": {
+        "format": { "$ref": "string" },
+        "size": { "$ref": "image-size" }
+    }
+}
