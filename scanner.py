@@ -30,20 +30,21 @@ class Scanner:
             print("can't connect to IPFS")
             return
 
-        chain = os.environ.get('SCANNER_CHAIN')
-        connect = os.environ.get('SCANNER_CONNECT')
-        start = int(os.environ.get('SCANNER_START'))
+        self.chain = os.environ.get('SCANNER_CHAIN')
 
-        if not chain:
+        if not self.chain:
             print("missing SCANNER_CHAIN")
             return
 
+        self.keyfirst = f"scanner/{self.chain}/first"
+        self.keylast = f"scanner/{self.chain}/last"
+        self.keyheight = f"scanner/{self.chain}/height"
+        self.keytime = f"scanner/{self.chain}/time"
+
+        connect = os.environ.get('SCANNER_CONNECT')
+
         if not connect:
             print("missing SCANNER_CONNECT")
-            return
-
-        if not start:
-            print("missing SCANNER_START")
             return
 
         dbhost = os.environ.get('SCANNER_DBHOST')
@@ -51,16 +52,34 @@ class Scanner:
         if not dbhost:
             dbhost = 'localhost'
       
-        self.chain = chain
         self.blockchain = AuthServiceProxy(connect, timeout=30)
-        self.db = redis.Redis(host=dbhost, port=6379, db=0)
-        self.last = self.db.get(f"scanner/{self.chain}/last")
+        self.height = self.blockchain.getblockcount()
+
+        self.db = redis.Redis(host=dbhost, port=6379, db=0)  
+        self.db.set(self.keyheight, self.height)
+        self.first = self.db.get(self.keyfirst)
+        self.last = self.db.get(self.keylast)
+
+        start = os.environ.get('SCANNER_START')
+
+        if start:
+            start = int(start)
+        else:
+            start = self.height
+
+        if self.first:
+            self.first = int(self.first)
 
         if self.last:
             self.last = int(self.last)
-        else:
-            self.db.set(f"scanner/{self.chain}/first", start)
-            self.last = start-1
+
+        # check for change in start
+        if not self.last or not self.last or self.last < start or start < self.first:
+            self.first = start
+            self.last = start-1 
+            self.db.set(self.keyfirst, self.first)
+            self.db.set(self.keylast, self.last)
+
 
     def writeCert(self, tx, cid, xid, version, prevCert):
         block = self.blockchain.getblock(tx['blockhash'])
@@ -209,16 +228,13 @@ class Scanner:
         print()
         print(f"scanned {len(txns)} transactions", flush=True)
         
-        self.db.set(f"scanner/{self.chain}/last", height)
-        self.db.set(f"scanner/{self.chain}/time", f"{utc}")
+        self.db.set(self.keylast, height)
+        self.db.set(self.keytime, f"{utc}")
 
     def updateScan(self):
-        height = self.blockchain.getblockcount()        
-        self.db.set(f"scanner/{self.chain}/height", height)
+        print(f"{datetime.now()} scanning {self.chain} height={self.height}", flush=True) 
 
-        print(f"{datetime.now()} scanning {self.chain} height={height}", flush=True) 
-
-        for block in range(self.last+1, height+1):
+        for block in range(self.last+1, self.height+1):
             self.scanBlock(block)
 
 def scanAll():
