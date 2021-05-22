@@ -1,5 +1,5 @@
 #!/bin/bash
 
-. ../credentials.tsr.env
+export SCANNER_CONNECT=http://scully:sw33tp0tat0@btc.metagamer.org:18331
 
-python3 authorize.py QmaQyAb5HM9ggrYUEuNMC6j36AprownTBfwMPj5WS1bo8Y
+python3 authorize.py QmVtNRvN1yBkVV1VoYD8R9pqrMqVGWNAV6q7Fpvez7Q56g
