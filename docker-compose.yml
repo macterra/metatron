@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    ports:
+      - "4001:4001"
+      - "8080:8080"
+      - "0.0.0.0:5001:5001"
+    volumes:
+      - ./data/export:/export
+      - $HOME/.ipfs:/data/ipfs
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data

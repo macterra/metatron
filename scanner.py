@@ -60,18 +60,18 @@ class Scanner:
         self.first = self.db.get(self.keyfirst)
         self.last = self.db.get(self.keylast)
 
-        start = os.environ.get('SCANNER_START')
-
-        if start:
-            start = int(start)
-        else:
-            start = self.height
-
         if self.first:
             self.first = int(self.first)
 
         if self.last:
             self.last = int(self.last)
+
+        start = os.environ.get('SCANNER_START')
+
+        if start:
+            start = int(start)
+        else:
+            start = self.first or self.height
 
         # check for change in start
         if not self.last or not self.last or self.last < start or start < self.first:
@@ -108,7 +108,7 @@ class Scanner:
         }
 
         cert = {
-            "type": "block-cert",
+            "type": "QmeKMenbWpW4YWV8Gi41kdsohjYaHvagXTem4zVcN23Q7t/block-certification",
             "xid": xid,
             "cid": cid,
             "version": version,
