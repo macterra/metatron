@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>{{ chain }} - Wallet</title>
+    </head>
+    <body>
+        <h1>{{ chain }} wallet</h1>
+        <h2>funds</h2>
+        {% for fund in authorizer.funds %}
+        <pre>
+            {{ fund }}
+        </pre>
+        {% endfor %}
+        balance =  {{ authorizer.balance }} {{ chain }}
+        <h2>assets</h2>
+        {% for xid in authorizer.xids %}
+        <pre>
+            {{ xid }} - <a href="/meta/{{ authorizer.xids[xid]['cid'] }}">{{ authorizer.xids[xid]['cid'] }}</a>
+        </pre>
+        {% endfor %}
+    </body>
+</html>

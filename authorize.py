@@ -43,8 +43,10 @@ class Authorizer:
 
         #print(xids)
 
+        self.balance = 0
         for tx in funds:
             print(f"{tx['txid']} {tx['amount']}")
+            self.balance += tx['amount']
 
         self.funds = funds
         self.xids = xids

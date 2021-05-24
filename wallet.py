@@ -1,17 +1,23 @@
-from flask import Flask
+from flask import Flask, render_template
 from authorize import *
 
 app = Flask(__name__)
 
 @app.route("/")
-def hello_world():
-        return "<p>Hello, World!</p>"
+def index():
+        user = {'username': 'Miguel'}
+        return render_template('index.html', title='Home', user=user)
 
 @app.route("/wallet/<chain>")
 def wallet(chain):
-        connect='http://scully:sw33tp0tat0@btc.metagamer.org:18331'
+        connect=os.environ.get(f"{chain}_CONNECT")
         blockchain = AuthServiceProxy(connect, timeout=120)
         authorizer = Authorizer(blockchain)
         authorizer.updateWallet()
-        return f"wallet for {chain}"
+        return render_template('wallet.html', chain=chain, authorizer=authorizer)
+
+@app.route("/meta/<cid>")
+def meta(cid):
+        meta = getMeta(cid)
+        return render_template('meta.html', cid=cid, meta=meta)
 

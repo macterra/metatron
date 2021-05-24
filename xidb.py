@@ -59,6 +59,20 @@ def getXid(cid):
         
     return verifyXid(xid)
 
+def getMeta(cid):
+    meta = None
+    ipfs = getIpfs()
+
+    try:
+        meta = json.loads(ipfs.cat(cid))
+    except:
+        try:
+            meta = json.loads(ipfs.cat(cid + '/meta.json'))
+        except:
+            pass
+
+    return meta
+
 def getCert(cid):
     ipfs = getIpfs()
     return json.loads(ipfs.cat(cid))
