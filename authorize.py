@@ -121,6 +121,8 @@ class Authorizer:
         txid = self.blockchain.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
 
+        return txid
+
 def main():
     connect = os.environ.get('SCANNER_CONNECT')
     blockchain = AuthServiceProxy(connect, timeout=120)

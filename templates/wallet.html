@@ -4,18 +4,27 @@
     </head>
     <body>
         <h1>{{ chain }} wallet</h1>
-        <h2>funds</h2>
-        {% for fund in authorizer.funds %}
+        
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
         <pre>
-            {{ fund }}
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
         </pre>
-        {% endfor %}
-        balance =  {{ authorizer.balance }} {{ chain }}
+        {% endif %}
+        {% endwith %}
+
         <h2>assets</h2>
         {% for xid in authorizer.xids %}
         <pre>
-            {{ xid }} - <a href="/meta/{{ authorizer.xids[xid]['cid'] }}">{{ authorizer.xids[xid]['cid'] }}</a>
+xid:  {{ xid }}
+cid:  <a href="/meta/{{ authorizer.xids[xid]['cid'] }}">{{ authorizer.xids[xid]['cid'] }}</a> 
+txid: <a href="https://openchains.info/coin/tesseract/tx/{{ authorizer.xids[xid]['utxo']['txid'] }}">{{ authorizer.xids[xid]['utxo']['txid'] }}</a>
         </pre>
         {% endfor %}
+        balance =  {{ authorizer.balance }} {{ chain }}
+        <p></p>
+        <a href="/authorize/{{ chain }}">authorize</a>
     </body>
 </html>
