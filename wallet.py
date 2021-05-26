@@ -52,9 +52,10 @@ def authorize2(chain, cid):
 
     if request.method == 'POST':
         if meta and request.form.get('confirm', 'Cancel') == 'Confirm':
-            flash('confirmed')
+            txid = authorizer.authorize(cid)
+            flash(f"authorized with txid {txid}")
         else:
-            flash('cancelled')
+            flash('authorization cancelled')
         return redirect(f"/wallet/{chain}")
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
