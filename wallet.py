@@ -21,9 +21,12 @@ def index():
     return render_template('index.html', title='Home', user=user)
 
 @app.route("/wallet/<chain>")
-def wallet(chain):
+def wallet(chain):    
     connect=os.environ.get(f"{chain}_CONNECT")
-    blockchain = AuthServiceProxy(connect, timeout=120)
+    print(f"connect={connect}")
+    blockchain = AuthServiceProxy(connect, timeout=10)
+    height = blockchain.getblockcount()
+    print(f"height={height}")
     authorizer = Authorizer(blockchain)
     authorizer.updateWallet()
     return render_template('wallet.html', chain=chain, authorizer=authorizer)
@@ -44,7 +47,7 @@ def authorize(chain):
 def authorize2(chain, cid):
     #print('authorize2', request.method, chain, cid)
     connect=os.environ.get(f"{chain}_CONNECT")
-    blockchain = AuthServiceProxy(connect, timeout=120)
+    blockchain = AuthServiceProxy(connect, timeout=10)
     authorizer = Authorizer(blockchain)
     authorizer.updateWallet()
     balance = authorizer.balance
@@ -60,4 +63,12 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-
+if __name__ == "__main__":
+    connect=os.environ.get(f"TSR_CONNECT")
+    print(f"connect={connect}")
+    blockchain = AuthServiceProxy(connect, timeout=10)
+    height = blockchain.getblockcount()
+    print(f"height={height}")
+    authorizer = Authorizer(blockchain)
+    authorizer.updateWallet()
+    

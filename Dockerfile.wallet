@@ -1,0 +1,15 @@
+FROM python:3
+
+WORKDIR /app
+
+COPY requirements.wallet.txt ./
+RUN pip install --no-cache-dir -r requirements.wallet.txt
+
+COPY . .
+
+RUN sh install-ipfshttpclient.sh
+
+ENV FLASK_APP=wallet
+ENV FLASK_ENV=development
+
+CMD flask run --host=0.0.0.0
