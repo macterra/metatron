@@ -19,7 +19,7 @@ class Authorizer:
 
     def updateWallet(self):
         unspent = self.blockchain.listunspent()
-        #print(unspent)
+        print(unspent)
         auths = []
         funds = []
         for tx in unspent:
@@ -30,12 +30,13 @@ class Authorizer:
 
         xids = {}
         for tx in auths:
-            print(f"{tx['txid']} {tx['amount']}")
             txin = self.blockchain.getrawtransaction(tx['txid'], 1)
-            cid = findCid(txin)
-            xid = getXid(cid)
+            print(f"got {tx['txid']} {tx['amount']}")
             #print(json.dumps(txin, indent=2, cls=Encoder), cid)
-            print('>>', cid, xid)
+            cid = findCid(txin)
+            print(f"> found {cid}")
+            xid = getXid(cid)
+            print(f">> found {xid}")
             xids[xid] = {
                 "utxo": tx,
                 "cid": cid
@@ -67,7 +68,7 @@ class Authorizer:
         inputs = []
 
         if xid in self.xids:  
-            print(f"found xid {xid} in wallet")
+            print(f"found xid {xid} in vault")
             if cid == self.xids[xid]['cid']:
                 print(f"xid is already up to date with {cid}")
                 return                

@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "wallet.py",
+                "FLASK_APP": "vault.py",
                 "FLASK_ENV": "development",
                 "TSR_CONNECT": "http://scully:sw33tp0tat0@btc.metagamer.org:18331",
                 "SECRET_KEY": "scully:sw33tp0tat0"

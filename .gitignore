@@ -3,4 +3,5 @@ __pycache__
 block-cert*.json
 node_modules
 package-lock.json
+launch.vscode
 data/

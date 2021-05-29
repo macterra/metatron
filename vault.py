@@ -17,11 +17,10 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 @app.route("/")
 def index():
-    user = {'username': 'Miguel'}
-    return render_template('index.html', title='Home', user=user)
+    return render_template('index.html')
 
-@app.route("/wallet/<chain>")
-def wallet(chain):    
+@app.route("/vault/<chain>")
+def vault(chain):    
     connect=os.environ.get(f"{chain}_CONNECT")
     print(f"connect={connect}")
     blockchain = AuthServiceProxy(connect, timeout=10)
@@ -29,7 +28,7 @@ def wallet(chain):
     print(f"height={height}")
     authorizer = Authorizer(blockchain)
     authorizer.updateWallet()
-    return render_template('wallet.html', chain=chain, authorizer=authorizer)
+    return render_template('vault.html', chain=chain, authorizer=authorizer)
 
 @app.route("/meta/<cid>")
 def meta(cid):
@@ -59,7 +58,7 @@ def authorize2(chain, cid):
             flash(f"authorized with txid {txid}")
         else:
             flash('authorization cancelled')
-        return redirect(f"/wallet/{chain}")
+        return redirect(f"/vault/{chain}")
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
