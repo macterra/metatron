@@ -12,6 +12,7 @@ class AuthorizeForm(FlaskForm):
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 #print(app.config)
 
@@ -33,7 +34,11 @@ def vault(chain):
 @app.route("/meta/<cid>")
 def meta(cid):
     meta = getMeta(cid)
-    return render_template('meta.html', cid=cid, meta=meta)
+    #return render_template('meta.html', cid=cid, meta=meta)
+    if not meta:
+        meta = "error: metadata not found"
+    print(meta)
+    return meta
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])
 def authorize(chain):

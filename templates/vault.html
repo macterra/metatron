@@ -19,7 +19,7 @@
         {% for xid in authorizer.xids %}
         <pre>
 xid:  {{ xid }}
-cid:  <a href="/meta/{{ authorizer.xids[xid]['cid'] }}">{{ authorizer.xids[xid]['cid'] }}</a> 
+cid:  <a href="/meta/{{ authorizer.xids[xid]['cid'] }}">{{ authorizer.xids[xid]['cid'] }}</a> (<a href="https://ipfs.io/ipfs/{{ authorizer.xids[xid]['cid'] }}">ipfs</a>)
 txid: <a href="https://openchains.info/coin/tesseract/tx/{{ authorizer.xids[xid]['utxo']['txid'] }}">{{ authorizer.xids[xid]['utxo']['txid'] }}</a>
         </pre>
         {% endfor %}
