@@ -1,0 +1,10 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "description": "An XIDB agent or group of agents",
+    "type": "object",
+    "properties": {
+        "name": { "$ref": "string" },
+        "image": { "$ref": "string" },
+        "links": { "$ref": "array" }
+    }
+}
