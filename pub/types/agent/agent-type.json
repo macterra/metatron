@@ -1,0 +1,6 @@
+{
+    "name": "agent",
+    "asset": "agent.json",
+    "schema": "schema",
+    "template": "agent.html"
+}

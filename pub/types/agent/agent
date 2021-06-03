@@ -1,6 +1,0 @@
-{
-    "name": "agent",
-    "schema": "schema",
-    "template": "agent.html",
-    "script": "agent.py"
-}
