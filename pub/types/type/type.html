@@ -8,29 +8,29 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <title>meta</title>
+    <title>{{ asset.name }}</title>
   </head>
   <body>
 
     <div class="jumbotron">
-      <h1 class="display-4">metadata</h1>
+      <h1 class="display-4">Type</h1>
       <table class="table">
         <tbody>
           <tr>
-            <th scope="row">xid</th>
-            <td><pre>{{ meta.xid }}</pre></td>
-          </tr>
-          <tr>
-            <th scope="row">type</th>
-            <td><a href="https://ipfs.io/ipfs/{{ meta.type }}">{{ meta.type }}</a></td>
-          </tr>
-          <tr>
-            <th scope="row">owner</th>
-            <td><a href="https://ipfs.io/ipfs/{{ meta.owner }}">{{ meta.owner }}</a></td>
+            <th scope="row">name</th>
+            <td>{{ asset.name }}</td>
           </tr>
           <tr>
             <th scope="row">asset</th>
-            <td><a href="{{ meta.asset }}">{{ meta.asset }}</a></td>
+            <td><a href="{{ asset.asset }}">{{ asset.asset }}</a></td>
+          </tr>
+          <tr>
+            <th scope="row">schema</th>
+            <td><a href="{{ asset.schema }}">{{ asset.schema }}</a></td>
+          </tr>
+          <tr>
+            <th scope="row">template</th>
+            <td><a href="{{ asset.template }}">{{ asset.template }}</a></td>
           </tr>
         </tbody>
       </table>

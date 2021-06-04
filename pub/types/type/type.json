@@ -1,0 +1,6 @@
+{
+    "name": "type",
+    "asset": "type.json",
+    "schema": "schema",
+    "template": "type.html"
+}
