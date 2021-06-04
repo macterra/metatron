@@ -8,22 +8,33 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <title>{{ asset.name }}</title>
+    <title>meta</title>
   </head>
   <body>
-	
-    <div class="card" style="width: 24rem;">
-      <img src="{{ asset.image }}" class="card-img-top" alt="...">
-      <div class="card-body">
-        <h5 class="card-title">{{ asset.name }}</h5>
-        <p class="card-text">{{ asset.headline }}</p>      
-        {% for link in asset.links %}
-        <a href="{{ asset.links[link] }}" class="btn btn-primary">{{ link }}</a>
-        {% endfor %}
-      </div>
-    </div>
 
-    <a class="btn btn-primary btn-lg" href="meta.html" role="button">meta</a>
+    <div class="jumbotron">
+      <h1 class="display-4">metadata</h1>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th scope="row">xid</th>
+            <td><pre>c674fb59-f2d4-4ce4-83ab-e4f26ad7bfb2</pre></td>
+          </tr>
+          <tr>
+            <th scope="row">type</th>
+            <td><a href="https://ipfs.io/ipfs/QmTP2ydW1optmEJCC6pAGR7FaHUuaek8Mzg8FCB3Mhktea/type">QmTP2ydW1optmEJCC6pAGR7FaHUuaek8Mzg8FCB3Mhktea/type</a></td>
+          </tr>
+          <tr>
+            <th scope="row">owner</th>
+            <td><a href="https://ipfs.io/ipfs/"></a></td>
+          </tr>
+          <tr>
+            <th scope="row">asset</th>
+            <td><a href="agent-type.json">agent-type.json</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
