@@ -1,0 +1,10 @@
+{
+    "name": "anonymous",
+    "headline": "We are Satoshi",
+    "image": "anonymous.png",        
+    "links": { 
+        "github": "https://github.com",
+        "twitter": "https://twitter.com",
+        "keybase": "https://keybase.io"
+    }
+}
