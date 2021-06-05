@@ -8,55 +8,36 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <title>{{ asset.fmc_id }}</title>
+    <title>{{ asset.name }}</title>
   </head>
   <body>
 
     <div class="jumbotron">
-      <h1 class="display-4">Certificate of Grade</h1>
+      <h1 class="display-4">Type</h1>
       <table class="table">
         <tbody>
           <tr>
-            <th scope="row">Grade</th>
-            <td>{{ asset.grade }}</td>
-          </tr>
-          <tr>
-            <th scope="row">FMC ID</th>
-            <td>{{ asset.fmc_id }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Certified on</th>
-            <td>{{ asset.certified_on }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Expires on</th>
-            <td>{{ asset.expires_on }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Name</th>
+            <th scope="row">name</th>
             <td>{{ asset.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Code</th>
-            <td>{{ asset.code }}</td>
+            <th scope="row">asset_name</th>
+            <td><a href="{{ asset.asset_name }}">{{ asset.asset_name }}</a></td>
           </tr>
           <tr>
-            <th scope="row">Environment</th>
-            <td>{{ asset.environment }}</td>
+            <th scope="row">page_name</th>
+            <td><a href="{{ asset.page_name }}">{{ asset.page_name }}</a></td>
           </tr>
           <tr>
-            <th scope="row">Product</th>
-            <td>{{ asset.product }}</td>
+            <th scope="row">schema</th>
+            <td><a href="{{ asset.schema }}">{{ asset.schema }}</a></td>
           </tr>
           <tr>
-            <th scope="row">Supplier</th>
-            <td>{{ asset.supplier }}</td>
+            <th scope="row">template</th>
+            <td><a href="{{ asset.template }}">{{ asset.template }}</a></td>
           </tr>
         </tbody>
       </table>
-      <a class="btn btn-primary btn-lg" href="{{ asset.pdf }}" role="button">pdf</a>
-      <a class="btn btn-primary btn-lg" href="grade-certificate.json" role="button">json</a>
-      <a class="btn btn-primary btn-lg" href="meta.html" role="button">meta</a>
     </div>
 
     <!-- Optional JavaScript -->

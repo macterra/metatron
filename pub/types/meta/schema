@@ -3,9 +3,8 @@
     "description": "An XIDB type",
     "type": "object",
     "properties": {
-        "name": { "$ref": "string" },
-        "asset": { "$ref": "string" },
+        "xid": { "$ref": "xid" },
+        "type": { "$ref": "cid" },
         "schema": { "$ref": "string" }
-        "template": { "$ref": "string" }
     }
 }
