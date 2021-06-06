@@ -1,7 +1,7 @@
 {
     "name": "type",
     "asset_name": "type.json",
-    "page_name": "type.html",
+    "page_name": "index.html",
     "schema": "schema",
     "template": "template.html"
 }
