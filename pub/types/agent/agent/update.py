@@ -1,16 +1,20 @@
 from jinja2 import Environment, FileSystemLoader
 import json
 
-with open("meta.json") as fin:
-    meta = json.load(fin)
-    type_json = meta['asset']
-
-with open(type_json) as fin:
+with open("type.json") as fin:
     t = json.load(fin)
     print(t)
     asset_json = f"io/{t['asset_name']}"
-    asset_page = f"io/{t['page_name']}"
-    asset_template = t['template']
+
+    if 'page_name' in t:
+        asset_page = f"io/{t['page_name']}"
+    else:
+        asset_page = 'index.html'
+
+    if 'template' in t:
+        asset_template = t['template']
+    else:
+        asset_template = 'template.html'
 
 env = Environment(loader=FileSystemLoader('.'))
 template = env.get_template(asset_template)
