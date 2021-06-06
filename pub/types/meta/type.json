@@ -1,8 +1,0 @@
-{
-    "name": "meta",
-    "asset_name": "meta.json",
-    "page_name": "meta.html",
-    "schema": "schema",
-    "template": "template.html",
-    "update": "docker run --rm -v $PWD:/app/io macterra/metatron-meta"
-}

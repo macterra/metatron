@@ -1,0 +1,6 @@
+{
+    "name": "asset",
+    "asset_name": "meta.json",
+    "schema": "schema",
+    "update": "docker run --rm -v $PWD:/app/io macterra/metatron-asset"
+}

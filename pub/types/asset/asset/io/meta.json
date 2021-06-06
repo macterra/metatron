@@ -1,5 +1,5 @@
 {
     "xid": "8a098745-0b0b-4889-a623-d80618ee5ec5",
-    "type": "meta",
-    "asset": "type.json"
+    "type": "asset",
+    "asset": "asset"
 }

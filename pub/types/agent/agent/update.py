@@ -9,7 +9,7 @@ with open("type.json") as fin:
     if 'page_name' in t:
         asset_page = f"io/{t['page_name']}"
     else:
-        asset_page = 'index.html'
+        asset_page = 'io/index.html'
 
     if 'template' in t:
         asset_template = t['template']
