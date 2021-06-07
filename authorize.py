@@ -37,9 +37,12 @@ class Authorizer:
             print(f"> found {cid}")
             xid = getXid(cid)
             print(f">> found {xid}")
+            meta = getMeta(cid)
+            print(f">>> found {meta}")
             xids[xid] = {
                 "utxo": tx,
-                "cid": cid
+                "cid": cid,
+                "meta": meta
             }
 
         #print(xids)

@@ -17,10 +17,13 @@
 
         <h2>assets</h2>
         {% for xid in authorizer.xids %}
+        {% set asset = authorizer.xids[xid] %}
         <pre>
-xid:  {{ xid }}
-cid:  <a href="/meta/{{ authorizer.xids[xid]['cid'] }}">{{ authorizer.xids[xid]['cid'] }}</a> (<a href="https://ipfs.io/ipfs/{{ authorizer.xids[xid]['cid'] }}">ipfs</a>)
-txid: <a href="https://openchains.info/coin/tesseract/tx/{{ authorizer.xids[xid]['utxo']['txid'] }}">{{ authorizer.xids[xid]['utxo']['txid'] }}</a>
+xid:   {{ xid }}
+asset: {{ asset.meta.asset }}
+type:  {{ asset.meta.type }}
+cid:   <a href="/meta/{{ asset.cid }}">{{ asset.cid }}</a> (<a href="https://ipfs.io/ipfs/{{ asset.cid }}">ipfs</a>)
+txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
         </pre>
         {% endfor %}
         balance =  {{ authorizer.balance }} {{ chain }}
