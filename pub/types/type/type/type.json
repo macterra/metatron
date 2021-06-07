@@ -1,7 +1,8 @@
 {
     "name": "type",
-    "asset_name": "type.json",
-    "page_name": "index.html",
     "schema": "schema",
-    "template": "template.html"
+    "json": "type.json",
+    "html": "index.html",
+    "template": "template.html",
+    "update": "docker run --rm -v $PWD:/app/io macterra/metatron-type"
 }

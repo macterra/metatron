@@ -1,5 +1,7 @@
 {
     "name": "example",
-    "asset_name": "example.json",
+    "json": "example.json",
+    "html": "index.html",
+    "template": "template.html",
     "schema": "schema"
 }

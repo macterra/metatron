@@ -1,6 +1,8 @@
 {
     "name": "agent",
-    "asset_name": "agent.json",
     "schema": "schema",
+    "json": "agent.json",
+    "html": "index.html",
+    "template": "template.html",
     "update": "docker run --rm -v $PWD:/app/io macterra/metatron-agent"
 }
