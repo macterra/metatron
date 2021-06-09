@@ -1,6 +1,0 @@
-{
-    "$schema": "http://json-schema.org/draft-03/schema#",
-    "description": "An IPFS content identifier v0",
-    "type": "string",
-    "pattern": "^[a-fA-F0-9]{45}$"
-}

@@ -1,5 +1,6 @@
 {
     "name": "example",
+    "description": "description of the example type",
     "json": "example.json",
     "html": "index.html",
     "template": "template.html",
