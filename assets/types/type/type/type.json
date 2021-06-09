@@ -1,5 +1,6 @@
 {
     "name": "type",
+    "description": "A type is an asset that specifies another asset",
     "schema": "schema",
     "json": "type.json",
     "html": "index.html",

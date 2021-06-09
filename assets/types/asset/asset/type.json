@@ -1,5 +1,6 @@
 {
     "name": "asset",
+    "description": "An asset is any digital information worth owning",
     "schema": "schema",
     "json": "meta.json",
     "html": "index.html",

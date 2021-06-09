@@ -1,5 +1,6 @@
 {
     "name": "agent",
+    "description": "An agent is an asset that can own another asset",
     "schema": "schema",
     "json": "agent.json",
     "html": "index.html",
