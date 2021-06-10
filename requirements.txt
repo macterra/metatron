@@ -1,5 +1,0 @@
-python-dateutil
-python-bitcoinrpc
-py-cid
-flit
-redis

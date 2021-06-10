@@ -3,10 +3,8 @@ FROM python:3
 WORKDIR /app
 
 COPY requirements.vault.txt ./
-RUN pip install --no-cache-dir -r requirements.vault.txt
-
+RUN pip install python-dateutil python-bitcoinrpc py-cid flit redis flask flask-wtf
 COPY . .
-
 RUN sh install-ipfshttpclient.sh
 
 ENV FLASK_APP=vault
