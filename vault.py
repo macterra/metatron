@@ -1,3 +1,6 @@
+import os
+import redis
+
 from flask import Flask, render_template, redirect, request, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -67,7 +70,7 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-if __name__ == "__main__":
+def test1():
     connect=os.environ.get(f"TSR_CONNECT")
     print(f"connect={connect}")
     blockchain = AuthServiceProxy(connect, timeout=10)
@@ -75,4 +78,23 @@ if __name__ == "__main__":
     print(f"height={height}")
     authorizer = Authorizer(blockchain)
     authorizer.updateWallet()
+
+def test2():
+    dbhost = os.environ.get('SCANNER_DBHOST')
+
+    if not dbhost:
+        dbhost = 'localhost'
     
+    db = redis.Redis(host=dbhost, port=6379, db=0)
+    xids = db.keys("xid/*")
+    print(xids)
+    for xid in xids:
+        cid = db.get(xid).decode().strip()
+        print(xid, cid)
+        meta = getMeta(cid)
+        print(meta)
+        if not meta:
+            db.delete(xid)
+
+if __name__ == "__main__":
+    test2()
