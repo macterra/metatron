@@ -1,6 +1,7 @@
 {
     "xid": "8c09eaa9-89a8-4c1c-96fa-b3fe97bc35fe",
-    "type": "QmcLHzQZ9U54BGtvhd4Zik27SJ4dV6yEJ13SmHonKb8Cva/agent",
+    "meta": "QmNLz6qU8KwVjqhnBTqgEE48pJVP2P3thqHDAYtVFyiHFB/asset",
+    "type": "QmSppY4C7AzL73ADh3miSKMkovV7kdkRcTPxuE44NVSQL1/agent",
     "owner": "QmNuiWM7TxZirhBybnv2Pc9ZwQY8YdSvBtYGLmAgSKvizk/archetech",
     "asset": "archetech"
 }
