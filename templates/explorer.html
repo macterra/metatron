@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>Metatron</title>
+    </head>
+    <body>
+        <h1>Metatron Explorer</h1>
+
+        <pre>
+{% for cert in certs %}
+asset   <a href="https://ipfs.io/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.meta.asset }}</a>
+xid     {{ cert.xid }} 
+version {{ cert.version }} 
+time    {{ cert.auth.time }}
+id      {{ cert.auth.id }}
+cid     {{ cert.cid }}
+type    {{ cert.meta.type }}
+owner   {{ cert.meta.owner }}
+{% endfor %}
+        </pre>
+
+    </body>
+</html>

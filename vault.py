@@ -1,5 +1,6 @@
 import os
 import redis
+import xidb
 
 from flask import Flask, render_template, redirect, request, flash
 from flask_wtf import FlaskForm
@@ -10,9 +11,6 @@ class AuthorizeForm(FlaskForm):
         cid = StringField('cid')
         submit = SubmitField('authorize')
 
-# class ConfirmForm(FlaskForm):
-#         submit = SubmitField('confirm')
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
@@ -22,6 +20,12 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 @app.route("/")
 def index():
     return render_template('index.html')
+
+@app.route("/explorer")
+def explorer():
+    certs = getCerts()
+    print(certs)
+    return render_template('explorer.html', certs=certs)
 
 @app.route("/vault/<chain>")
 def vault(chain):    
@@ -70,6 +74,32 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
+def getCerts():
+    dbhost = os.environ.get('SCANNER_DBHOST')
+
+    if not dbhost:
+        dbhost = 'localhost'
+    
+    db = redis.Redis(host=dbhost, port=6379, db=0)
+    xids = db.keys("xid/*")
+    print(xids)
+
+    certs = []
+
+    for xid in xids:
+        cid = db.get(xid).decode().strip()
+        cert = xidb.getCert(cid)
+        if cert:
+            meta = xidb.getMeta(cert['cid'])
+            if 'asset' in meta:
+                cert['meta'] = meta
+                certs.append(cert)
+            else:
+                print("deleting", xid)
+                #db.delete(xid)
+
+    return certs
+
 def test1():
     connect=os.environ.get(f"TSR_CONNECT")
     print(f"connect={connect}")
@@ -95,6 +125,16 @@ def test2():
         print(meta)
         if not meta:
             db.delete(xid)
+        else:
+            prev = meta['prev']
+            vers = meta['version']
+            print(vers, prev)
+            while prev:
+                meta = getMeta(prev)
+                prev = meta['prev']
+                vers = meta['version']
+                print(vers, prev)
+
 
 if __name__ == "__main__":
     test2()
