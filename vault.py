@@ -80,7 +80,7 @@ def authorize2(chain, cid):
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
 def getCerts():
-    dbhost = os.environ.get('SCANNER_DBHOST')
+    dbhost = os.environ.get('DB_HOST')
 
     if not dbhost:
         dbhost = 'localhost'
