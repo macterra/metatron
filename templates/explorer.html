@@ -7,11 +7,11 @@
 
         <pre>
 {% for cert in certs %}
-asset   <a href="https://ipfs.io/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.meta.asset }}</a>
+asset   <a href="https://ipfs.io/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.meta.asset }}</a> v{{ cert.version }}
+version <a href="/versions/{{ cert.cert }}">{{ cert.cert }}</a>
 xid     {{ cert.xid }} 
-version {{ cert.version }} 
 time    {{ cert.auth.time }}
-id      {{ cert.auth.id }}
+auth-id {{ cert.auth.id }}
 cid     {{ cert.cid }}
 type    {{ cert.meta.type }}
 owner   {{ cert.meta.owner }}

@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>Metatron</title>
+    </head>
+    <body>
+        <h1>Asset Versions</h1>
+
+        <pre>
+cid {{ cid }}
+{% for version in versions %}
+v{{ version.version }} {{ version.auth.time }} <a href="https://ipfs.io/ipfs/{{ version.cid }}">{{ version.cid }}</a>
+{% endfor %}
+        </pre>
+
+    </body>
+</html>

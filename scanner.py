@@ -10,7 +10,6 @@ from decimal import Decimal
 
 import os
 import time
-#import cid
 import json
 import traceback
 import redis
@@ -117,7 +116,6 @@ class Scanner:
         }
 
         print('cert', cert)
-
         certFile = f"block-cert-v{version}.json"
         print('certFile', certFile)
 
@@ -140,6 +138,7 @@ class Scanner:
 
         print("OK to add new block-cert")
         self.writeCert(tx, cid, xid, 0, "")
+        return cid
 
     # don't need oldTx?
     def updateVersion(self, oldTx, oldCid, newTx, newCid):
@@ -148,11 +147,13 @@ class Scanner:
         oldXid = getXid(oldCid)
 
         if not oldXid:
+            print(f"error, no xid in {oldCid}")
             return
 
         newXid = getXid(newCid)
 
         if not newXid:
+            print(f"error, no xid in {newCid}")
             return
 
         if oldXid != newXid:
@@ -164,18 +165,21 @@ class Scanner:
         # !!! what is the logic here?
         certCid = self.db.get(f"xid/{xid}")
         if not certCid:
-            print("warning, can't find cert cid in db", xid)
-            return
+            self.verifyTx(oldTx, oldCid)
+            certCid = self.db.get(f"xid/{xid}")
+            if not certCid:
+                print("warning, can't find cert cid in db", xid)
+                return
 
         certCid = certCid.decode()
         print('certCid', certCid)
-
-        if certCid == newCid:
-            print(f"error, certCid {certCid} already assigned to xid {xid}")
-            return
         
         cert = getCert(certCid)
         print('cert', cert)
+        
+        if cert['cid'] == newCid:
+            print(f"error, certCid {certCid} already assigned to xid {xid}")
+            return
 
         if oldXid != cert['xid']:
             print("error, cert does not match xid", xid)
@@ -189,6 +193,7 @@ class Scanner:
 
         version = cert['version'] + 1
         self.writeCert(newTx, newCid, newXid, version, certCid)
+        return newCid
 
     def isAuthTx(self, tx, n):
         vout = tx['vout'][n]
@@ -251,4 +256,4 @@ if __name__ == "__main__":
     scanAll()
             
     #scanner = Scanner()
-    #scanner.scanBlock(95437)
+    #scanner.scanBlock(99316)

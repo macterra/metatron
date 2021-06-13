@@ -24,7 +24,7 @@ def index():
 @app.route("/explorer")
 def explorer():
     certs = getCerts()
-    print(certs)
+    #print(certs)
     return render_template('explorer.html', certs=certs)
 
 @app.route("/vault/<chain>")
@@ -46,6 +46,11 @@ def meta(cid):
         meta = "error: metadata not found"
     print(meta)
     return meta
+
+@app.route("/versions/<cid>")
+def versions(cid):
+    versions = getVersions(cid)
+    return render_template('versions.html', cid=cid, versions=versions)
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])
 def authorize(chain):
@@ -82,7 +87,7 @@ def getCerts():
     
     db = redis.Redis(host=dbhost, port=6379, db=0)
     xids = db.keys("xid/*")
-    print(xids)
+    #print(xids)
 
     certs = []
 
@@ -93,10 +98,11 @@ def getCerts():
             meta = xidb.getMeta(cert['cid'])
             if 'asset' in meta:
                 cert['meta'] = meta
+                cert['cert'] = cid
                 certs.append(cert)
             else:
-                print("deleting", xid)
-                #db.delete(xid)
+                print("deprecated", xid)
+                db.delete(xid)
 
     return certs
 

@@ -73,6 +73,24 @@ def getMeta(cid):
 
     return meta
 
+def getVersions(cid):
+    versions = []
+
+    cert = getCert(cid)
+
+    while cert:
+        versions.append(cert)
+        print(cert)
+        prev = cert['prev']
+        if prev:
+            cert = getCert(prev)
+        else:
+            cert = None
+
+    versions.reverse()
+    
+    return versions
+
 def getCert(cid):
     ipfs = getIpfs()
     return json.loads(ipfs.cat(cid))
