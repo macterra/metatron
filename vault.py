@@ -3,6 +3,7 @@ import redis
 import xidb
 
 from flask import Flask, render_template, redirect, request, flash
+from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from authorize import *
@@ -14,6 +15,8 @@ class AuthorizeForm(FlaskForm):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
+bootstrap = Bootstrap(app)
 
 #print(app.config)
 

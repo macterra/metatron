@@ -1,12 +1,10 @@
-<html>
-    <head>
-        <title>Metatron vault</title>
-    </head>
-    <body>
-        <h1>Metatron Vault</h1>
-        <ul>
-            <li><a href="/vault/TSR">Tesseract</a></li>
-            <li><a href="/explorer">Explorer</a></li>
-        </ul>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1>Chains</h1>
+<ul>
+    <li><a href="/vault/TSR">Tesseract</a></li>
+    <li><a href="/">Bitcoin</a></li>
+    <li><a href="/">Test Bitcoin</a></li>
+</ul>
+{% endblock %}

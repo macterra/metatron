@@ -1,33 +1,22 @@
-<html>
-    <head>
-        <title>{{ chain }}</title>
-    </head>
-    <body>
-        <h1>{{ chain }} vault</h1>
-        
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <pre>
-            {% for message in messages %}
-            {{ message }}
-            {% endfor %}
-        </pre>
-        {% endif %}
-        {% endwith %}
+{% extends "base.html" %}
 
-        <h2>assets</h2>
-        {% for xid in authorizer.xids %}
-        {% set asset = authorizer.xids[xid] %}
-        <pre>
+{% block app_content %}
+<h1>{{ chain }} vault</h1>
+
+<h2>balance</h2>
+{{ authorizer.balance }} {{ chain }}
+<p></p>
+<a href="/authorize/{{ chain }}">authorize</a>
+
+<h2>assets</h2>
+{% for xid in authorizer.xids %}
+{% set asset = authorizer.xids[xid] %}
+<pre>
 xid:   {{ xid }}
 asset: {{ asset.meta.asset }}
 type:  {{ asset.meta.type }}
 cid:   <a href="/meta/{{ asset.cid }}">{{ asset.cid }}</a> (<a href="https://ipfs.io/ipfs/{{ asset.cid }}">ipfs</a>)
 txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
-        </pre>
-        {% endfor %}
-        balance =  {{ authorizer.balance }} {{ chain }}
-        <p></p>
-        <a href="/authorize/{{ chain }}">authorize</a>
-    </body>
-</html>
+</pre>
+{% endfor %}
+{% endblock %}

@@ -1,15 +1,12 @@
-<html>
-    <head>
-        <title>authorize</title>
-    </head>
-    <body>
-        <form action="" method="post" novalidate>
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.cid.label }}<br>
-                {{ form.cid(size=50) }}
-            </p>
-            <p>{{ form.submit() }}</p>
-        </form>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block app_content %}
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.cid.label }}<br>
+        {{ form.cid(size=50) }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
