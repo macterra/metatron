@@ -1,20 +1,17 @@
-<html>
-    <head>
-        <title>confirm</title>
-    </head>
-    <body>
-        <form action="" method="post" novalidate>
-            <p>
-                <pre>cid: {{ cid }}</pre>
-                {{ meta | tojson }}
-                <pre>
-                </pre>
-            </p>
-            <pre>
+{% extends "base.html" %}
+
+{% block app_content %}
+<form action="" method="post" novalidate>
+    <p>
+        <pre>cid: {{ cid }}</pre>
+        {{ meta | tojson }}
+        <pre>
+        </pre>
+    </p>
+    <pre>
 balance = {{ balance }}
 txn fee = {{ txfee }}
-            </pre>
-            <p><input type=submit name=confirm value=Confirm></input> <input type=submit name=cancel value=Cancel></input></p>
-        </form>
-    </body>
-</html>
+    </pre>
+    <p><input type=submit name=confirm value=Confirm></input> <input type=submit name=cancel value=Cancel></input></p>
+</form>
+{% endblock %}
