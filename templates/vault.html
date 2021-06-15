@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
+{% block title %}{{ chain }} Vault{% endblock %}
+
 {% block app_content %}
-<h1>{{ chain }} vault</h1>
+<h1>{{ chain }} Vault</h1>
 
 <h2>balance</h2>
 {{ authorizer.balance }} {{ chain }}

@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
+{% block title %}Metatron Explorer{% endblock %}
+
 {% block app_content %}
 <h1>Metatron Explorer</h1>
 
-<pre>
 {% for cert in certs %}
+<pre>
 asset   <a href="https://ipfs.io/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.meta.asset }}</a> v{{ cert.version }}
 version <a href="/versions/{{ cert.cert }}">{{ cert.cert }}</a>
 xid     {{ cert.xid }} 
@@ -13,6 +15,6 @@ auth-id {{ cert.auth.id }}
 cid     {{ cert.cid }}
 type    {{ cert.meta.type }}
 owner   {{ cert.meta.owner }}
-{% endfor %}
 </pre>
+{% endfor %}
 {% endblock %}
