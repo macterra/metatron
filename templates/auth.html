@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}auth{% endblock %}
+
+{% block app_content %}
+
+<div class="jumbotron">
+    <h1 class="display-4">authorization</h1>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th scope="row">auth id</th>
+          <td><a href="/versions/{{ cid }}">{{ cid }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">xid</th>
+          <td>{{ cert.xid }}</td>
+        </tr>
+        <tr>
+          <th scope="row">asset id</th>
+          <td><a href="https://ipfs.io/ipfs/{{ cert.cid }}">{{ cert.cid }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">version</th>
+          <td>{{ cert.version }}</td>
+        </tr>
+        <tr>
+          <th scope="row">prev</th>
+          <td><a href="/auth/{{ cert.prev }}">{{ cert.prev }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">type</th>
+          <td><a href="https://ipfs.io/ipfs/{{ cert.type }}">{{ cert.type }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">chain</th>
+          <td>{{ cert.auth.chain }}</td>
+        </tr>
+        <tr>
+          <th scope="row">auth id</th>
+          <td>{{ cert.auth.id }}</td>
+        </tr>
+        <tr>
+          <th scope="row">block</th>
+          <td><a href="https://openchains.info/coin/tesseract/block/{{ cert.auth.blockhash }}">{{ cert.auth.blockhash }}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">tx</th>
+          <td><a href="https://openchains.info/coin/tesseract/tx/{{ cert.auth.tx.txid }}">{{ cert.auth.tx.txid }}</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}

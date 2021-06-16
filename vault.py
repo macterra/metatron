@@ -41,6 +41,10 @@ def vault(chain):
     authorizer.updateWallet()
     return render_template('vault.html', chain=chain, authorizer=authorizer)
 
+@app.route("/auth/<cid>")
+def auth(cid):    
+    return render_template('auth.html', cid=cid, cert = getCert(cid))
+
 @app.route("/meta/<cid>")
 def meta(cid):
     meta = getMeta(cid)
@@ -52,7 +56,8 @@ def meta(cid):
 
 @app.route("/versions/<cid>")
 def versions(cid):
-    versions = getVersions(cid)
+    latest = getLatestCert(cid)
+    versions = getVersions(latest)
     return render_template('versions.html', cid=cid, versions=versions)
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])
@@ -82,6 +87,21 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
+def getLatestCert(cid):
+    cert = getCert(cid)
+    xid = cert['xid']
+
+    dbhost = os.environ.get('DB_HOST')
+
+    if not dbhost:
+        dbhost = 'localhost'
+    
+    db = redis.Redis(host=dbhost, port=6379, db=0)
+    latest = db.get(f"xid/{xid}").decode().strip()
+
+    print(cid, xid, latest)
+    return latest
+
 def getCerts():
     dbhost = os.environ.get('DB_HOST')
 
@@ -90,12 +110,13 @@ def getCerts():
     
     db = redis.Redis(host=dbhost, port=6379, db=0)
     xids = db.keys("xid/*")
-    #print(xids)
+    print(xids)
 
     certs = []
 
     for xid in xids:
         cid = db.get(xid).decode().strip()
+        print(xid, cid)
         cert = xidb.getCert(cid)
         if cert:
             meta = xidb.getMeta(cert['cid'])
@@ -105,7 +126,7 @@ def getCerts():
                 certs.append(cert)
             else:
                 print("deprecated", xid)
-                db.delete(xid)
+                #db.delete(xid)
 
     return certs
 
@@ -146,4 +167,4 @@ def test2():
 
 
 if __name__ == "__main__":
-    test2()
+    print(getCerts())

@@ -76,16 +76,18 @@ def getMeta(cid):
 def getVersions(cid):
     versions = []
 
-    cert = getCert(cid)
+    version = getCert(cid)
+    version['auth_cid'] = cid
 
-    while cert:
-        versions.append(cert)
-        print(cert)
-        prev = cert['prev']
+    while version:
+        versions.append(version)
+        print(version)
+        prev = version['prev']
         if prev:
-            cert = getCert(prev)
+            version = getCert(prev)
+            version['auth_cid'] = prev
         else:
-            cert = None
+            version = None
 
     versions.reverse()
     

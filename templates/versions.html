@@ -4,22 +4,26 @@
 
 {% block app_content %}
 <h1>Asset Versions</h1>
-<pre>
-authorization: <a href="https://ipfs.io/ipfs/{{ cid }}">{{ cid }}</a>
-</pre>
+
 <table class="table table-striped">
     <thead>
         <tr>
             <th scope="col">version</th>
             <th scope="col">time</th>
             <th scope="col">cid</th>
+            <th scope="col">authorization</th>
         </tr>
     </thead>
 {% for version in versions %}
+{% if version.auth_cid == cid %}
+<tr class="info">
+{%  else %}
 <tr>
+{%  endif %}
     <th scope="row">v{{ version.version }}</td>
     <td>{{ version.auth.time }}</td>
     <td><a href="https://ipfs.io/ipfs/{{ version.cid }}">{{ version.cid }}</a></td>
+    <td><a href="/auth/{{ version.auth_cid }}">{{ version.auth_cid }}</a></td>
 </tr>
 {% endfor %}
 </table>
