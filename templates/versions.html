@@ -15,7 +15,7 @@
         </tr>
     </thead>
 {% for version in versions %}
-{% if version.auth_cid == cid %}
+{% if version.auth_cid == cid or version.cid == cid %}
 <tr class="info">
 {%  else %}
 <tr>

@@ -88,8 +88,7 @@ def authorize2(chain, cid):
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
 def getLatestCert(cid):
-    cert = getCert(cid)
-    xid = cert['xid']
+    xid = getXid(cid)
 
     dbhost = os.environ.get('DB_HOST')
 
@@ -97,7 +96,10 @@ def getLatestCert(cid):
         dbhost = 'localhost'
     
     db = redis.Redis(host=dbhost, port=6379, db=0)
-    latest = db.get(f"xid/{xid}").decode().strip()
+    latest = db.get(f"xid/{xid}")
+    
+    if latest:
+        latest = latest.decode().strip()
 
     print(cid, xid, latest)
     return latest
