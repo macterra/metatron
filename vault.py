@@ -54,11 +54,18 @@ def meta(cid):
     print(meta)
     return meta
 
-@app.route("/versions/<cid>")
-def versions(cid):
-    latest = getLatestCert(cid)
+@app.route("/versions/xid/<xid>")
+def xid_versions(xid):
+    latest = getLatestCert(xid)
     versions = getVersions(latest)
-    return render_template('versions.html', cid=cid, versions=versions)
+    return render_template('versions.html', xid=xid, cid=cid, versions=versions)
+
+@app.route("/versions/cid/<cid>")
+def versions(cid):
+    xid = getXid(cid)
+    latest = getLatestCert(xid)
+    versions = getVersions(latest)
+    return render_template('versions.html', xid=xid, cid=cid, versions=versions)
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])
 def authorize(chain):
@@ -87,9 +94,7 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-def getLatestCert(cid):
-    xid = getXid(cid)
-
+def getLatestCert(xid):
     dbhost = os.environ.get('DB_HOST')
 
     if not dbhost:
