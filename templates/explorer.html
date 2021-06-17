@@ -7,14 +7,13 @@
 
 {% for cert in certs %}
 <pre>
-asset   <a href="https://ipfs.io/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.meta.asset }}</a> v{{ cert.version }}
-version <a href="/versions/cid/{{ cert.cert }}">{{ cert.cert }}</a>
+asset   <a href="https://ipfs.io/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.cid }}/{{ cert.meta.asset }}</a> v{{ cert.version }}
 xid     <a href="/versions/xid/{{ cert.xid }}">{{ cert.xid }}</a>
 time    {{ cert.auth.time }}
 auth-id {{ cert.auth.id }}
 cid     <a href="/versions/cid/{{ cert.cid }}">{{ cert.cid }}</a>
-type    {{ cert.meta.type }}
-owner   {{ cert.meta.owner }}
+type    <a href="https://ipfs.io/ipfs/{{ cert.meta.type }}">{{ cert.meta.type }}</a>
+owner   <a href="https://ipfs.io/ipfs/{{ cert.meta.owner }}">{{ cert.meta.owner }}</a>
 </pre>
 {% endfor %}
 {% endblock %}

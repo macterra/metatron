@@ -129,7 +129,6 @@ def getCerts():
             meta = xidb.getMeta(cert['cid'])
             if 'asset' in meta:
                 cert['meta'] = meta
-                cert['cert'] = cid
                 certs.append(cert)
             else:
                 print("deprecated", xid)
