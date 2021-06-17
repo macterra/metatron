@@ -42,11 +42,11 @@
         </tr>
         <tr>
           <th scope="row">block</th>
-          <td><a href="https://openchains.info/coin/tesseract/block/{{ cert.auth.blockhash }}">{{ cert.auth.blockhash }}</a></td>
+          <td><a href="{{ block_url }}{{ cert.auth.blockhash }}">{{ cert.auth.blockhash }}</a></td>
         </tr>
         <tr>
           <th scope="row">tx</th>
-          <td><a href="https://openchains.info/coin/tesseract/tx/{{ cert.auth.tx.txid }}">{{ cert.auth.tx.txid }}</a></td>
+          <td><a href="{{ tx_url }}{{ cert.auth.tx.txid }}">{{ cert.auth.tx.txid }}</a></td>
         </tr>
       </tbody>
     </table>

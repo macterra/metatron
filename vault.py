@@ -42,8 +42,16 @@ def vault(chain):
     return render_template('vault.html', chain=chain, authorizer=authorizer)
 
 @app.route("/auth/<cid>")
-def auth(cid):    
-    return render_template('auth.html', cid=cid, cert = getCert(cid))
+def auth(cid):
+    cert = getCert(cid)
+    chain = cert['auth']['chain']
+
+    if chain == 'TSR':
+        # get from config
+        block_url = 'https://openchains.info/coin/tesseract/block/'
+        tx_url = 'https://openchains.info/coin/tesseract/tx/'
+
+    return render_template('auth.html', cid=cid, cert=cert, block_url=block_url, tx_url=tx_url)
 
 @app.route("/meta/<cid>")
 def meta(cid):
