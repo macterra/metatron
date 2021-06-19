@@ -31,6 +31,10 @@ def explorer():
     #print(certs)
     return render_template('explorer.html', certs=certs)
 
+@app.route("/scanner")
+def scanner():
+    return render_template('scanner.html', status=getStatus())
+
 @app.route("/vault/<chain>")
 def vault(chain):    
     connect=os.environ.get(f"{chain}_CONNECT")
@@ -99,13 +103,31 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-def getLatestCert(xid):
+def getDb():
     dbhost = os.environ.get('DB_HOST')
 
     if not dbhost:
         dbhost = 'localhost'
     
-    db = redis.Redis(host=dbhost, port=6379, db=0)
+    return redis.Redis(host=dbhost, port=6379, db=0)
+
+def getStatus():
+    db = getDb()
+    keys = db.keys("scanner/*")
+
+    status = {}
+
+    for key in keys:
+        val = db.get(key)
+        _, chain, prop = key.decode().split('/')
+        if not chain in status:
+            status[chain] = {}
+        status[chain][prop] = val.decode()
+
+    return status
+
+def getLatestCert(xid):
+    db = getDb()
     latest = db.get(f"xid/{xid}")
     
     if latest:
@@ -115,12 +137,7 @@ def getLatestCert(xid):
     return latest
 
 def getCerts():
-    dbhost = os.environ.get('DB_HOST')
-
-    if not dbhost:
-        dbhost = 'localhost'
-    
-    db = redis.Redis(host=dbhost, port=6379, db=0)
+    db = getDb()
     xids = db.keys("xid/*")
     print(xids)
 
@@ -140,42 +157,6 @@ def getCerts():
                 #db.delete(xid)
 
     return certs
-
-def test1():
-    connect=os.environ.get(f"TSR_CONNECT")
-    print(f"connect={connect}")
-    blockchain = AuthServiceProxy(connect, timeout=10)
-    height = blockchain.getblockcount()
-    print(f"height={height}")
-    authorizer = Authorizer(blockchain)
-    authorizer.updateWallet()
-
-def test2():
-    dbhost = os.environ.get('SCANNER_DBHOST')
-
-    if not dbhost:
-        dbhost = 'localhost'
-    
-    db = redis.Redis(host=dbhost, port=6379, db=0)
-    xids = db.keys("xid/*")
-    print(xids)
-    for xid in xids:
-        cid = db.get(xid).decode().strip()
-        print(xid, cid)
-        meta = getMeta(cid)
-        print(meta)
-        if not meta:
-            db.delete(xid)
-        else:
-            prev = meta['prev']
-            vers = meta['version']
-            print(vers, prev)
-            while prev:
-                meta = getMeta(prev)
-                prev = meta['prev']
-                vers = meta['version']
-                print(vers, prev)
-
 
 if __name__ == "__main__":
     print(getCerts())

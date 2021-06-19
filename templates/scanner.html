@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Metatron Scanner{% endblock %}
+
+{% block app_content %}
+<h1>Metatron Scanner</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">chain</th>
+            <th scope="col">time</th>
+            <th scope="col" class="text-right">first</th>
+            <th scope="col" class="text-right">last</th>
+            <th scope="col" class="text-right">height</th>
+        </tr>
+    </thead>
+{% for chain in status %}
+{% set o = status[chain] %}
+<tr>
+    <th scope="row">{{ chain }}</td>
+        <td>{{ o.time }}</td>
+    <td class="text-right">{{ o.first }}</td>
+    <td class="text-right">{{ o.last }}</td>
+    <td class="text-right">{{ o.height }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
