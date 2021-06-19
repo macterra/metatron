@@ -16,8 +16,8 @@
 <pre>
 xid:   {{ xid }}
 asset: {{ asset.meta.asset }}
-type:  {{ asset.meta.type }}
-cid:   <a href="/meta/{{ asset.cid }}">{{ asset.cid }}</a> (<a href="https://ipfs.io/ipfs/{{ asset.cid }}">ipfs</a>)
+type:  <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
+cid:   <a href="/ipfs/{{ asset.cid }}">{{ asset.cid }}</a>
 txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
 </pre>
 {% endfor %}

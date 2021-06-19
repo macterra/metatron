@@ -9,6 +9,10 @@
     <table class="table">
       <tbody>
         <tr>
+          <th scope="row">version</th>
+          <td>{{ cert.version }}</td>
+        </tr>
+        <tr>
           <th scope="row">auth id</th>
           <td><a href="/versions/cid/{{ cid }}">{{ cid }}</a></td>
         </tr>
@@ -19,10 +23,6 @@
         <tr>
           <th scope="row">asset id</th>
           <td><a href="https://ipfs.io/ipfs/{{ cert.cid }}">{{ cert.cid }}</a></td>
-        </tr>
-        <tr>
-          <th scope="row">version</th>
-          <td>{{ cert.version }}</td>
         </tr>
         <tr>
           <th scope="row">prev</th>

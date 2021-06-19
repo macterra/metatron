@@ -2,12 +2,10 @@
 
 {% block app_content %}
 <form action="" method="post" novalidate>
-    <p>
-        <pre>cid: {{ cid }}</pre>
-        {{ meta | tojson }}
-        <pre>
-        </pre>
-    </p>
+    <pre>
+cid: {{ cid }}
+{{ meta | tojson }}
+    </pre>
     <pre>
 balance = {{ balance }}
 txn fee = {{ txfee }}

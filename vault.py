@@ -7,6 +7,7 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from authorize import *
+from urllib.parse import urlparse
 
 class AuthorizeForm(FlaskForm):
         cid = StringField('cid')
@@ -53,14 +54,10 @@ def auth(cid):
 
     return render_template('auth.html', cid=cid, cert=cert, block_url=block_url, tx_url=tx_url)
 
-@app.route("/meta/<cid>")
-def meta(cid):
-    meta = getMeta(cid)
-    #return render_template('meta.html', cid=cid, meta=meta)
-    if not meta:
-        meta = "error: metadata not found"
-    print(meta)
-    return meta
+@app.route("/ipfs/<path:path>")
+def ipfs(path):
+    o = urlparse(request.base_url)
+    return redirect(f"http://{o.hostname}:8080/ipfs/{path}", 302)
 
 @app.route("/versions/xid/<xid>")
 def xid_versions(xid):
