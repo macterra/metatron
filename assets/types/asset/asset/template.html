@@ -18,7 +18,7 @@
         <tbody>
           <tr>
             <th scope="row">xid</th>
-            <td><pre>{{ asset.xid }}</pre></td>
+            <td><a href="{{ asset.home }}{{ asset.xid }}">{{ asset.xid }}</a></td>
           </tr>
           <tr>
             <th scope="row">meta</th>
@@ -37,7 +37,8 @@
             <td><a href="{{ asset.asset }}">{{ asset.asset }}</a></td>
           </tr>
         </tbody>
-      </table>
+      </table>      
+      <a class="btn btn-primary btn-lg" href="meta.json" role="button">json</a>
     </div>
 
     <!-- Optional JavaScript -->
