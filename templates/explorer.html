@@ -6,6 +6,19 @@
 <h1>Metatron Explorer</h1>
 
 {% for cert in certs %}
+{% if cert.meta.repo %}
+<pre>
+repo    <a href="/ipfs/{{ cert.cid }}/{{ cert.meta.repo }}">{{ cert.cid }}/{{ cert.meta.repo }}</a> v{{ cert.version }}
+xid     <a href="/versions/xid/{{ cert.xid }}">{{ cert.xid }}</a>
+time    {{ cert.auth.time }}
+auth-id {{ cert.auth.id }}
+cid     <a href="/versions/cid/{{ cert.cid }}">{{ cert.cid }}</a>
+origin  <a href="/ipfs/{{ cert.meta.origin }}">{{ cert.meta.origin }}</a>
+owner   <a href="/ipfs/{{ cert.meta.owner }}">{{ cert.meta.owner }}</a>
+</pre>
+{% endif %}
+
+{% if cert.meta.asset %}
 <pre>
 asset   <a href="/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.cid }}/{{ cert.meta.asset }}</a> v{{ cert.version }}
 xid     <a href="/versions/xid/{{ cert.xid }}">{{ cert.xid }}</a>
@@ -15,5 +28,6 @@ cid     <a href="/versions/cid/{{ cert.cid }}">{{ cert.cid }}</a>
 type    <a href="/ipfs/{{ cert.meta.type }}">{{ cert.meta.type }}</a>
 owner   <a href="/ipfs/{{ cert.meta.owner }}">{{ cert.meta.owner }}</a>
 </pre>
+{% endif %}
 {% endfor %}
 {% endblock %}

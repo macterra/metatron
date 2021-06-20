@@ -13,6 +13,7 @@
 <h2>assets</h2>
 {% for xid in authorizer.xids %}
 {% set asset = authorizer.xids[xid] %}
+{% if asset.meta.asset %}
 <pre>
 xid:   {{ xid }}
 asset: {{ asset.meta.asset }}
@@ -20,5 +21,14 @@ type:  <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
 cid:   <a href="/ipfs/{{ asset.cid }}">{{ asset.cid }}</a>
 txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
 </pre>
+{% endif %}
+{% if asset.meta.repo %}
+<pre>
+xid:   {{ xid }}
+repo:  {{ asset.meta.repo }}
+cid:   <a href="/ipfs/{{ asset.cid }}">{{ asset.cid }}</a>
+txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
+</pre>
+{% endif %}
 {% endfor %}
 {% endblock %}

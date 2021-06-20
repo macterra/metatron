@@ -149,7 +149,7 @@ def getCerts():
         cert = xidb.getCert(cid)
         if cert:
             meta = xidb.getMeta(cert['cid'])
-            if 'asset' in meta:
+            if 'asset' or 'repo' in meta:
                 cert['meta'] = meta
                 certs.append(cert)
             else:
