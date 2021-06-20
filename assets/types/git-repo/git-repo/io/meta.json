@@ -1,0 +1,9 @@
+{
+    "xid": "c8c916d3-2738-4ec4-851a-2f801c086517",
+    "home": "http://btc.metagamer.org:5000/versions/xid/",
+    "ipfs": "http://btc.metagamer.org:8080/ipfs/",
+    "meta": "QmNLz6qU8KwVjqhnBTqgEE48pJVP2P3thqHDAYtVFyiHFB/git-repo",
+    "owner": "QmWFwQTEi5Cb6tanJmyzewisvpaKpTgvTtd59CA85gVGiw/macterra",
+    "origin": "https://github.com/macterra/metatron-node.git",
+    "repo": "metatron-node"
+}

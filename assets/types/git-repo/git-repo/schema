@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "description": "A git repository",
+    "type": "object",
+    "properties": {
+        "xid": { "$ref": "xid" },
+        "home": { "$ref": "url" },
+        "ipfs": { "$ref": "url" },
+        "meta": { "$ref": "asset" },
+        "owner": { "$ref": "asset" },
+        "origin": { "$ref": "url" },
+        "rep": { "$ref": "string" }
+    }
+}
