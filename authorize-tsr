@@ -2,4 +2,4 @@
 
 export SCANNER_CONNECT=http://scully:sw33tp0tat0@btc.metagamer.org:18331
 
-python3 authorize.py QmWrY4EYcminrGtQuyC91VDh1WbP3ymkiHrseCpQRY4R7s
+python3 authorize.py QmR3A1cFvwQjvfXruZtHUPzn711siXW2Z3ZpSVksGWtG29

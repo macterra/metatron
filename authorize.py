@@ -108,7 +108,7 @@ class Authorizer:
         changeAddr = self.blockchain.getnewaddress("auth", "bech32")
         change = funtxn['amount'] - magic - txfee
 
-        outputs = { authAddr: str(magic), "data": hexdata, changeAddr: change }
+        outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
 
         #print('inputs', inputs)
         #print('outputs', outputs)
