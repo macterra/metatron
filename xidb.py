@@ -127,3 +127,35 @@ def findCid(tx):
 def encodeCid(hash):
     cid1 = cid.make_cid(hash)
     return binascii.hexlify(cid1.to_v1().buffer).decode()
+
+class AuthTx():    
+    def __init__(self, tx):
+        self.tx = tx
+        self.cid = None
+        self.xid = None
+        self.isValid = self.validate()
+
+    def validate(self):
+        vout = self.tx['vout'][0]
+        scriptPubKey = vout['scriptPubKey']
+        script_type = scriptPubKey['type']
+        if script_type != 'nulldata':
+            return False
+        hexdata = scriptPubKey['hex']
+        data = bytes.fromhex(hexdata)
+        if data[0] != 0x6a:
+            return False
+            #print("data len", data[1])
+        try:
+            if data[1] == 34: # len of CIDv0
+                cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
+                self.cid = str(cid0)
+            elif data[1] == 36: # len of CIDv1
+                cid1 = cid.make_cid(data[2:])
+                cid0 = cid1.to_v0()
+                self.cid = str(cid0)
+        except:
+            #print('cid parser fail')
+            return False
+        self.xid = getXid(self.cid)
+        return self.xid != None

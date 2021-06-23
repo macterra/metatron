@@ -1,0 +1,9 @@
+{
+    "name": "authorization",
+    "description": "A block certification of an asset version authorization",
+    "schema": "schema",
+    "json": "authorization.json",
+    "html": "index.html",
+    "template": "template.html",
+    "update": "docker run --rm -v $PWD:/app/io macterra/metatron-authorization"
+}
