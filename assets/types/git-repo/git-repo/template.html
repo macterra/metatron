@@ -13,32 +13,21 @@
   <body>
 
     <div class="jumbotron">
-      <h1 class="display-4">metadata: git-repo</h1>
+      <h1 class="display-4">metadata: {{ asset.name }}</h1>
       <table class="table">
         <tbody>
-          <tr>
-            <th scope="row">xid</th>
-            <td><a href="{{ asset.home }}{{ asset.xid }}">{{ asset.xid }}</a></td>
-          </tr>
-          <tr>
-            <th scope="row">meta</th>
-            <td><a href="{{ asset.ipfs }}{{ asset.meta }}">{{ asset.meta }}</a></td>
-          </tr>
-          <tr>
-            <th scope="row">owner</th>
-            <td><a href="{{ asset.ipfs }}{{ asset.owner }}">{{ asset.owner }}</a></td>
-          </tr>
           <tr>
             <th scope="row">origin</th>
             <td><a href="{{ asset.origin }}">{{ asset.origin }}</a></td>
           </tr>
           <tr>
-            <th scope="row">repo</th>
-            <td><a href="{{ asset.repo }}">{{ asset.repo }}</a></td>
+            <th scope="row">source</th>
+            <td><a href="{{ asset.source }}">{{ asset.source }}</a></td>
           </tr>
         </tbody>
       </table>      
-      <a class="btn btn-primary btn-lg" href="meta.json" role="button">json</a>
+      <a class="btn btn-primary btn-lg" href=".." role="button">meta</a>
+      <a class="btn btn-primary btn-lg" href="git-repo.json" role="button">json</a>
     </div>
 
     <!-- Optional JavaScript -->

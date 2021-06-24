@@ -2,7 +2,7 @@
     "name": "git-repo",
     "description": "A git repository",
     "schema": "schema",
-    "json": "meta.json",
+    "json": "git-repo.json",
     "html": "index.html",
     "template": "template.html",
     "update": "docker run --rm -v $PWD:/app/io macterra/metatron-git-repo"
