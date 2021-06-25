@@ -157,5 +157,6 @@ class AuthTx():
         except:
             #print('cid parser fail')
             return False
+        self.meta = getMeta(self.cid)
         self.xid = getXid(self.cid)
         return self.xid != None

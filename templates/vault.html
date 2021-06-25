@@ -5,8 +5,10 @@
 {% block app_content %}
 <h1>{{ chain }} Vault</h1>
 
-<h2>balance</h2>
-{{ authorizer.balance }} {{ chain }}
+<h2>funds</h2>
+balance: {{ authorizer.balance }} 
+<p></p>
+locked: {{ authorizer.locked }} 
 <p></p>
 <a href="/authorize/{{ chain }}">authorize</a>
 

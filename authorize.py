@@ -18,39 +18,33 @@ class Authorizer:
         self.blockchain = blockchain
 
     def updateWallet(self):
+        self.locked = 0
+        self.balance = 0
+
         unspent = self.blockchain.listunspent()
         print(unspent)
         auths = []
         funds = []
+        xids = {}
+
         for tx in unspent:
-            if tx['amount'] == magic:
-                auths.append(tx)
+            if tx['vout'] == 1:
+                txin = self.blockchain.getrawtransaction(tx['txid'], 1)
+                auth = AuthTx(txin)
+                if auth.isValid:
+                    auths.append(tx)
+                    self.locked += tx['amount']
+                    xids[auth.xid] = {
+                        "utxo": tx,
+                        "cid": auth.cid,
+                        "meta": auth.meta
+                    }
+                else:
+                    funds.append(tx)
+                    self.balance += tx['amount']
             else:
                 funds.append(tx)
-
-        xids = {}
-        for tx in auths:
-            txin = self.blockchain.getrawtransaction(tx['txid'], 1)
-            print(f"got {tx['txid']} {tx['amount']}")
-            #print(json.dumps(txin, indent=2, cls=Encoder), cid)
-            cid = findCid(txin)
-            print(f"> found {cid}")
-            xid = getXid(cid)
-            print(f">> found {xid}")
-            meta = getMeta(cid)
-            print(f">>> found {meta}")
-            xids[xid] = {
-                "utxo": tx,
-                "cid": cid,
-                "meta": meta
-            }
-
-        #print(xids)
-
-        self.balance = 0
-        for tx in funds:
-            print(f"{tx['txid']} {tx['amount']}")
-            self.balance += tx['amount']
+                self.balance += tx['amount']
 
         self.funds = funds
         self.xids = xids
