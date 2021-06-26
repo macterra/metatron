@@ -40,11 +40,12 @@ def vault(chain):
     connect=os.environ.get(f"{chain}_CONNECT")
     print(f"connect={connect}")
     blockchain = AuthServiceProxy(connect, timeout=10)
-    height = blockchain.getblockcount()
-    print(f"height={height}")
+    # height = blockchain.getblockcount()
+    # print(f"height={height}")
     authorizer = Authorizer(blockchain)
     authorizer.updateWallet()
-    return render_template('vault.html', chain=chain, authorizer=authorizer)
+    txurl='https://openchains.info/coin/tesseract/tx/'
+    return render_template('vault.html', chain=chain, txurl=txurl, authorizer=authorizer)
 
 @app.route("/auth/<cid>")
 def auth(cid):

@@ -11,26 +11,13 @@ balance: {{ authorizer.balance }}
 locked: {{ authorizer.locked }} 
 <p></p>
 <a href="/authorize/{{ chain }}">authorize</a>
-
 <h2>assets</h2>
-{% for xid in authorizer.xids %}
-{% set asset = authorizer.xids[xid] %}
-{% if asset.meta.asset %}
+{% for asset in authorizer.assets %}
 <pre>
-xid:   {{ xid }}
-asset: {{ asset.meta.asset }}
+xid:   <a href="{{ asset.meta.home }}/{{ asset.meta.xid }}">{{ asset.meta.xid }}</a>
+asset: <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.cid }}/{{ asset.meta.asset }}</a>
 type:  <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
-cid:   <a href="/ipfs/{{ asset.cid }}">{{ asset.cid }}</a>
-txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
+txid:  <a href="{{ txurl }}{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
 </pre>
-{% endif %}
-{% if asset.meta.repo %}
-<pre>
-xid:   {{ xid }}
-repo:  {{ asset.meta.repo }}
-cid:   <a href="/ipfs/{{ asset.cid }}">{{ asset.cid }}</a>
-txid:  <a href="https://openchains.info/coin/tesseract/tx/{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
-</pre>
-{% endif %}
 {% endfor %}
 {% endblock %}
