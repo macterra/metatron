@@ -13,6 +13,38 @@ class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
+class AuthTx():    
+    def __init__(self, tx):
+        self.tx = tx
+        self.cid = None
+        self.xid = None
+        self.isValid = self.validate()
+
+    def validate(self):
+        vout = self.tx['vout'][0]
+        scriptPubKey = vout['scriptPubKey']
+        script_type = scriptPubKey['type']
+        if script_type != 'nulldata':
+            return False
+        hexdata = scriptPubKey['hex']
+        data = bytes.fromhex(hexdata)
+        if data[0] != 0x6a:
+            return False
+        try:
+            if data[1] == 34: # len of CIDv0
+                cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
+                self.cid = str(cid0)
+            elif data[1] == 36: # len of CIDv1
+                cid1 = cid.make_cid(data[2:])
+                cid0 = cid1.to_v0()
+                self.cid = str(cid0)
+        except:
+            #print('cid parser fail')
+            return False
+        self.meta = getMeta(self.cid)
+        self.xid = getXid(self.cid)
+        return self.xid != None
+
 class Authorizer:
     def __init__(self, blockchain):
         self.blockchain = blockchain
@@ -86,8 +118,7 @@ class Authorizer:
 
         authAddr = self.blockchain.getnewaddress("auth", "bech32")
         changeAddr = self.blockchain.getnewaddress("auth", "bech32")
-        change = funtxn['amount'] - magic - txfee
-
+        change = amount - magic - txfee
         outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
 
         rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
