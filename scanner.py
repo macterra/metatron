@@ -14,9 +14,8 @@ import json
 import traceback
 import redis
 
-from xidb import *
-
-magic = '0.00001111'
+import xidb
+from authorize import AuthTx
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -25,7 +24,7 @@ class Encoder(json.JSONEncoder):
 class Scanner:
     def __init__(self):
         
-        if not checkIpfs():
+        if not xidb.checkIpfs():
             print("can't connect to IPFS")
             return
 
@@ -54,7 +53,8 @@ class Scanner:
         self.blockchain = AuthServiceProxy(connect, timeout=30)
         self.height = self.blockchain.getblockcount()
 
-        self.db = redis.Redis(host=dbhost, port=6379, db=0)  
+        self.db = redis.Redis(host=dbhost, port=6379, db=0)
+        #self.db.flushall()
         self.db.set(self.keyheight, self.height)
         self.first = self.db.get(self.keyfirst)
         self.last = self.db.get(self.keylast)
@@ -80,36 +80,34 @@ class Scanner:
             self.db.set(self.keylast, self.last)
 
 
-    def writeCert(self, tx, cid, xid, version, prevCert):
-        block = self.blockchain.getblock(tx['blockhash'])
+    def writeCert(self, tx, version, prevCert):
+        cid = tx.cid
+        xid = tx.xid
+        blockhash = tx.tx['blockhash']
+        txid = tx.tx['txid']
+
+        block = self.blockchain.getblock(blockhash)
         height = block['height']
         
         block_time = block['time']
         utc = datetime.utcfromtimestamp(block_time).replace(tzinfo=tz.tzutc())
 
-        txid = tx['txid']
         index = block['tx'].index(txid)
-
-        n = -1
-        for vout in tx['vout']:
-            val = vout['value']
-            if val.compare(Decimal(magic)) == 0:
-                n = vout['n']
-                break
+        n = 1
 
         auth = {
             "chain": self.chain,
-            "time": str(utc),
-            "id": f"urn:chain:{self.chain}:{height}:{index}:{n}",
-            "tx": { "txid": txid, "vout": n },
-            "addresses": tx['vout'][n]['scriptPubKey']['addresses'],
-            "blockhash": tx['blockhash']
+            "blockheight": height,
+            "blockhash": blockhash,
+            "chainid": f"urn:chain:{self.chain}:{height}:{index}:{n}",
+            "tx": { "txid": txid, "vout": n }
         }
 
         cert = {
-            "type": "QmeKMenbWpW4YWV8Gi41kdsohjYaHvagXTem4zVcN23Q7t/block-certification",
+            "type": "QmNxoYA7yWa2foqNKFMDR1vTvaPi8F7oHq9qiqAb9znHVs/authorization",
             "xid": xid,
             "cid": cid,
+            "time": str(utc),
             "version": version,
             "prev": prevCert,
             "auth": auth
@@ -122,51 +120,35 @@ class Scanner:
         with open(certFile, "w") as write_file:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
-        self.db.set(f"xid/{xid}", addCert(certFile))
+        cert = xidb.addCert(certFile)
+        self.db.set(f"xid/{xid}", cert)
+        return cert
 
-    def addVersion(self, tx, cid):
-        print('addVersion', cid)
+    def addVersion(self, tx):
+        print('addVersion', tx.cid)
 
-        xid = getXid(cid)
+        current = self.db.get(f"xid/{tx.xid}")
 
-        if not xid:
-            return
-
-        if xid in self.db:
+        if current:
             print("error, xid already claimed")
             return
 
         print("OK to add new block-cert")
-        self.writeCert(tx, cid, xid, 0, "")
-        return cid
+        return self.writeCert(tx, 0, "")        
 
     # don't need oldTx?
-    def updateVersion(self, oldTx, oldCid, newTx, newCid):
-        print('updateVersion', oldCid, newCid)
+    def updateVersion(self, oldTx, newTx):
+        print('updateVersion', oldTx.cid, newTx.cid)
         
-        oldXid = getXid(oldCid)
-
-        if not oldXid:
-            print(f"error, no xid in {oldCid}")
-            return
-
-        newXid = getXid(newCid)
-
-        if not newXid:
-            print(f"error, no xid in {newCid}")
-            return
-
-        if oldXid != newXid:
+        if oldTx.xid != newTx.xid:
             print("error, ids do not match", oldXid, newXid)
             return
 
-        xid = newXid
-        
-        # !!! what is the logic here?
+        xid = newTx.xid        
         certCid = self.db.get(f"xid/{xid}")
+
         if not certCid:
-            self.verifyTx(oldTx, oldCid)
-            certCid = self.db.get(f"xid/{xid}")
+            certCid = self.verifyTx(oldTx)
             if not certCid:
                 print("warning, can't find cert cid in db", xid)
                 return
@@ -174,42 +156,41 @@ class Scanner:
         certCid = certCid.decode()
         print('certCid', certCid)
         
-        cert = getCert(certCid)
+        cert = xidb.getCert(certCid)
         print('cert', cert)
         
-        if cert['cid'] == newCid:
+        if cert['cid'] == newTx.cid:
             print(f"error, certCid {certCid} already assigned to xid {xid}")
             return
 
-        if oldXid != cert['xid']:
+        if oldTx.xid != cert['xid']:
             print("error, cert does not match xid", xid)
             return
 
-        if oldCid != cert['cid']:
-            print("error, cert does not match meta", oldCid)
+        if oldTx.cid != cert['cid']:
+            print("error, cert does not match meta", oldTx.cid)
             return
         
         print("OK to update block-cert")
 
         version = cert['version'] + 1
-        self.writeCert(newTx, newCid, newXid, version, certCid)
-        return newCid
+        self.writeCert(newTx, version, certCid)
+        return newTx.cid
 
-    def isAuthTx(self, tx, n):
-        vout = tx['vout'][n]
-        val = vout['value']
-        return val.compare(Decimal(magic)) == 0
+    def verifyTx(self, newTx):
+        vin = newTx.tx['vin'][0]
+        txid = vin['txid']
+        vout = vin['vout']
+        
+        print(f"verifyTx {txid} {vout}")
 
-    def verifyTx(self, newTx, newCid):
-        for vin in newTx['vin']:
-            txid = vin['txid']
-            vout = vin['vout']
-            oldTx = self.blockchain.getrawtransaction(txid, 1)
-            if self.isAuthTx(oldTx, vout):
-                oldCid = findCid(oldTx)
-                if oldCid:
-                    return self.updateVersion(oldTx, oldCid, newTx, newCid)
-        return self.addVersion(newTx, newCid)
+        if vout == 1:
+            tx = self.blockchain.getrawtransaction(txid, 1)
+            oldTx = AuthTx(tx)
+            if oldTx.isValid:
+                return self.updateVersion(oldTx, newTx)
+
+        return self.addVersion(newTx)
 
     def scanBlock(self, height):
         block_hash = self.blockchain.getblockhash(height)
@@ -225,11 +206,10 @@ class Scanner:
         for txid in txns:
             #print(txid)
             print('.', end='', flush=True)
-            tx = self.blockchain.getrawtransaction(txid, 1)        
-            cid = findCid(tx)
-            if cid:
-                print(f"found cid {cid}")
-                self.verifyTx(tx, cid)
+            tx = self.blockchain.getrawtransaction(txid, 1)
+            newTx = AuthTx(tx)
+            if newTx.isValid:
+                self.verifyTx(newTx)
         print()
         print(f"scanned {len(txns)} transactions", flush=True)
         
@@ -256,4 +236,4 @@ if __name__ == "__main__":
     scanAll()
             
     #scanner = Scanner()
-    #scanner.scanBlock(99316)
+    #scanner.scanBlock(101091)

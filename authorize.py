@@ -13,47 +13,68 @@ class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
+class AuthTx():    
+    def __init__(self, tx):
+        self.tx = tx
+        self.cid = None
+        self.xid = None
+        self.isValid = self.validate()
+
+    def validate(self):
+        vout = self.tx['vout'][0]
+        scriptPubKey = vout['scriptPubKey']
+        script_type = scriptPubKey['type']
+        if script_type != 'nulldata':
+            return False
+        hexdata = scriptPubKey['hex']
+        data = bytes.fromhex(hexdata)
+        if data[0] != 0x6a:
+            return False
+        try:
+            if data[1] == 34: # len of CIDv0
+                cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
+                self.cid = str(cid0)
+            elif data[1] == 36: # len of CIDv1
+                cid1 = cid.make_cid(data[2:])
+                cid0 = cid1.to_v0()
+                self.cid = str(cid0)
+        except:
+            #print('cid parser fail')
+            return False
+        self.meta = getMeta(self.cid)
+        self.xid = getXid(self.cid)
+        return self.xid != None
+
 class Authorizer:
     def __init__(self, blockchain):
         self.blockchain = blockchain
 
     def updateWallet(self):
+        self.locked = 0
+        self.balance = 0
+
         unspent = self.blockchain.listunspent()
-        print(unspent)
-        auths = []
+        #print(unspent)
         funds = []
+        assets = []
+
         for tx in unspent:
-            if tx['amount'] == magic:
-                auths.append(tx)
+            if tx['vout'] == 1:
+                txin = self.blockchain.getrawtransaction(tx['txid'], 1)
+                auth = AuthTx(txin)
+                if auth.isValid:
+                    auth.utxo = tx
+                    assets.append(auth)
+                    self.locked += tx['amount']
+                else:
+                    funds.append(tx)
+                    self.balance += tx['amount']
             else:
                 funds.append(tx)
-
-        xids = {}
-        for tx in auths:
-            txin = self.blockchain.getrawtransaction(tx['txid'], 1)
-            print(f"got {tx['txid']} {tx['amount']}")
-            #print(json.dumps(txin, indent=2, cls=Encoder), cid)
-            cid = findCid(txin)
-            print(f"> found {cid}")
-            xid = getXid(cid)
-            print(f">> found {xid}")
-            meta = getMeta(cid)
-            print(f">>> found {meta}")
-            xids[xid] = {
-                "utxo": tx,
-                "cid": cid,
-                "meta": meta
-            }
-
-        #print(xids)
-
-        self.balance = 0
-        for tx in funds:
-            print(f"{tx['txid']} {tx['amount']}")
-            self.balance += tx['amount']
+                self.balance += tx['amount']
 
         self.funds = funds
-        self.xids = xids
+        self.assets = assets
 
     def authorize(self, cid):
         print(f"authorizing {cid}")
@@ -70,27 +91,19 @@ class Authorizer:
 
         inputs = []
 
-        if xid in self.xids:  
-            print(f"found xid {xid} in vault")
-            if cid == self.xids[xid]['cid']:
-                print(f"xid is already up to date with {cid}")
-                return                
-            utxo = self.xids[xid]['utxo']
-            print(utxo)
-            input = {
-                "txid": utxo['txid'],
-                "vout": utxo['vout']
-            }
-            inputs.append(input)
-        else:
+        for asset in self.assets:
+            if asset.meta['xid'] == xid:
+                if cid == asset.cid:
+                    print(f"xid is already up to date with {cid}")
+                    return
+                inputs.append(asset.utxo)
+                break
+            
+        if len(inputs) == 0:
             print(f"claiming xid {xid}")
 
         amount = Decimal('0')
         for funtxn in self.funds:
-            funinp = {
-                "txid": funtxn['txid'],
-                "vout": funtxn['vout']
-            }
             inputs.append(funtxn)
             amount += funtxn['amount']
             if amount > (magic + txfee):
@@ -100,25 +113,16 @@ class Authorizer:
             print('not enough funds in account', amount)
             return
 
-        hexdata = encodeCid(cid)        
-        #print('cid', hexdata)
+        hexdata = encodeCid(cid)    
         nulldata = { "data": hexdata }
 
         authAddr = self.blockchain.getnewaddress("auth", "bech32")
         changeAddr = self.blockchain.getnewaddress("auth", "bech32")
-        change = funtxn['amount'] - magic - txfee
-
-        outputs = { authAddr: str(magic), "data": hexdata, changeAddr: change }
-
-        #print('inputs', inputs)
-        #print('outputs', outputs)
+        change = amount - magic - txfee
+        outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
 
         rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
-        #print('raw', rawtxn)
-
-        sigtxn = self.blockchain.signrawtransaction(rawtxn)
-        #print('sig', sigtxn)
-        
+        sigtxn = self.blockchain.signrawtransaction(rawtxn)        
         dectxn = self.blockchain.decoderawtransaction(sigtxn['hex'])
         print('dec', json.dumps(dectxn, indent=2, cls=Encoder))
         
@@ -130,7 +134,6 @@ class Authorizer:
 def main():
     connect = os.environ.get('SCANNER_CONNECT')
     blockchain = AuthServiceProxy(connect, timeout=120)
-
     authorizer = Authorizer(blockchain)
 
     for arg in sys.argv[1:]:

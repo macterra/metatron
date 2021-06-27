@@ -3,10 +3,14 @@
 {% block app_content %}
 <form action="" method="post" novalidate>
     <pre>
-cid: {{ cid }}
-{{ meta | tojson }}
-    </pre>
-    <pre>
+asset: {{ meta.asset }}
+cid:   {{ cid }}
+xid:   {{ meta.xid }}
+meta:  {{ meta.meta }}
+type:  {{ meta.type }}
+owner: {{ meta.owner }}
+home:  {{ meta.home }}
+
 balance = {{ balance }}
 txn fee = {{ txfee }}
     </pre>

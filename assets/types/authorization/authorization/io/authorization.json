@@ -1,0 +1,20 @@
+{
+    "type": "QmeKMenbWpW4YWV8Gi41kdsohjYaHvagXTem4zVcN23Q7t/block-certification",
+    "xid": "8c09eaa9-89a8-4c1c-96fa-b3fe97bc35fe",
+    "cid": "QmR3A1cFvwQjvfXruZtHUPzn711siXW2Z3ZpSVksGWtG29",
+    "version": 0,
+    "prev": "",
+    "auth": {
+        "chain": "TSR",
+        "time": "2021-06-22 00:46:12+00:00",
+        "id": "urn:chain:TSR:101091:17:1",
+        "tx": {
+            "txid": "e113bced744f3c4e23af5f8ed684a8dfd8e2d0c7673ae1085329b925dfd6728b",
+            "vout": 1
+        },
+        "addresses": [
+            "tsrtest1qh2w4w6jnaal6tk3gux8w3lfxsd3za4xrlfl2px"
+        ],
+        "blockhash": "00000000dc0e495696124b003f3b229b77c5f704c57b8a512e31849f30e9552c"
+    }
+}
