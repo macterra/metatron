@@ -17,8 +17,6 @@ import redis
 import xidb
 from authorize import AuthTx
 
-#magic = '0.00001111'
-
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
@@ -188,7 +186,7 @@ class Scanner:
 
         if vout == 1:
             tx = self.blockchain.getrawtransaction(txid, 1)
-            oldTx = xidb.AuthTx(tx)
+            oldTx = AuthTx(tx)
             if oldTx.isValid:
                 return self.updateVersion(oldTx, newTx)
 
