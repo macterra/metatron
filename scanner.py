@@ -15,8 +15,9 @@ import traceback
 import redis
 
 import xidb
+from authorize import AuthTx
 
-magic = '0.00001111'
+#magic = '0.00001111'
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -208,7 +209,7 @@ class Scanner:
             #print(txid)
             print('.', end='', flush=True)
             tx = self.blockchain.getrawtransaction(txid, 1)
-            newTx = xidb.AuthTx(tx)
+            newTx = AuthTx(tx)
             if newTx.isValid:
                 self.verifyTx(newTx)
         print()
@@ -234,7 +235,7 @@ def scanAll():
         time.sleep(10)
 
 if __name__ == "__main__":
-    #scanAll()
+    scanAll()
             
-    scanner = Scanner()
-    scanner.scanBlock(101091)
+    #scanner = Scanner()
+    #scanner.scanBlock(101091)
