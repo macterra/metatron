@@ -42,7 +42,7 @@ The xid is associated with digital content by mapping it to a content identifier
 
 The system scans new blocks for auth transactions, validates them, generates block certificates (block-certs) for valid ones, and updates the version database. Instances of the system that implement that same consensus rules and scan the same set of blockchains will necessarily converge on the same version database state analogously to the unspent transaction output (UTXO) set for a particular blockchain.
 
-![](diagrams/verified-versions-v4.png)
+![](diagrams/versions.png)
 
 1. The first version of a document (or [image](diagrams/verified-versions-v1.png)) is created and added to IPFS. 
 2. A [metadata document](meta-v0.json) references the CID of the doc v1. A random `idx` is generated for this object. It is the only property that must remain constant for the life of the object.
