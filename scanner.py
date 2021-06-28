@@ -141,7 +141,7 @@ class Scanner:
         print('updateVersion', oldTx.cid, newTx.cid)
         
         if oldTx.xid != newTx.xid:
-            print("error, ids do not match", oldXid, newXid)
+            print("error, ids do not match", oldTx.xid, newTx.xid)
             return
 
         xid = newTx.xid        
