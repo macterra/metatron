@@ -10,9 +10,9 @@ The value of the xid must be a random [UUID](https://en.wikipedia.org/wiki/Unive
 - therefore the xid should contain no internal information (though it is always possible to encode encrypted information via the UUID5 standard)
 
 The xid is associated with digital content by mapping it to a content identifier (CID) on IPFS
-- if the CID resolves to a file, the file must be a JSON file with a top-level property named `xid`
-- if the CID resolves to a directory, it must have a top-level file named `xid` that contains the xid
-- if the CID resolves to a IPLD node, it must have a top-level property named `xid`
+- if the CID resolves to a directory, it must have a top-level file named `meta.json` that includes a top-level property named `xid`
+- if the CID resolves to a IPLD node, it should have a top-level object named `meta` that includes a top-level property named `xid` (TBD)
+- if the CID resolves to a file, it is ignored
 
 ## Rules of ownership 
 
@@ -25,22 +25,23 @@ The xid is associated with digital content by mapping it to a content identifier
     - let the market decide which blockchains should be used for this purpose
 
 ### Bitcoin-derived blockchains
+
 - ownership claims are submitted in special txns called auth txns (short for authorization transactions)
-- the auth txn must contain one unspendable nulldata txo encoding IPFS CID (v0 or v1 multihash)
-- the auth txn must contain one spendable txo with a (magic) value of "0.00001111" that establishes ownership of the metadoc
+- the auth txn must contain one unspendable nulldata txo encoding IPFS CID (v0 or v1 multihash) at `vout` index 0
+- the auth txn must contain one spendable txo at `vout` index 1 that establishes the chain of ownership of the xid
     - sufficiently low valued transactions are prohibited by the bitcoin consensus as "dust" because it costs more in transaction fees to spend them than they are worth
-    - since we need a positive value we might as well use it to distinguish auth txos
-        - the relatively low value was selected deliberately to minimize value locked up in ownership claims
-        - and also to make it unlikely that these txos will randomly be selected to cover fees
+    - the value staked in the auth txn must be greater than the current dust value
     - in order to update the metadoc for a given xid, a subsequent auth txn MUST spend the previous auth txo (this is the essential key to the whole system)
-        - anyone can copy and publish a new version of the metadoc, it is public information
-        - only the owner can publish an authorized revision
+        - anyone can copy and publish a new version of the metadoc since it is public information
+        - **only the owner** can publish an `authorized version`
     - the txn will necessarily contain additional inputs and outputs to cover blockchain fees
     - it is the responsibility of the authorization software to ensure that auth txos are used only to update ownership claims, not for fees
 
 ### Operation
 
-The system scans new blocks for auth transactions, validates them, generates block certificates (block-certs) for valid ones, and updates the version database. Instances of the system that implement that same consensus rules and scan the same set of blockchains will necessarily converge on the same version database state analogously to the unspent transaction output (UTXO) set for a particular blockchain.
+The system scans new blocks for auth transactions, validates them, generates version certificates for valid ones, and updates the version database. The version database simply maps each extent xid to the cid of the latest version certificate. Instances of the system that implement that same consensus rules and scan the same set of blockchains will necessarily converge on the same version database state analogously to the unspent transaction output (UTXO) set for a particular blockchain.
+
+Nodes can sync with each other by authorizing their version database on the blockchain where other nodes can pick them up in their regular scans and compare them to their local versions to detect and correct any inconsistencies. This mechanism also provides a way for new nodes to synchronize quickly without scanning each entire blockchain from the beginning or a specific date. Validating the most recent version requires validating each previous version.
 
 ![](diagrams/versions.png)
 
