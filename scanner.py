@@ -58,7 +58,7 @@ class Scanner:
         self.height = self.blockchain.getblockcount()
 
         self.db = redis.Redis(host=dbhost, port=6379, db=0)
-        self.db.flushall()
+        #self.db.flushall()
         self.db.set(self.keyheight, self.height)
         self.first = self.db.get(self.keyfirst)
         self.last = self.db.get(self.keylast)
@@ -179,7 +179,7 @@ class Scanner:
         certCid = certCid.decode()
         print('certCid', certCid)
         
-        cert = xidb.getCert(certCid)
+        cert = xidb.getMeta(certCid)
         print('cert', cert)
         
         if cert['cid'] == newTx.cid:
@@ -256,7 +256,7 @@ def scanAll():
         time.sleep(10)
 
 if __name__ == "__main__":
-    #scanAll()
+    scanAll()
             
-    scanner = Scanner()
-    scanner.scanBlock(101091)
+    #scanner = Scanner()
+    #scanner.scanBlock(101091)

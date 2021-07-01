@@ -49,8 +49,8 @@ def vault(chain):
 
 @app.route("/auth/<cid>")
 def auth(cid):
-    cert = getCert(cid)
-    chain = cert['auth']['chain']
+    cert = getMeta(cid)
+    chain = cert['chain']['ticker']
 
     if chain == 'TSR':
         # get from config
@@ -147,7 +147,7 @@ def getCerts():
     for xid in xids:
         cid = db.get(xid).decode().strip()
         print(xid, cid)
-        cert = xidb.getCert(cid)
+        cert = xidb.getMeta(cid)
         if cert:
             meta = xidb.getMeta(cert['cid'])
             if 'asset' or 'repo' in meta:

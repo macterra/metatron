@@ -77,7 +77,7 @@ def getMeta(cid):
 def getVersions(cid):
     versions = []
 
-    version = getCert(cid)
+    version = getMeta(cid)
     version['auth_cid'] = cid
 
     while version:
@@ -85,7 +85,7 @@ def getVersions(cid):
         print(version)
         prev = version['prev']
         if prev:
-            version = getCert(prev)
+            version = getMeta(prev)
             version['auth_cid'] = prev
         else:
             version = None
@@ -93,10 +93,6 @@ def getVersions(cid):
     versions.reverse()
     
     return versions
-
-def getCert(cid):
-    ipfs = getIpfs()
-    return json.loads(ipfs.cat(cid))
 
 def addCert(cert):
     ipfs = getIpfs()
