@@ -1,0 +1,9 @@
+{
+    "name": "version",
+    "description": "A version is block certificate authorizing the version of an asset",
+    "schema": "schema",
+    "json": "meta.json",
+    "html": "index.html",
+    "template": "template.html",
+    "update": "docker run --rm -v $PWD:/app/io macterra/metatron-version"
+}

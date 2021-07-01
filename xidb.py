@@ -55,7 +55,8 @@ def getXid(cid):
                 xid = ipfs.cat(cid + '/xid')
                 xid = xid.decode().strip()
             except:
-                print(f"error: unable to retrieve xid for {cid}")
+                # print(f"error: unable to retrieve xid for {cid}")
+                return None
         
     return verifyXid(xid)
 
@@ -99,8 +100,11 @@ def getCert(cid):
 
 def addCert(cert):
     ipfs = getIpfs()
-    res = ipfs.add(cert)
-    return res['Hash']
+    res = ipfs.add(cert, recursive=True)
+    #print("addCert", cert, res)
+    for item in res:
+        if item['Name'] == cert:
+            return item['Hash']
 
 def encodeCid(hash):
     cid1 = cid.make_cid(hash)

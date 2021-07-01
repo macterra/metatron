@@ -1,0 +1,25 @@
+{
+    "xid": "8d7595e9-6ffc-45e4-ad4d-dfead7d0a5fc",
+    "meta": "QmRF3298n2vCJR27cu7gX67hsEkv3pPKN3Jt6RSRySPWfg/version",
+    "xid_url": "http://btc.metagamer.org:5000/versions/xid/",
+    "cid": "QmPes4cESE6vBTvGfP2B8CQeoAk8omKCatWmowKXS6Gf6p",
+    "time": "2021-06-27 03:34:52+00:00",
+    "version": 1,
+    "prev": "QmZLzM9Vviy1K7Bzt2eK4avKBJCPQKGGqg7fNDoocaotNM",
+    "chain": {
+        "name": "Tesseract",
+        "ticker": "TSR",
+        "chain_url": "https://openchains.info/coin/tesseract/",
+        "block_url": "https://openchains.info/coin/tesseract/block/",
+        "tx_url": "https://openchains.info/coin/tesseract/tx/"
+    },
+    "auth": {
+        "blockheight": 101809,
+        "blockhash": "0000000019b7451a4dd9ba4b594a5cd76e09960875581508cd20f141d3d22c4b",
+        "chainid": "urn:chain:TSR:101809:129:1",
+        "tx": {
+            "txid": "e107d556e943bbb963d88171cdf016792e961b44fa3ffc2742a53b0642c07871",
+            "vout": 1
+        }
+    }
+}

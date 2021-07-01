@@ -2,17 +2,21 @@
 # pip install bitcoinrpc
 # pip install py-cid
 # pip install redis
+# pip install docker
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from datetime import datetime
 from dateutil import tz
 from decimal import Decimal
+from pathlib import Path
 
 import os
 import time
 import json
 import traceback
 import redis
+import docker
+import shutil
 
 import xidb
 from authorize import AuthTx
@@ -54,7 +58,7 @@ class Scanner:
         self.height = self.blockchain.getblockcount()
 
         self.db = redis.Redis(host=dbhost, port=6379, db=0)
-        #self.db.flushall()
+        self.db.flushall()
         self.db.set(self.keyheight, self.height)
         self.first = self.db.get(self.keyfirst)
         self.last = self.db.get(self.keylast)
@@ -95,8 +99,15 @@ class Scanner:
         index = block['tx'].index(txid)
         n = 1
 
+        chain = {
+            "name": "Tesseract",
+            "ticker": "TSR",
+            "chain_url": "https://openchains.info/coin/tesseract/",
+            "block_url": "https://openchains.info/coin/tesseract/block/",
+            "tx_url": "https://openchains.info/coin/tesseract/tx/"
+        }
+
         auth = {
-            "chain": self.chain,
             "blockheight": height,
             "blockhash": blockhash,
             "chainid": f"urn:chain:{self.chain}:{height}:{index}:{n}",
@@ -104,24 +115,36 @@ class Scanner:
         }
 
         cert = {
-            "type": "QmNxoYA7yWa2foqNKFMDR1vTvaPi8F7oHq9qiqAb9znHVs/authorization",
             "xid": xid,
+            "xid_url": "http://btc.metagamer.org:5000/versions/xid/",
+            "meta": "QmRF3298n2vCJR27cu7gX67hsEkv3pPKN3Jt6RSRySPWfg/version",
             "cid": cid,
             "time": str(utc),
             "version": version,
             "prev": prevCert,
+            "chain": chain,
             "auth": auth
         }
 
         print('cert', cert)
-        certFile = f"block-cert-v{version}.json"
-        print('certFile', certFile)
+
+        Path(xid).mkdir(parents=True, exist_ok=True)
+
+        certFile = f"{xid}/meta.json"
 
         with open(certFile, "w") as write_file:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
-        cert = xidb.addCert(certFile)
+        client = docker.from_env()
+        mount = f"{ os.getcwd() }/{xid}"
+        client.containers.run("macterra/metatron-version", volumes={ mount: { 'bind': '/app/io', 'mode': 'rw'} })
+
+        cert = xidb.addCert(xid)
         self.db.set(f"xid/{xid}", cert)
+
+        print("added cert", cert)
+        shutil.rmtree(xid)
+
         return cert
 
     def addVersion(self, tx):
@@ -134,7 +157,7 @@ class Scanner:
             return
 
         print("OK to add new block-cert")
-        return self.writeCert(tx, 0, "")        
+        return self.writeCert(tx, 1, "")        
 
     # don't need oldTx?
     def updateVersion(self, oldTx, newTx):
@@ -233,7 +256,7 @@ def scanAll():
         time.sleep(10)
 
 if __name__ == "__main__":
-    scanAll()
+    #scanAll()
             
-    #scanner = Scanner()
-    #scanner.scanBlock(101091)
+    scanner = Scanner()
+    scanner.scanBlock(101091)
