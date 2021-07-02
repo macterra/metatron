@@ -117,7 +117,7 @@ class Scanner:
         cert = {
             "xid": xid,
             "xid_url": "http://btc.metagamer.org:5000/versions/xid/",
-            "meta": "QmRF3298n2vCJR27cu7gX67hsEkv3pPKN3Jt6RSRySPWfg/version",
+            "meta": "QmZ3JispqhstvqsHnNSGXRnAhBZbJv7SdtcpVMvDt8gaFx/version",
             "cid": cid,
             "time": str(utc),
             "version": version,

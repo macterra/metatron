@@ -21,11 +21,15 @@
             <td>{{ asset.version }}</td>
           </tr>
           <tr>
+            <th scope="row">time</th>
+            <td>{{ asset.time }}</td>
+          </tr>
+          <tr>
             <th scope="row">xid</th>
             <td><a href="{{ asset.xid_url }}{{ asset.xid }}">{{ asset.xid }}</a></td>
           </tr>
           <tr>
-            <th scope="row">asset id</th>
+            <th scope="row">cid</th>
             <td><a href="https://ipfs.io/ipfs/{{ asset.cid }}">{{ asset.cid }}</a></td>
           </tr>
           <tr>
@@ -55,6 +59,10 @@
         </tbody>
       </table>
     </div>
+
+    <p></p>
+
+    <a class="btn btn-primary btn-lg" href="meta.json" role="button">json</a>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
