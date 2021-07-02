@@ -153,7 +153,7 @@ def getAssets():
                 print("deprecated", xid)
                 #db.delete(xid)
 
-    return sorted(assets, key=lambda version: version['time'], reverse=True)
+    return sorted(assets, key=lambda version: version['meta']['asset'])
 
 if __name__ == "__main__":
     print(getAssets())

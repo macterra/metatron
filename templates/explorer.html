@@ -5,17 +5,11 @@
 {% block app_content %}
 <h1>Metatron Explorer</h1>
 
+<ul class="list-group">
 {% for asset in assets %}
-{% if asset.meta.asset %}
-<pre>
-asset   <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.cid }}/{{ asset.meta.asset }}</a> v{{ asset.version }}
-xid     <a href="/versions/xid/{{ asset.xid }}">{{ asset.xid }}</a>
-time    {{ asset.time }}
-chainid {{ asset.auth.chainid }}
-cid     <a href="/versions/cid/{{ asset.cid }}">{{ asset.cid }}</a>
-type    <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
-owner   <a href="/ipfs/{{ asset.meta.owner }}">{{ asset.meta.owner }}</a>
-</pre>
-{% endif %}
+<li class="list-group-item">
+  <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.meta.asset }}</a> <a href="/versions/xid/{{ asset.xid }}">v{{ asset.version }}</a>
+</li>
 {% endfor %}
+</ul>
 {% endblock %}
