@@ -5,28 +5,28 @@
 {% block app_content %}
 <h1>Metatron Explorer</h1>
 
-{% for cert in certs %}
-{% if cert.meta.repo %}
+{% for asset in assets %}
+{% if asset.meta.repo %}
 <pre>
-repo    <a href="/ipfs/{{ cert.cid }}/{{ cert.meta.repo }}">{{ cert.cid }}/{{ cert.meta.repo }}</a> v{{ cert.version }}
-xid     <a href="/versions/xid/{{ cert.xid }}">{{ cert.xid }}</a>
-time    {{ cert.time }}
-auth-id {{ cert.auth.id }}
-cid     <a href="/versions/cid/{{ cert.cid }}">{{ cert.cid }}</a>
-origin  <a href="/ipfs/{{ cert.meta.origin }}">{{ cert.meta.origin }}</a>
-owner   <a href="/ipfs/{{ cert.meta.owner }}">{{ cert.meta.owner }}</a>
+repo    <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.repo }}">{{ asset.cid }}/{{ asset.meta.repo }}</a> v{{ asset.version }}
+xid     <a href="/versions/xid/{{ asset.xid }}">{{ asset.xid }}</a>
+time    {{ asset.time }}
+auth-id {{ asset.auth.id }}
+cid     <a href="/versions/cid/{{ asset.cid }}">{{ asset.cid }}</a>
+origin  <a href="/ipfs/{{ asset.meta.origin }}">{{ asset.meta.origin }}</a>
+owner   <a href="/ipfs/{{ asset.meta.owner }}">{{ asset.meta.owner }}</a>
 </pre>
 {% endif %}
 
-{% if cert.meta.asset %}
+{% if asset.meta.asset %}
 <pre>
-asset   <a href="/ipfs/{{ cert.cid }}/{{ cert.meta.asset }}">{{ cert.cid }}/{{ cert.meta.asset }}</a> v{{ cert.version }}
-xid     <a href="/versions/xid/{{ cert.xid }}">{{ cert.xid }}</a>
-time    {{ cert.time }}
-chainid {{ cert.auth.chainid }}
-cid     <a href="/versions/cid/{{ cert.cid }}">{{ cert.cid }}</a>
-type    <a href="/ipfs/{{ cert.meta.type }}">{{ cert.meta.type }}</a>
-owner   <a href="/ipfs/{{ cert.meta.owner }}">{{ cert.meta.owner }}</a>
+asset   <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.cid }}/{{ asset.meta.asset }}</a> v{{ asset.version }}
+xid     <a href="/versions/xid/{{ asset.xid }}">{{ asset.xid }}</a>
+time    {{ asset.time }}
+chainid {{ asset.auth.chainid }}
+cid     <a href="/versions/cid/{{ asset.cid }}">{{ asset.cid }}</a>
+type    <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
+owner   <a href="/ipfs/{{ asset.meta.owner }}">{{ asset.meta.owner }}</a>
 </pre>
 {% endif %}
 {% endfor %}

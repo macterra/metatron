@@ -18,43 +18,43 @@
         <tbody>
           <tr>
             <th scope="row">version</th>
-            <td>{{ asset.version }}</td>
+            <td>{{ version.version }}</td>
           </tr>
           <tr>
             <th scope="row">time</th>
-            <td>{{ asset.time }}</td>
+            <td>{{ version.time }}</td>
           </tr>
           <tr>
             <th scope="row">xid</th>
-            <td><a href="{{ asset.xid_url }}{{ asset.xid }}">{{ asset.xid }}</a></td>
+            <td><a href="{{ version.xid_url }}{{ version.xid }}">{{ version.xid }}</a></td>
           </tr>
           <tr>
             <th scope="row">cid</th>
-            <td><a href="https://ipfs.io/ipfs/{{ asset.cid }}">{{ asset.cid }}</a></td>
+            <td><a href="https://ipfs.io/ipfs/{{ version.cid }}">{{ version.cid }}</a></td>
           </tr>
           <tr>
             <th scope="row">prev</th>
-            <td><a href="https://ipfs.io/ipfs/{{ asset.prev }}">{{ asset.prev }}</a></td>
+            <td><a href="https://ipfs.io/ipfs/{{ version.prev }}">{{ version.prev }}</a></td>
           </tr>
           <tr>
             <th scope="row">meta</th>
-            <td><a href="https://ipfs.io/ipfs/{{ asset.meta }}">{{ asset.meta }}</a></td>
+            <td><a href="https://ipfs.io/ipfs/{{ version.meta }}">{{ version.meta }}</a></td>
           </tr>
           <tr>
             <th scope="row">chain</th>
-            <td><a href="{{ asset.chain.chain_url }}">{{ asset.chain.name }} ({{ asset.chain.ticker }})</a></td>
+            <td><a href="{{ version.chain.chain_url }}">{{ version.chain.name }} ({{ version.chain.ticker }})</a></td>
           </tr>
           <tr>
             <th scope="row">chain id</th>
-            <td><a href="{{ asset.chain.tx_url }}{{ asset.auth.tx.txid }}">{{ asset.auth.chainid }}</a></td>
+            <td><a href="{{ version.chain.tx_url }}{{ version.auth.tx.txid }}">{{ version.auth.chainid }}</a></td>
           </tr>
           <tr>
             <th scope="row">block</th>
-            <td><a href="{{ asset.chain.block_url }}{{ asset.auth.blockhash }}">{{ asset.auth.blockhash }}</a></td>
+            <td><a href="{{ version.chain.block_url }}{{ version.auth.blockhash }}">{{ version.auth.blockhash }}</a></td>
           </tr>
           <tr>
             <th scope="row">tx</th>
-            <td><a href="{{ asset.chain.tx_url }}{{ asset.auth.tx.txid }}">{{ asset.auth.tx.txid }}</a></td>
+            <td><a href="{{ version.chain.tx_url }}{{ version.auth.tx.txid }}">{{ version.auth.tx.txid }}</a></td>
           </tr>
         </tbody>
       </table>

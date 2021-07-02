@@ -27,9 +27,7 @@ def index():
 
 @app.route("/explorer")
 def explorer():
-    certs = getCerts()
-    #print(certs)
-    return render_template('explorer.html', certs=certs)
+    return render_template('explorer.html', assets=getAssets())
 
 @app.route("/scanner")
 def scanner():
@@ -40,8 +38,6 @@ def vault(chain):
     connect=os.environ.get(f"{chain}_CONNECT")
     print(f"connect={connect}")
     blockchain = AuthServiceProxy(connect, timeout=10)
-    # height = blockchain.getblockcount()
-    # print(f"height={height}")
     authorizer = Authorizer(blockchain)
     authorizer.updateWallet()
     txurl='https://openchains.info/coin/tesseract/tx/'
@@ -137,27 +133,27 @@ def getLatestCert(xid):
     print(cid, xid, latest)
     return latest
 
-def getCerts():
+def getAssets():
     db = getDb()
     xids = db.keys("xid/*")
     print(xids)
 
-    certs = []
+    assets = []
 
     for xid in xids:
         cid = db.get(xid).decode().strip()
         print(xid, cid)
-        cert = xidb.getMeta(cid)
-        if cert:
-            meta = xidb.getMeta(cert['cid'])
+        version = xidb.getMeta(cid)
+        if version:
+            meta = xidb.getMeta(version['cid'])
             if 'asset' or 'repo' in meta:
-                cert['meta'] = meta
-                certs.append(cert)
+                version['meta'] = meta
+                assets.append(version)
             else:
                 print("deprecated", xid)
                 #db.delete(xid)
 
-    return certs
+    return sorted(assets, key=lambda version: version['time'], reverse=True)
 
 if __name__ == "__main__":
-    print(getCerts())
+    print(getAssets())

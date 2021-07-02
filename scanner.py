@@ -141,7 +141,7 @@ class Scanner:
 
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template("version.html")
-        index = template.render(asset=cert)
+        index = template.render(version=cert)
 
         with open(f"{xid}/index.html", "w") as fout:
             fout.write(index)

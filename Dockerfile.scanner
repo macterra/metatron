@@ -1,7 +1,7 @@
 FROM python:3
 
 WORKDIR /app
-RUN pip install python-dateutil python-bitcoinrpc py-cid flit redis
+RUN pip install python-dateutil python-bitcoinrpc py-cid flit redis jinja2
 COPY . .
 RUN sh install-ipfshttpclient.sh
 
