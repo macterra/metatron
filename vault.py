@@ -146,7 +146,7 @@ def getAssets():
         version = xidb.getMeta(cid)
         if version:
             meta = xidb.getMeta(version['cid'])
-            if 'asset' or 'repo' in meta:
+            if 'asset' in meta:
                 version['meta'] = meta
                 assets.append(version)
             else:

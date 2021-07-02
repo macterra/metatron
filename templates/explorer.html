@@ -6,18 +6,6 @@
 <h1>Metatron Explorer</h1>
 
 {% for asset in assets %}
-{% if asset.meta.repo %}
-<pre>
-repo    <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.repo }}">{{ asset.cid }}/{{ asset.meta.repo }}</a> v{{ asset.version }}
-xid     <a href="/versions/xid/{{ asset.xid }}">{{ asset.xid }}</a>
-time    {{ asset.time }}
-auth-id {{ asset.auth.id }}
-cid     <a href="/versions/cid/{{ asset.cid }}">{{ asset.cid }}</a>
-origin  <a href="/ipfs/{{ asset.meta.origin }}">{{ asset.meta.origin }}</a>
-owner   <a href="/ipfs/{{ asset.meta.owner }}">{{ asset.meta.owner }}</a>
-</pre>
-{% endif %}
-
 {% if asset.meta.asset %}
 <pre>
 asset   <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.cid }}/{{ asset.meta.asset }}</a> v{{ asset.version }}
