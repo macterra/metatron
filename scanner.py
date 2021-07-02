@@ -15,8 +15,8 @@ import time
 import json
 import traceback
 import redis
-import docker
 import shutil
+from jinja2 import Environment, FileSystemLoader
 
 import xidb
 from authorize import AuthTx
@@ -126,7 +126,7 @@ class Scanner:
             "auth": auth
         }
 
-        print('cert', cert)
+        #print('cert', cert)
 
         Path(xid).mkdir(parents=True, exist_ok=True)
 
@@ -135,9 +135,16 @@ class Scanner:
         with open(certFile, "w") as write_file:
             json.dump(cert, write_file, cls = Encoder, indent=4)
 
-        client = docker.from_env()
-        mount = f"{ os.getcwd() }/{xid}"
-        client.containers.run("macterra/metatron-version", volumes={ mount: { 'bind': '/app/io', 'mode': 'rw'} })
+        txFile = f"{xid}/tx.json"        
+        with open(txFile, "w") as write_file:
+            json.dump(tx.tx, write_file, cls = Encoder, indent=4)
+
+        env = Environment(loader=FileSystemLoader('templates'))
+        template = env.get_template("version.html")
+        index = template.render(asset=cert)
+
+        with open(f"{xid}/index.html", "w") as fout:
+            fout.write(index)
 
         cert = xidb.addCert(xid)
         self.db.set(f"xid/{xid}", cert)
