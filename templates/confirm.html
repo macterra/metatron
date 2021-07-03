@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-<form action="" method="post" novalidate>
-    <pre>
+<pre>
 asset: {{ meta.asset }}
 cid:   {{ cid }}
 xid:   {{ meta.xid }}
@@ -13,7 +12,8 @@ home:  {{ meta.home }}
 
 balance = {{ balance }}
 txn fee = {{ txfee }}
-    </pre>
+</pre>
+<form action="" method="post" novalidate>
     <p><input type=submit name=confirm value=Confirm></input> <input type=submit name=cancel value=Cancel></input></p>
 </form>
 {% endblock %}

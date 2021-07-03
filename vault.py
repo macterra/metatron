@@ -33,6 +33,12 @@ def explorer():
 def scanner():
     return render_template('scanner.html', status=getStatus())
 
+@app.route("/reset")
+def resetDb():
+    db = getDb()
+    db.flushall()
+    return redirect("/scanner")
+
 @app.route("/vault/<chain>")
 def vault(chain):    
     connect=os.environ.get(f"{chain}_CONNECT")
