@@ -1,10 +1,11 @@
 {
     "name": "macterra",
-    "headline": "crypto-anarchist // engineer-scientist // extropian-transhumanist // pancritical-rationalist // agnostic-atheist // modal-realist // metamodern-stoic",
+    "headline": "crypto-anarchist // engineer-scientist // extropian-transhumanist // pancritical-reasonablist // agnostic-atheist // quantum-modal-realist // metamodern-stoic",
     "image": "media/laser-eyes.jpg",        
     "links": {
         "github": "https://github.com/macterra",
         "twitter": "https://twitter.com/macterra",
-        "keybase": "https://keybase.io/mcfadzean"
+        "keybase": "https://keybase.io/mcfadzean",
+        "metatron": "https://macterra.github.io/metatron/"
     }
 }
