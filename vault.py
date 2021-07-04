@@ -49,6 +49,18 @@ def vault(chain):
     txurl='https://openchains.info/coin/tesseract/tx/'
     return render_template('vault.html', chain=chain, txurl=txurl, authorizer=authorizer)
 
+@app.route("/pin/chain/<chain>")
+def pinAssets(chain):    
+    connect=os.environ.get(f"{chain}_CONNECT")
+    print(f"connect={connect}")
+    blockchain = AuthServiceProxy(connect, timeout=10)
+    authorizer = Authorizer(blockchain)
+    authorizer.updateWallet()
+    for asset in authorizer.assets:
+        if xidb.pin(asset.cid):
+            flash(f"pinned {asset.cid}")
+    return redirect(f"/vault/{chain}")
+
 @app.route("/auth/<cid>")
 def auth(cid):
     cert = getMeta(cid)
@@ -67,26 +79,29 @@ def ipfs(path):
     return redirect(f"http://{o.hostname}:8080/ipfs/{path}", 302)
 
 @app.route("/versions/xid/<xid>")
-def xid_versions(xid):
+def xidVersions(xid):
     latest = getLatestVersion(xid)
     versions = getVersions(latest)
     return render_template('versions.html', xid=xid, cid=cid, versions=versions)
 
 @app.route("/versions/cid/<cid>")
-def versions(cid):
+def cidVersions(cid):
     xid = getXid(cid)
     latest = getLatestVersion(xid)
     versions = getVersions(latest)
     return render_template('versions.html', xid=xid, cid=cid, versions=versions)
 
 @app.route("/pin/xid/<xid>")
-def pin(xid):
+def pinVersions(xid):
     latest = getLatestVersion(xid)
     versions = getVersions(latest)
     for version in versions:
-        print(f"version { version['cid'] } { version['auth_cid'] }")
-        xidb.pin(version['cid'])
-        xidb.pin(version['auth_cid'])
+        cid = version['cid']
+        if xidb.pin(cid):
+            flash(f"pinned {cid}")
+        cid = version['auth_cid']
+        if xidb.pin(cid):
+            flash(f"pinned {cid}")
     return redirect(f"/versions/xid/{xid}")
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])

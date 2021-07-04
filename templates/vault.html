@@ -20,4 +20,7 @@ type:  <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
 txid:  <a href="{{ txurl }}{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
 </pre>
 {% endfor %}
+
+<button type="button" class="btn btn-primary" onclick="location.href='/pin/chain/{{ chain }}'">Pin Assets</button>
+
 {% endblock %}

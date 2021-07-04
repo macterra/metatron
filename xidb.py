@@ -77,13 +77,11 @@ def getMeta(cid):
 
 def getVersions(cid):
     versions = []
-
     version = getMeta(cid)
     version['auth_cid'] = cid
 
     while version:
         versions.append(version)
-        #print(version)
         prev = version['prev']
         if prev:
             version = getMeta(prev)
@@ -91,24 +89,25 @@ def getVersions(cid):
         else:
             version = None
 
-    versions.reverse()
-    
+    versions.reverse()    
     return versions
 
 def addCert(cert):
     ipfs = getIpfs()
     res = ipfs.add(cert, recursive=True)
-    #print("addCert", cert, res)
     for item in res:
         if item['Name'] == cert:
             return item['Hash']
 
 def pin(cid):
-    ipfs = getIpfs()
-    ipfs.get(cid)
-    res = ipfs.add(cid, recursive=True)
-    #print("pin", res)
-    shutil.rmtree(cid)
+    try:
+        ipfs = getIpfs()
+        ipfs.get(cid)
+        res = ipfs.add(cid, recursive=True)
+        shutil.rmtree(cid)
+        return True
+    except:
+        return False
 
 def encodeCid(hash):
     cid1 = cid.make_cid(hash)
