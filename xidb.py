@@ -6,6 +6,7 @@ import time
 import os
 import cid
 import binascii
+import shutil
 
 def getIpfs():
     connect = os.environ.get('IPFS_CONNECT')
@@ -82,7 +83,7 @@ def getVersions(cid):
 
     while version:
         versions.append(version)
-        print(version)
+        #print(version)
         prev = version['prev']
         if prev:
             version = getMeta(prev)
@@ -101,6 +102,13 @@ def addCert(cert):
     for item in res:
         if item['Name'] == cert:
             return item['Hash']
+
+def pin(cid):
+    ipfs = getIpfs()
+    ipfs.get(cid)
+    res = ipfs.add(cid, recursive=True)
+    #print("pin", res)
+    shutil.rmtree(cid)
 
 def encodeCid(hash):
     cid1 = cid.make_cid(hash)

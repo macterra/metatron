@@ -68,16 +68,26 @@ def ipfs(path):
 
 @app.route("/versions/xid/<xid>")
 def xid_versions(xid):
-    latest = getLatestCert(xid)
+    latest = getLatestVersion(xid)
     versions = getVersions(latest)
     return render_template('versions.html', xid=xid, cid=cid, versions=versions)
 
 @app.route("/versions/cid/<cid>")
 def versions(cid):
     xid = getXid(cid)
-    latest = getLatestCert(xid)
+    latest = getLatestVersion(xid)
     versions = getVersions(latest)
     return render_template('versions.html', xid=xid, cid=cid, versions=versions)
+
+@app.route("/pin/xid/<xid>")
+def pin(xid):
+    latest = getLatestVersion(xid)
+    versions = getVersions(latest)
+    for version in versions:
+        print(f"version { version['cid'] } { version['auth_cid'] }")
+        xidb.pin(version['cid'])
+        xidb.pin(version['auth_cid'])
+    return redirect(f"/versions/xid/{xid}")
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])
 def authorize(chain):
@@ -129,14 +139,13 @@ def getStatus():
 
     return status
 
-def getLatestCert(xid):
+def getLatestVersion(xid):
     db = getDb()
     latest = db.get(f"xid/{xid}")
     
     if latest:
         latest = latest.decode().strip()
 
-    print(cid, xid, latest)
     return latest
 
 def getAssets():
