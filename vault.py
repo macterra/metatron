@@ -122,7 +122,8 @@ def authorize2(chain, cid):
     meta = getMeta(cid)
 
     if request.method == 'POST':
-        if meta and request.form.get('confirm', 'Cancel') == 'Confirm':
+        ok = request.form.get('confirm', 'Cancel') == 'Confirm'
+        if ok and meta and xidb.pin(cid):
             txid = authorizer.authorize(cid)
             flash(f"authorized with txid {txid}")
         else:
