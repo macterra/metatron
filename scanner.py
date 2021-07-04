@@ -175,37 +175,37 @@ class Scanner:
             return
 
         xid = newTx.xid        
-        certCid = self.db.get(f"xid/{xid}")
+        versionCid = self.db.get(f"xid/{xid}")
 
-        if not certCid:
-            certCid = self.verifyTx(oldTx)
-            if not certCid:
-                print("warning, can't find cert cid in db", xid)
+        if not versionCid:
+            versionCid = self.verifyTx(oldTx)
+            if not versionCid:
+                print("warning, can't find version in db", xid)
                 return
+        else:
+            versionCid = versionCid.decode()
 
-        certCid = certCid.decode()
-        print('certCid', certCid)
+        print('versionCid', versionCid)
         
-        cert = xidb.getMeta(certCid)
-        print('cert', cert)
+        version = xidb.getMeta(versionCid)
+        print('version', version)
         
-        if cert['cid'] == newTx.cid:
-            print(f"error, certCid {certCid} already assigned to xid {xid}")
+        if version['cid'] == newTx.cid:
+            print(f"warning: versionCid {versionCid} already assigned to xid {xid}")
             return
 
-        if oldTx.xid != cert['xid']:
-            print("error, cert does not match xid", xid)
+        if oldTx.xid != version['xid']:
+            print("error: version does not match xid", xid)
             return
 
-        if oldTx.cid != cert['cid']:
-            print("error, cert does not match meta", oldTx.cid)
+        if oldTx.cid != version['cid']:
+            print("error: version does not match meta", oldTx.cid)
             return
         
-        print("OK to update block-cert")
+        print("OK to update version")
 
-        version = cert['version'] + 1
-        self.writeCert(newTx, version, certCid)
-        return newTx.cid
+        v = version['version'] + 1
+        return self.writeCert(newTx, v, versionCid)
 
     def verifyTx(self, newTx):
         vin = newTx.tx['vin'][0]
@@ -263,7 +263,7 @@ def scanAll():
         time.sleep(10)
 
 if __name__ == "__main__":
-    scanAll()
+    #scanAll()
             
-    #scanner = Scanner()
-    #scanner.scanBlock(101091)
+    scanner = Scanner()
+    scanner.scanBlock(102888)
