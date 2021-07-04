@@ -21,9 +21,9 @@ xid: {{ xid }}
 {% for version in versions %}
 {% if version.auth_cid == cid or version.cid == cid %}
 <tr class="info">
-{%  else %}
+{% else %}
 <tr>
-{%  endif %}
+{% endif %}
     <th scope="row">v{{ version.version }}</td>
     <td>{{ version.auth.time }}</td>
     <td><a href="/ipfs/{{ version.cid }}">{{ version.cid }}</a></td>
