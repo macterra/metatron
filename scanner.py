@@ -149,29 +149,27 @@ class Scanner:
         cert = xidb.addCert(xid)
         self.db.set(f"xid/{xid}", cert)
 
-        print("added cert", cert)
+        print("added version", cert)
         shutil.rmtree(xid)
 
         return cert
 
     def addVersion(self, tx):
-        print('addVersion', tx.cid)
-
+        #print('addVersion', tx.cid)
         current = self.db.get(f"xid/{tx.xid}")
 
         if current:
             print("error, xid already claimed")
             return
 
-        print("OK to add new block-cert")
+        #print("OK to add new version")
         return self.writeCert(tx, 1, "")        
 
-    # don't need oldTx?
     def updateVersion(self, oldTx, newTx):
-        print('updateVersion', oldTx.cid, newTx.cid)
+        # print('updateVersion', oldTx.cid, newTx.cid)
         
         if oldTx.xid != newTx.xid:
-            print("error, ids do not match", oldTx.xid, newTx.xid)
+            print("error: ids do not match", oldTx.xid, newTx.xid)
             return
 
         xid = newTx.xid        
@@ -184,36 +182,34 @@ class Scanner:
                 return
         else:
             versionCid = versionCid.decode()
-
-        print('versionCid', versionCid)
+        #print('versionCid', versionCid)
         
-        version = xidb.getMeta(versionCid)
-        print('version', version)
+        versionMeta = xidb.getMeta(versionCid)
+        #print('versionMeta', versionMeta)
         
-        if version['cid'] == newTx.cid:
+        if versionMeta['cid'] == newTx.cid:
             print(f"warning: versionCid {versionCid} already assigned to xid {xid}")
             return
 
-        if oldTx.xid != version['xid']:
+        if oldTx.xid != versionMeta['xid']:
             print("error: version does not match xid", xid)
             return
 
-        if oldTx.cid != version['cid']:
+        if oldTx.cid != versionMeta['cid']:
             print("error: version does not match meta", oldTx.cid)
             return
         
-        print("OK to update version")
+        #print("OK to update version")
 
-        v = version['version'] + 1
-        return self.writeCert(newTx, v, versionCid)
+        version = versionMeta['version'] + 1
+        return self.writeCert(newTx, version, versionCid)
 
     def verifyTx(self, newTx):
         vin = newTx.tx['vin'][0]
         txid = vin['txid']
         vout = vin['vout']
         
-        print(f"verifyTx {txid} {vout}")
-
+        #print(f"verifyTx {txid} {vout}")
         if vout == 1:
             tx = self.blockchain.getrawtransaction(txid, 1)
             oldTx = AuthTx(tx)
@@ -263,7 +259,7 @@ def scanAll():
         time.sleep(10)
 
 if __name__ == "__main__":
-    #scanAll()
+    scanAll()
             
-    scanner = Scanner()
-    scanner.scanBlock(102888)
+    #scanner = Scanner()
+    #scanner.scanBlock(102888)
