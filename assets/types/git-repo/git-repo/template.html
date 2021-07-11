@@ -13,17 +13,27 @@
   <body>
 
     <div class="jumbotron">
-      <h1 class="display-4">metadata: {{ asset.name }}</h1>
+      <h1 class="display-4">git-repo: {{ asset.name }}</h1>
       <table class="table">
         <tbody>
+          {% if asset.origin %}
           <tr>
             <th scope="row">origin</th>
             <td><a href="{{ asset.origin }}">{{ asset.origin }}</a></td>
           </tr>
+          {% endif %}
+          {% if asset.source %}
           <tr>
             <th scope="row">source</th>
             <td><a href="{{ asset.source }}">{{ asset.source }}</a></td>
           </tr>
+          {% endif %}
+          {% if asset.pages %}
+          <tr>
+            <th scope="row">pages</th>
+            <td><a href="{{ asset.pages }}">{{ asset.pages }}</a></td>
+          </tr>
+          {% endif %}
         </tbody>
       </table>      
       <a class="btn btn-primary btn-lg" href=".." role="button">meta</a>
