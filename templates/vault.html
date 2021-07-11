@@ -10,7 +10,9 @@ balance: {{ authorizer.balance }}
 <p></p>
 locked: {{ authorizer.locked }} 
 <p></p>
-<a href="/authorize/{{ chain }}">authorize</a>
+<button type="button" class="btn btn-primary" onclick="location.href='/authorize/{{ chain }}'">authorize</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/send/{{ chain }}'">send</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/receive/{{ chain }}'">receive</button>
 <h2>assets</h2>
 {% for asset in authorizer.assets %}
 <pre>

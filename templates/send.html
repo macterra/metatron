@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<form action="/send2/{{ chain }}" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <table class="table">
+        <tr>
+            <td>{{ form.cid.label }}</td>
+            <td>{{ form.cid(size=50) }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.addr.label }}</td>
+            <td>{{ form.addr(size=50) }}</td>
+        </tr>
+    </table>         
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
+

@@ -10,8 +10,13 @@ from authorize import *
 from urllib.parse import urlparse
 
 class AuthorizeForm(FlaskForm):
-        cid = StringField('cid')
-        submit = SubmitField('authorize')
+    cid = StringField('cid')
+    submit = SubmitField('authorize')
+
+class SendForm(FlaskForm):
+    cid = StringField('cid')
+    addr = StringField('address')
+    submit = SubmitField('send')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -48,6 +53,16 @@ def vault(chain):
     authorizer.updateWallet()
     txurl='https://openchains.info/coin/tesseract/tx/'
     return render_template('vault.html', chain=chain, txurl=txurl, authorizer=authorizer)
+
+@app.route("/receive/<chain>")
+def receive(chain):    
+    connect=os.environ.get(f"{chain}_CONNECT")
+    print(f"connect={connect}")
+    blockchain = AuthServiceProxy(connect, timeout=10)
+    authorizer = Authorizer(blockchain)
+    addr = authorizer.getAddress()
+    flash(f"receive address: {addr}")
+    return redirect(f"/vault/{chain}")
 
 @app.route("/pin/chain/<chain>")
 def pinAssets(chain):    
@@ -131,6 +146,38 @@ def authorize2(chain, cid):
         return redirect(f"/vault/{chain}")
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
+
+@app.route("/send/<chain>", methods=['GET', 'POST'])
+def send(chain):
+    form = SendForm()
+    return render_template('send.html', chain=chain, form=form)
+
+@app.route("/send2/<chain>", methods=['POST'])
+def send2(chain):
+    form = SendForm()
+    cid = form.cid.data
+    addr = form.addr.data
+    print('send2', request.method, chain, cid, addr)
+    connect=os.environ.get(f"{chain}_CONNECT")
+    blockchain = AuthServiceProxy(connect, timeout=10)
+    authorizer = Authorizer(blockchain)
+    authorizer.updateWallet()
+    balance = authorizer.balance
+    meta = getMeta(cid)
+
+    return render_template('confirmSend.html', chain=chain, cid=cid, addr=addr, meta=meta, balance=balance, txfee=txfee)
+
+@app.route("/send3/<chain>", methods=['POST'])
+def send3(chain):
+    confirm = request.form.get('confirm')
+    if confirm:
+        cid = request.form.get('cid')
+        addr = request.form.get('addr')
+        print('send3', chain, cid, addr)
+        flash("transfer txid...")
+    else:
+        flash("transfer canceled")
+    return redirect(f"/vault/{chain}")
 
 def getDb():
     dbhost = os.environ.get('DB_HOST')

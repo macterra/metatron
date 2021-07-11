@@ -76,6 +76,9 @@ class Authorizer:
         self.funds = funds
         self.assets = assets
 
+    def getAddress(self):        
+        return self.blockchain.getnewaddress("recv", "bech32")
+
     def authorize(self, cid):
         print(f"authorizing {cid}")
         
