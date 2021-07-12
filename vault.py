@@ -149,14 +149,12 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-@app.route("/transfer/<chain>")
+@app.route("/transfer/<chain>", methods=['GET', 'POST'])
 def transfer(chain):
     form = TransferForm()
-    return render_template('transfer.html', chain=chain, form=form)
 
-@app.route("/transfer/confirm/<chain>", methods=['POST'])
-def transferConfirm(chain):
-    form = TransferForm()
+    if request.method == 'GET':
+        return render_template('transfer.html', chain=chain, form=form)
 
     cid = form.cid.data
     addr = form.addr.data
@@ -165,29 +163,15 @@ def transferConfirm(chain):
         flash("transfer canceled")
         return redirect(f"/vault/{chain}")
 
-    print('transferConfirm', request.method, chain, cid, addr)
     connect=os.environ.get(f"{chain}_CONNECT")
     blockchain = AuthServiceProxy(connect, timeout=10)
     authorizer = Authorizer(blockchain)
-    authorizer.updateWallet()
-    balance = authorizer.balance
-    meta = getMeta(cid)
 
-    return render_template('transferConfirm.html', chain=chain, form=form, cid=cid, addr=addr, meta=meta, balance=balance, txfee=txfee)
-
-@app.route("/transfer/exec/<chain>", methods=['POST'])
-def transferExec(chain):
-    form = TransferForm()
-
-    if form.cancel.data:
-        flash("transfer canceled")
-        return redirect(f"/vault/{chain}")
-
-    cid = form.cid.data
-    addr = form.addr.data
-    print('send3', chain, cid, addr)
+    if not form.confirm.data:
+        authorizer.updateWallet()
+        return render_template('transferConfirm.html', chain=chain, form=form, meta=getMeta(cid), balance=authorizer.balance, txfee=txfee)
+    
     flash("transfer txid...")
-
     return redirect(f"/vault/{chain}")
 
 def getDb():
