@@ -16,7 +16,9 @@ class AuthorizeForm(FlaskForm):
 class SendForm(FlaskForm):
     cid = StringField('cid')
     addr = StringField('address')
-    submit = SubmitField('send')
+    send = SubmitField('send')
+    confirm = SubmitField('confirm')
+    cancel = SubmitField('cancel')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -147,7 +149,7 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-@app.route("/send/<chain>", methods=['GET', 'POST'])
+@app.route("/send/<chain>")
 def send(chain):
     form = SendForm()
     return render_template('send.html', chain=chain, form=form)
@@ -155,8 +157,14 @@ def send(chain):
 @app.route("/send2/<chain>", methods=['POST'])
 def send2(chain):
     form = SendForm()
+
     cid = form.cid.data
     addr = form.addr.data
+
+    if form.cancel.data or not cid or not addr:
+        flash("transfer canceled")
+        return redirect(f"/vault/{chain}")
+
     print('send2', request.method, chain, cid, addr)
     connect=os.environ.get(f"{chain}_CONNECT")
     blockchain = AuthServiceProxy(connect, timeout=10)
@@ -165,18 +173,21 @@ def send2(chain):
     balance = authorizer.balance
     meta = getMeta(cid)
 
-    return render_template('confirmSend.html', chain=chain, cid=cid, addr=addr, meta=meta, balance=balance, txfee=txfee)
+    return render_template('confirmSend.html', chain=chain, form=form, cid=cid, addr=addr, meta=meta, balance=balance, txfee=txfee)
 
 @app.route("/send3/<chain>", methods=['POST'])
 def send3(chain):
-    confirm = request.form.get('confirm')
-    if confirm:
-        cid = request.form.get('cid')
-        addr = request.form.get('addr')
-        print('send3', chain, cid, addr)
-        flash("transfer txid...")
-    else:
+    form = SendForm()
+
+    if form.cancel.data:
         flash("transfer canceled")
+        return redirect(f"/vault/{chain}")
+
+    cid = form.cid.data
+    addr = form.addr.data
+    print('send3', chain, cid, addr)
+    flash("transfer txid...")
+
     return redirect(f"/vault/{chain}")
 
 def getDb():
