@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-<form action="/send2/{{ chain }}" method="post" novalidate>
+<form action="/transfer/exec/{{ chain }}" method="post" novalidate>
+    
     {{ form.hidden_tag() }}
     <table class="table">
         <tr>
@@ -14,7 +15,20 @@
         </tr>
     </table>         
     </p>
-    <p>{{ form.send() }} {{ form.cancel() }}</p>
+    
+    <pre>
+    asset: {{ meta.asset }}
+    xid:   {{ meta.xid }}
+    meta:  {{ meta.meta }}
+    type:  {{ meta.type }}
+    owner: {{ meta.owner }}
+    home:  {{ meta.home }}
+    
+    balance = {{ balance }}
+    txn fee = {{ txfee }}
+    </pre>
+
+    <p>{{ form.confirm() }} {{ form.cancel() }}</p>
+
 </form>
 {% endblock %}
-

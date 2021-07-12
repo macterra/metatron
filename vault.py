@@ -13,10 +13,10 @@ class AuthorizeForm(FlaskForm):
     cid = StringField('cid')
     submit = SubmitField('authorize')
 
-class SendForm(FlaskForm):
+class TransferForm(FlaskForm):
     cid = StringField('cid')
     addr = StringField('address')
-    send = SubmitField('send')
+    transfer = SubmitField('transfer')
     confirm = SubmitField('confirm')
     cancel = SubmitField('cancel')
 
@@ -149,14 +149,14 @@ def authorize2(chain, cid):
 
     return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
 
-@app.route("/send/<chain>")
-def send(chain):
-    form = SendForm()
-    return render_template('send.html', chain=chain, form=form)
+@app.route("/transfer/<chain>")
+def transfer(chain):
+    form = TransferForm()
+    return render_template('transfer.html', chain=chain, form=form)
 
-@app.route("/send2/<chain>", methods=['POST'])
-def send2(chain):
-    form = SendForm()
+@app.route("/transfer/confirm/<chain>", methods=['POST'])
+def transferConfirm(chain):
+    form = TransferForm()
 
     cid = form.cid.data
     addr = form.addr.data
@@ -165,7 +165,7 @@ def send2(chain):
         flash("transfer canceled")
         return redirect(f"/vault/{chain}")
 
-    print('send2', request.method, chain, cid, addr)
+    print('transferConfirm', request.method, chain, cid, addr)
     connect=os.environ.get(f"{chain}_CONNECT")
     blockchain = AuthServiceProxy(connect, timeout=10)
     authorizer = Authorizer(blockchain)
@@ -173,11 +173,11 @@ def send2(chain):
     balance = authorizer.balance
     meta = getMeta(cid)
 
-    return render_template('confirmSend.html', chain=chain, form=form, cid=cid, addr=addr, meta=meta, balance=balance, txfee=txfee)
+    return render_template('transferConfirm.html', chain=chain, form=form, cid=cid, addr=addr, meta=meta, balance=balance, txfee=txfee)
 
-@app.route("/send3/<chain>", methods=['POST'])
-def send3(chain):
-    form = SendForm()
+@app.route("/transfer/exec/<chain>", methods=['POST'])
+def transferExec(chain):
+    form = TransferForm()
 
     if form.cancel.data:
         flash("transfer canceled")

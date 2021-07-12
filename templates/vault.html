@@ -6,12 +6,19 @@
 <h1>{{ chain }} Vault</h1>
 
 <h2>funds</h2>
-balance: {{ authorizer.balance }} 
-<p></p>
-locked: {{ authorizer.locked }} 
+<table class="table">
+    <tr>
+        <td>balance:</td>
+        <td>{{ authorizer.balance }}</td>
+    </tr>
+    <tr>
+        <td>locked:</td>
+        <td>{{ authorizer.locked }}</td>
+    </tr>
+</table>
 <p></p>
 <button type="button" class="btn btn-primary" onclick="location.href='/authorize/{{ chain }}'">authorize</button>
-<button type="button" class="btn btn-primary" onclick="location.href='/send/{{ chain }}'">send</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/transfer/{{ chain }}'">transfer</button>
 <button type="button" class="btn btn-primary" onclick="location.href='/receive/{{ chain }}'">receive</button>
 <h2>assets</h2>
 {% for asset in authorizer.assets %}
