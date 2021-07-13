@@ -8,13 +8,35 @@
             <td>{{ form.cid.label }}</td>
             <td>{{ form.cid(size=50) }}</td>
         </tr>
+        {% if transfer %}
         <tr>
             <td>{{ form.addr.label }}</td>
             <td>{{ form.addr(size=50) }}</td>
         </tr>
+        {% endif %}
     </table>         
-    </p>
-    <p>{{ form.transfer() }} {{ form.cancel() }}</p>
+    </p>    
+    {% if confirm %}
+        <pre>
+        asset: {{ meta.asset }}
+        xid:   {{ meta.xid }}
+        meta:  {{ meta.meta }}
+        type:  {{ meta.type }}
+        owner: {{ meta.owner }}
+        home:  {{ meta.home }}
+        
+        chain   = {{ chain }}
+        balance = {{ balance }}
+        txn fee = {{ txfee }}
+        </pre>    
+        <p>{{ form.confirm() }} {{ form.cancel() }}</p>
+    {% else %}
+        {% if transfer %}
+            <p>{{ form.transfer() }} {{ form.cancel() }}</p>
+        {% else %}
+            <p>{{ form.authorize() }} {{ form.cancel() }}</p>
+        {% endif %}
+    {% endif %}    
 </form>
 {% endblock %}
 

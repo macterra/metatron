@@ -9,13 +9,10 @@ from wtforms import StringField, SubmitField
 from authorize import *
 from urllib.parse import urlparse
 
-class AuthorizeForm(FlaskForm):
-    cid = StringField('cid')
-    submit = SubmitField('authorize')
-
 class TransferForm(FlaskForm):
     cid = StringField('cid')
     addr = StringField('address')
+    authorize = SubmitField('authorize')
     transfer = SubmitField('transfer')
     confirm = SubmitField('confirm')
     cancel = SubmitField('cancel')
@@ -122,39 +119,41 @@ def pinVersions(xid):
     return redirect(f"/versions/xid/{xid}")
 
 @app.route("/authorize/<chain>", methods=['GET', 'POST'])
-def authorize(chain):
-    form = AuthorizeForm()
-    if form.validate_on_submit():         
-        return redirect(f"/authorize/{chain}/{form.cid.data}")
-    return render_template('authorize.html', form=form)
+def authorize(chain):    
+    form = TransferForm()
 
-@app.route("/authorize/<chain>/<cid>", methods=['GET', 'POST'])
-def authorize2(chain, cid):
-    #print('authorize2', request.method, chain, cid)
+    if request.method == 'GET':
+        return render_template('transfer.html', chain=chain, form=form)
+
+    cid = form.cid.data
+
+    if form.cancel.data or not cid:
+        flash("authorization canceled")
+        return redirect(f"/vault/{chain}")
+        
     connect=os.environ.get(f"{chain}_CONNECT")
     blockchain = AuthServiceProxy(connect, timeout=10)
     authorizer = Authorizer(blockchain)
-    authorizer.updateWallet()
-    balance = authorizer.balance
-    meta = getMeta(cid)
+    meta=getMeta(cid)
 
-    if request.method == 'POST':
-        ok = request.form.get('confirm', 'Cancel') == 'Confirm'
-        if ok and meta and xidb.pin(cid):
-            txid = authorizer.authorize(cid)
-            flash(f"authorized with txid {txid}")
-        else:
-            flash('authorization cancelled')
-        return redirect(f"/vault/{chain}")
+    if not form.confirm.data:
+        authorizer.updateWallet()
+        return render_template('transfer.html', confirm=True, chain=chain, form=form, meta=meta, balance=authorizer.balance, txfee=txfee)
 
-    return render_template('confirm.html', cid=cid, meta=meta, balance=balance, txfee=txfee)
+    if meta and xidb.pin(cid):
+        txid = authorizer.authorize(cid)
+        flash(f"authorized with txid {txid}")
+    else:
+        flash('authorization cancelled')
+
+    return redirect(f"/vault/{chain}")
 
 @app.route("/transfer/<chain>", methods=['GET', 'POST'])
 def transfer(chain):
     form = TransferForm()
 
     if request.method == 'GET':
-        return render_template('transfer.html', chain=chain, form=form)
+        return render_template('transfer.html', transfer=True, chain=chain, form=form)
 
     cid = form.cid.data
     addr = form.addr.data
@@ -169,7 +168,7 @@ def transfer(chain):
 
     if not form.confirm.data:
         authorizer.updateWallet()
-        return render_template('transferConfirm.html', chain=chain, form=form, meta=getMeta(cid), balance=authorizer.balance, txfee=txfee)
+        return render_template('transfer.html', transfer=True, confirm=True, chain=chain, form=form, meta=getMeta(cid), balance=authorizer.balance, txfee=txfee)
     
     flash("transfer txid...")
     return redirect(f"/vault/{chain}")
