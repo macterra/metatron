@@ -1,6 +1,7 @@
 import os
 import redis
 import xidb
+from version import version
 
 from flask import Flask, render_template, redirect, request, flash
 from flask_bootstrap import Bootstrap
@@ -28,6 +29,10 @@ bootstrap = Bootstrap(app)
 @app.route("/")
 def index():
     return render_template('index.html')
+
+@app.route("/about")
+def about():
+    return render_template('about.html', version=version)
 
 @app.route("/explorer")
 def explorer():
