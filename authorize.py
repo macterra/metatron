@@ -76,12 +76,16 @@ class Authorizer:
         self.funds = funds
         self.assets = assets
 
-    def getAddress(self):        
+    def getAddress(self):
         return self.blockchain.getnewaddress("recv", "bech32")
 
     def authorize(self, cid):
-        print(f"authorizing {cid}")
-        
+        print(f"authorizing {cid}")        
+        authAddr = self.blockchain.getnewaddress("auth", "bech32")
+        return self.transfer(cid, authAddr)
+
+    def transfer(self, cid, authAddr):
+        print(f"transferring {cid} to {authAddr}")
         xid = getXid(cid)
 
         if not xid:
@@ -119,7 +123,6 @@ class Authorizer:
         hexdata = encodeCid(cid)    
         nulldata = { "data": hexdata }
 
-        authAddr = self.blockchain.getnewaddress("auth", "bech32")
         changeAddr = self.blockchain.getnewaddress("auth", "bech32")
         change = amount - magic - txfee
         outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
@@ -131,7 +134,6 @@ class Authorizer:
         
         txid = self.blockchain.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
-
         return txid
 
 def main():

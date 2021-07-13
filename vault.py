@@ -134,7 +134,7 @@ def authorize(chain):
     connect=os.environ.get(f"{chain}_CONNECT")
     blockchain = AuthServiceProxy(connect, timeout=10)
     authorizer = Authorizer(blockchain)
-    meta=getMeta(cid)
+    meta = getMeta(cid)
 
     if not form.confirm.data:
         authorizer.updateWallet()
@@ -165,12 +165,18 @@ def transfer(chain):
     connect=os.environ.get(f"{chain}_CONNECT")
     blockchain = AuthServiceProxy(connect, timeout=10)
     authorizer = Authorizer(blockchain)
+    meta = getMeta(cid)
 
     if not form.confirm.data:
         authorizer.updateWallet()
-        return render_template('transfer.html', transfer=True, confirm=True, chain=chain, form=form, meta=getMeta(cid), balance=authorizer.balance, txfee=txfee)
+        return render_template('transfer.html', transfer=True, confirm=True, chain=chain, form=form, meta=meta, balance=authorizer.balance, txfee=txfee)
     
-    flash("transfer txid...")
+    if meta and xidb.pin(cid):
+        txid = authorizer.transfer(cid, addr)
+        flash(f"transferred with txid {txid}")
+    else:
+        flash('transfer cancelled')
+        
     return redirect(f"/vault/{chain}")
 
 def getDb():
