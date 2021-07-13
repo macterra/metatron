@@ -1,5 +1,8 @@
 FROM python:3
 
+RUN apt-get update
+RUN apt-get install -y vim
+
 WORKDIR /app
 RUN pip install python-dateutil python-bitcoinrpc py-cid flit redis jinja2
 COPY . .
