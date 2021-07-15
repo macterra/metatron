@@ -48,7 +48,7 @@ class AuthTx():
 class Authorizer:
     def __init__(self, chain):
         self.chain = chain
-        connect=os.environ.get(f"{chain}_CONNECT")
+        connect = os.environ.get(f"{chain}_CONNECT")
         #print(f"connect={connect}")
         self.blockchain = AuthServiceProxy(connect, timeout=10)
 
@@ -143,8 +143,9 @@ class Authorizer:
         return txid
 
 def main():
-    authorizer = Authorizer('TSR')
-    for arg in sys.argv[1:]:
+    chain = sys.argv[1]
+    authorizer = Authorizer(chain)
+    for arg in sys.argv[2:]:
         authorizer.authorize(arg)
 
 if __name__ == "__main__":

@@ -43,10 +43,10 @@ class Scanner:
         self.keyheight = f"scanner/{self.chain}/height"
         self.keytime = f"scanner/{self.chain}/time"
 
-        connect = os.environ.get('SCANNER_CONNECT')
+        connect = os.environ.get(f"{self.chain}_CONNECT")
 
         if not connect:
-            print("missing SCANNER_CONNECT")
+            print(f"missing {self.chain}_CONNECT")
             return
 
         dbhost = os.environ.get('SCANNER_DBHOST')

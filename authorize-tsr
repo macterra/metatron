@@ -1,5 +1,3 @@
-#!/bin/bash
+. ./connect.sh
 
-export SCANNER_CONNECT=http://scully:sw33tp0tat0@btc.metagamer.org:18331
-
-python3 authorize.py QmR3A1cFvwQjvfXruZtHUPzn711siXW2Z3ZpSVksGWtG29
+python3 authorize.py TSR QmR3A1cFvwQjvfXruZtHUPzn711siXW2Z3ZpSVksGWtG29
