@@ -50,30 +50,21 @@ def resetDb():
 
 @app.route("/vault/<chain>")
 def vault(chain):    
-    connect=os.environ.get(f"{chain}_CONNECT")
-    print(f"connect={connect}")
-    blockchain = AuthServiceProxy(connect, timeout=10)
-    authorizer = Authorizer(blockchain)
+    authorizer = Authorizer(chain)
     authorizer.updateWallet()
     txurl='https://openchains.info/coin/tesseract/tx/'
     return render_template('vault.html', chain=chain, txurl=txurl, authorizer=authorizer)
 
 @app.route("/receive/<chain>")
 def receive(chain):    
-    connect=os.environ.get(f"{chain}_CONNECT")
-    print(f"connect={connect}")
-    blockchain = AuthServiceProxy(connect, timeout=10)
-    authorizer = Authorizer(blockchain)
+    authorizer = Authorizer(chain)
     addr = authorizer.getAddress()
     flash(f"receive address: {addr}")
     return redirect(f"/vault/{chain}")
 
 @app.route("/pin/chain/<chain>")
 def pinAssets(chain):    
-    connect=os.environ.get(f"{chain}_CONNECT")
-    print(f"connect={connect}")
-    blockchain = AuthServiceProxy(connect, timeout=10)
-    authorizer = Authorizer(blockchain)
+    authorizer = Authorizer(chain)
     authorizer.updateWallet()
     for asset in authorizer.assets:
         if xidb.pin(asset.cid):
@@ -136,9 +127,7 @@ def authorize(chain):
         flash("authorization canceled")
         return redirect(f"/vault/{chain}")
         
-    connect=os.environ.get(f"{chain}_CONNECT")
-    blockchain = AuthServiceProxy(connect, timeout=10)
-    authorizer = Authorizer(blockchain)
+    authorizer = Authorizer(chain)
     meta = getMeta(cid)
 
     if not form.confirm.data:
@@ -167,9 +156,7 @@ def transfer(chain):
         flash("transfer canceled")
         return redirect(f"/vault/{chain}")
 
-    connect=os.environ.get(f"{chain}_CONNECT")
-    blockchain = AuthServiceProxy(connect, timeout=10)
-    authorizer = Authorizer(blockchain)
+    authorizer = Authorizer(chain)
     meta = getMeta(cid)
 
     if not form.confirm.data:

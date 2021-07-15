@@ -46,8 +46,11 @@ class AuthTx():
         return self.xid != None
 
 class Authorizer:
-    def __init__(self, blockchain):
-        self.blockchain = blockchain
+    def __init__(self, chain):
+        self.chain = chain
+        connect=os.environ.get(f"{chain}_CONNECT")
+        #print(f"connect={connect}")
+        self.blockchain = AuthServiceProxy(connect, timeout=10)
 
     def updateWallet(self):
         self.locked = 0
@@ -128,7 +131,10 @@ class Authorizer:
         outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
 
         rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
-        sigtxn = self.blockchain.signrawtransaction(rawtxn)        
+        if self.chain == 'TSR':
+            sigtxn = self.blockchain.signrawtransaction(rawtxn) 
+        else:
+            sigtxn = self.blockchain.signrawtransactionwithwallet(rawtxn)
         dectxn = self.blockchain.decoderawtransaction(sigtxn['hex'])
         print('dec', json.dumps(dectxn, indent=2, cls=Encoder))
         
@@ -137,10 +143,7 @@ class Authorizer:
         return txid
 
 def main():
-    connect = os.environ.get('SCANNER_CONNECT')
-    blockchain = AuthServiceProxy(connect, timeout=120)
-    authorizer = Authorizer(blockchain)
-
+    authorizer = Authorizer('TSR')
     for arg in sys.argv[1:]:
         authorizer.authorize(arg)
 
