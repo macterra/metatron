@@ -99,14 +99,6 @@ class Scanner:
         index = block['tx'].index(txid)
         n = 1
 
-        chain = {
-            "name": "Tesseract",
-            "ticker": "TSR",
-            "chain_url": "https://openchains.info/coin/tesseract/",
-            "block_url": "https://openchains.info/coin/tesseract/block/",
-            "tx_url": "https://openchains.info/coin/tesseract/tx/"
-        }
-
         auth = {
             "blockheight": height,
             "blockhash": blockhash,
@@ -114,19 +106,26 @@ class Scanner:
             "tx": { "txid": txid, "vout": n }
         }
 
+        url = {
+            "chain": f"http://btc.metagamer.org:5000/chain/{self.chain}/",
+            "block": f"http://btc.metagamer.org:5000/chain/{self.chain}/block/",
+            "tx": f"http://btc.metagamer.org:5000/chain/{self.chain}/tx/",
+            "xid": f"http://btc.metagamer.org:5000/versions/xid/"
+        }
+
         cert = {
             "xid": xid,
-            "xid_url": "http://btc.metagamer.org:5000/versions/xid/",
             "meta": "QmZ3JispqhstvqsHnNSGXRnAhBZbJv7SdtcpVMvDt8gaFx/version",
             "cid": cid,
             "time": str(utc),
             "version": version,
             "prev": prevCert,
-            "chain": chain,
-            "auth": auth
+            "chain": self.chain,
+            "auth": auth,
+            "url": url
         }
 
-        #print('cert', cert)
+        print('cert', cert)
 
         Path(xid).mkdir(parents=True, exist_ok=True)
 

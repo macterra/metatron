@@ -88,6 +88,33 @@ def ipfs(path):
     o = urlparse(request.base_url)
     return redirect(f"http://{o.hostname}:8080/ipfs/{path}", 302)
 
+@app.route("/chain/<chain>")
+def chainExplorer(chain):
+    if chain == 'TSR':
+        return redirect("https://openchains.info/coin/tesseract/", 302)
+    if chain == 'tBTC':
+        return redirect("https://blockstream.info/testnet/", 302)
+    if chain == 'BTC':
+        return redirect("https://blockstream.info/", 302)
+
+@app.route("/chain/<chain>/block/<blockhash>")
+def blockExplorer(chain, blockhash):
+    if chain == 'TSR':
+        return redirect(f"https://openchains.info/coin/tesseract/block/{blockhash}", 302)
+    if chain == 'tBTC':
+        return redirect(f"https://blockstream.info/testnet/block/{blockhash}", 302)
+    if chain == 'BTC':
+        return redirect(f"https://blockstream.info/block/{blockhash}", 302)  
+
+@app.route("/chain/<chain>/tx/<txid>")
+def txExplorer(chain, txid):
+    if chain == 'TSR':
+        return redirect(f"https://openchains.info/coin/tesseract/tx/{txid}", 302)
+    if chain == 'tBTC':
+        return redirect(f"https://blockstream.info/testnet/tx/{txid}", 302)
+    if chain == 'BTC':
+        return redirect(f"https://blockstream.info/tx/{txid}", 302)        
+
 @app.route("/versions/xid/<xid>")
 def xidVersions(xid):
     latest = getLatestVersion(xid)
