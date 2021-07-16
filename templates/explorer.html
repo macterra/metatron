@@ -9,7 +9,7 @@
 {% for asset in assets %}
 {% set type = asset.meta.type[asset.meta.type.find("/")+1:] %}
 <li class="list-group-item">
-  <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.meta.asset }} ({{ type }})</a> <a href="/versions/xid/{{ asset.xid }}">v{{ asset.version }}</a>
+  <a href="/versions/xid/{{ asset.xid }}">{{ asset.meta.asset }} v{{ asset.version }} ({{ type }})</a>
 </li>
 {% endfor %}
 </ul>

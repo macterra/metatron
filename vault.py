@@ -36,6 +36,7 @@ def about():
 
 @app.route("/explorer")
 def explorer():
+    # move getAssets into ScannerDb
     return render_template('explorer.html', assets=getAssets())
 
 @app.route("/scanner")
@@ -52,8 +53,7 @@ def resetDb():
 def vault(chain):    
     authorizer = Authorizer(chain)
     authorizer.updateWallet()
-    txurl='https://openchains.info/coin/tesseract/tx/'
-    return render_template('vault.html', chain=chain, txurl=txurl, authorizer=authorizer)
+    return render_template('vault.html', authorizer=authorizer)
 
 @app.route("/receive/<chain>")
 def receive(chain):    

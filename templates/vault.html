@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}{{ chain }} Vault{% endblock %}
+{% block title %}{{ authorizer.chain }} Vault{% endblock %}
 
 {% block app_content %}
-<h1>{{ chain }} Vault</h1>
+<h1>{{ authorizer.chain }} Vault</h1>
 
 <h2>funds</h2>
 <table class="table">
@@ -17,18 +17,19 @@
     </tr>
 </table>
 <p></p>
-<button type="button" class="btn btn-primary" onclick="location.href='/authorize/{{ chain }}'">authorize</button>
-<button type="button" class="btn btn-primary" onclick="location.href='/transfer/{{ chain }}'">transfer</button>
-<button type="button" class="btn btn-primary" onclick="location.href='/receive/{{ chain }}'">receive</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/authorize/{{ authorizer.chain }}'">authorize</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/transfer/{{ authorizer.chain }}'">transfer</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/receive/{{ authorizer.chain }}'">receive</button>
 <h2>assets</h2>
-{% for asset in authorizer.assets %}
-<pre>
-xid:   <a href="{{ asset.meta.home }}/{{ asset.meta.xid }}">{{ asset.meta.xid }}</a>
-asset: <a href="/ipfs/{{ asset.cid }}/{{ asset.meta.asset }}">{{ asset.cid }}/{{ asset.meta.asset }}</a>
-type:  <a href="/ipfs/{{ asset.meta.type }}">{{ asset.meta.type }}</a>
-txid:  <a href="{{ txurl }}{{ asset.utxo.txid }}">{{ asset.utxo.txid }}</a>
-</pre>
-{% endfor %}
+
+<ul class="list-group">
+    {% for asset in authorizer.assets %}
+    {% set type = asset.meta.type[asset.meta.type.find("/")+1:] %}
+    <li class="list-group-item">
+        <a href="/versions/xid/{{ asset.meta.xid }}">{{ asset.meta.asset }} ({{ type }})</a> 
+    </li>
+    {% endfor %}
+</ul>
 
 <button type="button" class="btn btn-primary" onclick="location.href='/pin/chain/{{ chain }}'">Pin Assets</button>
 
