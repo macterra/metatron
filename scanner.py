@@ -25,7 +25,6 @@ class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
-
 class ScannerDb():
     def __init__(self):
         dbhost = os.environ.get('DB_HOST')
@@ -59,13 +58,10 @@ class ScannerDb():
 
     def getAssets(self):
         xids = self.db.keys("xid/*")
-        print(xids)
-
         assets = []
 
         for xid in xids:
             cid = self.db.get(xid).decode().strip()
-            print(xid, cid)
             version = xidb.getMeta(cid)
             if version:
                 meta = xidb.getMeta(version['cid'])

@@ -26,6 +26,25 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 bootstrap = Bootstrap(app)
 
 #print(app.config)
+config = {
+    "explorer": {
+        "TSR": {
+            "chain": "https://openchains.info/coin/tesseract/",
+            "block": "https://openchains.info/coin/tesseract/block/{blockhash}",
+            "tx": "https://openchains.info/coin/tesseract/tx/{txid}"
+        },
+        "BTC": {
+            "chain": "https://blockstream.info/",
+            "block": "https://blockstream.info/block/{blockhash}",
+            "tx": "https://blockstream.info/tx/{txid}"
+        },
+        "tBTC": {
+            "chain": "https://blockstream.info/testnet/",
+            "block": "https://blockstream.info/testnet/block/{blockhash}",
+            "tx": "https://blockstream.info/testnet/tx/{txid}"
+        }
+    }
+}
 
 @app.route("/")
 def index():
@@ -80,30 +99,18 @@ def ipfs(path):
 
 @app.route("/chain/<chain>")
 def chainExplorer(chain):
-    if chain == 'TSR':
-        return redirect("https://openchains.info/coin/tesseract/", 302)
-    if chain == 'tBTC':
-        return redirect("https://blockstream.info/testnet/", 302)
-    if chain == 'BTC':
-        return redirect("https://blockstream.info/", 302)
+    url = config['explorer'][chain]['chain']
+    return redirect(url, 302)
 
 @app.route("/chain/<chain>/block/<blockhash>")
 def blockExplorer(chain, blockhash):
-    if chain == 'TSR':
-        return redirect(f"https://openchains.info/coin/tesseract/block/{blockhash}", 302)
-    if chain == 'tBTC':
-        return redirect(f"https://blockstream.info/testnet/block/{blockhash}", 302)
-    if chain == 'BTC':
-        return redirect(f"https://blockstream.info/block/{blockhash}", 302)  
+    url = config['explorer'][chain]['block'].format(blockhash=blockhash)
+    return redirect(url, 302)
 
 @app.route("/chain/<chain>/tx/<txid>")
 def txExplorer(chain, txid):
-    if chain == 'TSR':
-        return redirect(f"https://openchains.info/coin/tesseract/tx/{txid}", 302)
-    if chain == 'tBTC':
-        return redirect(f"https://blockstream.info/testnet/tx/{txid}", 302)
-    if chain == 'BTC':
-        return redirect(f"https://blockstream.info/tx/{txid}", 302)        
+    url = config['explorer'][chain]['tx'].format(txid=txid)
+    return redirect(url, 302)      
 
 @app.route("/versions/xid/<xid>")
 def xidVersions(xid):
