@@ -83,6 +83,8 @@ class ScannerDb():
         
 class Scanner:
     def __init__(self):
+        with open('scanner.json', 'r') as f:
+            self.config = json.load(f)
         
         if not xidb.checkIpfs():
             print("can't connect to IPFS")
@@ -139,7 +141,6 @@ class Scanner:
             self.db.set(self.keyfirst, self.first)
             self.db.set(self.keylast, self.last)
 
-
     def writeCert(self, tx, version, prevCert):
         cid = tx.cid
         xid = tx.xid
@@ -162,11 +163,16 @@ class Scanner:
             "tx": { "txid": txid, "vout": n }
         }
 
+        try:
+            home = self.config['home']
+        except:
+            home = 'localhost:5000'
+
         url = {
-            "chain": f"http://btc.metagamer.org:5000/chain/{self.chain}",
-            "block": f"http://btc.metagamer.org:5000/chain/{self.chain}/block/",
-            "tx": f"http://btc.metagamer.org:5000/chain/{self.chain}/tx/",
-            "xid": f"http://btc.metagamer.org:5000/versions/xid/"
+            "chain": f"http://{home}/chain/{self.chain}",
+            "block": f"http://{home}/chain/{self.chain}/block/",
+            "tx": f"http://{home}/chain/{self.chain}/tx/",
+            "xid": f"http://{home}/versions/xid/"
         }
 
         cert = {
