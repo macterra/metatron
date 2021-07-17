@@ -7,7 +7,7 @@ from flask import Flask, render_template, redirect, request, flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from authorize import *
+from authorize import Authorizer, txfee
 from scanner import ScannerDb
 from urllib.parse import urlparse
 
@@ -110,15 +110,15 @@ def xidVersions(xid):
     db = ScannerDb()
     latest = db.getLatestVersion(xid)
     versions = xidb.getVersions(latest)
-    return render_template('versions.html', xid=xid, cid=cid, versions=versions)
+    return render_template('versions.html', xid=xid, versions=versions)
 
 @app.route("/versions/cid/<cid>")
 def cidVersions(cid):
     db = ScannerDb()
-    xid = getXid(cid)
+    xid = xidb.getXid(cid)
     latest = db.getLatestVersion(xid)
     versions = xidb.getVersions(latest)
-    return render_template('versions.html', xid=xid, cid=cid, versions=versions)
+    return render_template('versions.html', xid=xid, versions=versions)
 
 @app.route("/pin/xid/<xid>")
 def pinVersions(xid):
@@ -148,7 +148,7 @@ def authorize(chain):
         return redirect(f"/vault/{chain}")
         
     authorizer = Authorizer(chain)
-    meta = getMeta(cid)
+    meta = xidb.getMeta(cid)
 
     if not form.confirm.data:
         authorizer.updateWallet()
@@ -177,7 +177,7 @@ def transfer(chain):
         return redirect(f"/vault/{chain}")
 
     authorizer = Authorizer(chain)
-    meta = getMeta(cid)
+    meta = xidb.getMeta(cid)
 
     if not form.confirm.data:
         authorizer.updateWallet()
