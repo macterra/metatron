@@ -73,18 +73,6 @@ def pinAssets(chain):
             flash(f"pinned {asset.cid}")
     return redirect(f"/vault/{chain}")
 
-@app.route("/auth/<cid>")
-def auth(cid):
-    cert = getMeta(cid)
-    chain = cert['chain']['ticker']
-
-    if chain == 'TSR':
-        # get from config
-        block_url = 'https://openchains.info/coin/tesseract/block/'
-        tx_url = 'https://openchains.info/coin/tesseract/tx/'
-
-    return render_template('auth.html', cid=cid, cert=cert, block_url=block_url, tx_url=tx_url)
-
 @app.route("/ipfs/<path:path>")
 def ipfs(path):
     o = urlparse(request.base_url)
