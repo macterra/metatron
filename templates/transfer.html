@@ -25,9 +25,9 @@
         owner: {{ meta.owner }}
         home:  {{ meta.home }}
         
-        chain   = {{ chain }}
-        balance = {{ balance }}
-        txn fee = {{ txfee }}
+        chain   = {{ authorizer.getChain() }}
+        balance = {{ authorizer.getBalance() }}
+        txn fee = {{ authorizer.getFee() }}
         </pre>    
         <p>{{ form.confirm() }} {{ form.cancel() }}</p>
     {% else %}

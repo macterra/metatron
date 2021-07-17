@@ -7,7 +7,7 @@ from flask import Flask, render_template, redirect, request, flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from authorize import Authorizer, txfee
+from authorize import Authorizer
 from scanner import ScannerDb
 from urllib.parse import urlparse
 
@@ -152,7 +152,7 @@ def authorize(chain):
 
     if not form.confirm.data:
         authorizer.updateWallet()
-        return render_template('transfer.html', confirm=True, chain=chain, form=form, meta=meta, balance=authorizer.balance, txfee=txfee)
+        return render_template('transfer.html', confirm=True, form=form, meta=meta, authorizer=authorizer)
 
     if meta and xidb.pin(cid):
         txid = authorizer.authorize(cid)
@@ -181,7 +181,7 @@ def transfer(chain):
 
     if not form.confirm.data:
         authorizer.updateWallet()
-        return render_template('transfer.html', transfer=True, confirm=True, chain=chain, form=form, meta=meta, balance=authorizer.balance, txfee=txfee)
+        return render_template('transfer.html', transfer=True, confirm=True, form=form, meta=meta, authorizer=authorizer)
     
     if meta and xidb.pin(cid):
         txid = authorizer.transfer(cid, addr)

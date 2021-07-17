@@ -52,6 +52,15 @@ class Authorizer:
         #print(f"connect={connect}")
         self.blockchain = AuthServiceProxy(connect, timeout=10)
 
+    def getChain(self):
+        return self.chain 
+        
+    def getBalance(self):
+        return self.balance 
+        
+    def getFee(self):
+        return txfee        
+
     def updateWallet(self):
         self.locked = 0
         self.balance = 0
