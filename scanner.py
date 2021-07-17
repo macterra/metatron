@@ -163,7 +163,7 @@ class Scanner:
         }
 
         url = {
-            "chain": f"http://btc.metagamer.org:5000/chain/{self.chain}/",
+            "chain": f"http://btc.metagamer.org:5000/chain/{self.chain}",
             "block": f"http://btc.metagamer.org:5000/chain/{self.chain}/block/",
             "tx": f"http://btc.metagamer.org:5000/chain/{self.chain}/tx/",
             "xid": f"http://btc.metagamer.org:5000/versions/xid/"
