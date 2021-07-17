@@ -25,6 +25,62 @@ class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
 
+
+class ScannerDb():
+    def __init__(self):
+        dbhost = os.environ.get('DB_HOST')
+
+        if not dbhost:
+            dbhost = 'localhost'
+    
+        self.db = redis.Redis(host=dbhost, port=6379, db=0)
+
+    def getStatus(self):
+        keys = self.db.keys("scanner/*")
+
+        status = {}
+
+        for key in keys:
+            val = self.db.get(key)
+            _, chain, prop = key.decode().split('/')
+            if not chain in status:
+                status[chain] = {}
+            status[chain][prop] = val.decode()
+
+        return status
+
+    def getLatestVersion(self, xid):
+        latest = self.db.get(f"xid/{xid}")
+        
+        if latest:
+            latest = latest.decode().strip()
+
+        return latest
+
+    def getAssets(self):
+        xids = self.db.keys("xid/*")
+        print(xids)
+
+        assets = []
+
+        for xid in xids:
+            cid = self.db.get(xid).decode().strip()
+            print(xid, cid)
+            version = xidb.getMeta(cid)
+            if version:
+                meta = xidb.getMeta(version['cid'])
+                if 'asset' in meta:
+                    version['meta'] = meta
+                    assets.append(version)
+                else:
+                    print("deprecated", xid)
+                    #db.delete(xid)
+
+        return sorted(assets, key=lambda version: version['meta']['asset'])
+
+    def flushall(self):
+        self.db.flushall()
+        
 class Scanner:
     def __init__(self):
         

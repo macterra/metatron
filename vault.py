@@ -8,6 +8,7 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from authorize import *
+from scanner import ScannerDb
 from urllib.parse import urlparse
 
 class TransferForm(FlaskForm):
@@ -36,16 +37,17 @@ def about():
 
 @app.route("/explorer")
 def explorer():
-    # move getAssets into ScannerDb
-    return render_template('explorer.html', assets=getAssets())
+    db = ScannerDb()
+    return render_template('explorer.html', assets=db.getAssets())
 
 @app.route("/scanner")
 def scanner():
-    return render_template('scanner.html', status=getStatus())
+    db = ScannerDb()
+    return render_template('scanner.html', status=db.getStatus())
 
 @app.route("/reset")
 def resetDb():
-    db = getDb()
+    db = ScannerDb()
     db.flushall()
     return redirect("/scanner")
 
@@ -117,21 +119,24 @@ def txExplorer(chain, txid):
 
 @app.route("/versions/xid/<xid>")
 def xidVersions(xid):
-    latest = getLatestVersion(xid)
-    versions = getVersions(latest)
+    db = ScannerDb()
+    latest = db.getLatestVersion(xid)
+    versions = xidb.getVersions(latest)
     return render_template('versions.html', xid=xid, cid=cid, versions=versions)
 
 @app.route("/versions/cid/<cid>")
 def cidVersions(cid):
+    db = ScannerDb()
     xid = getXid(cid)
-    latest = getLatestVersion(xid)
-    versions = getVersions(latest)
+    latest = db.getLatestVersion(xid)
+    versions = xidb.getVersions(latest)
     return render_template('versions.html', xid=xid, cid=cid, versions=versions)
 
 @app.route("/pin/xid/<xid>")
 def pinVersions(xid):
-    latest = getLatestVersion(xid)
-    versions = getVersions(latest)
+    db = ScannerDb()
+    latest = db.getLatestVersion(xid)
+    versions = xidb.getVersions(latest)
     for version in versions:
         cid = version['cid']
         if xidb.pin(cid):
@@ -198,59 +203,6 @@ def transfer(chain):
         
     return redirect(f"/vault/{chain}")
 
-def getDb():
-    dbhost = os.environ.get('DB_HOST')
-
-    if not dbhost:
-        dbhost = 'localhost'
-    
-    return redis.Redis(host=dbhost, port=6379, db=0)
-
-def getStatus():
-    db = getDb()
-    keys = db.keys("scanner/*")
-
-    status = {}
-
-    for key in keys:
-        val = db.get(key)
-        _, chain, prop = key.decode().split('/')
-        if not chain in status:
-            status[chain] = {}
-        status[chain][prop] = val.decode()
-
-    return status
-
-def getLatestVersion(xid):
-    db = getDb()
-    latest = db.get(f"xid/{xid}")
-    
-    if latest:
-        latest = latest.decode().strip()
-
-    return latest
-
-def getAssets():
-    db = getDb()
-    xids = db.keys("xid/*")
-    print(xids)
-
-    assets = []
-
-    for xid in xids:
-        cid = db.get(xid).decode().strip()
-        print(xid, cid)
-        version = xidb.getMeta(cid)
-        if version:
-            meta = xidb.getMeta(version['cid'])
-            if 'asset' in meta:
-                version['meta'] = meta
-                assets.append(version)
-            else:
-                print("deprecated", xid)
-                #db.delete(xid)
-
-    return sorted(assets, key=lambda version: version['meta']['asset'])
-
 if __name__ == "__main__":
-    print(getAssets())
+    db = ScannerDb()
+    print(db.getAssets())
