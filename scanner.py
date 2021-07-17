@@ -83,8 +83,13 @@ class ScannerDb():
         
 class Scanner:
     def __init__(self):
-        with open('scanner.json', 'r') as f:
-            self.config = json.load(f)
+        self.default = { 'home': 'localhost:5000' }
+
+        try:
+            with open('data/scanner.json', 'r') as f:
+                self.config = json.load(f)
+        except:
+            self.config = self.default
         
         if not xidb.checkIpfs():
             print("can't connect to IPFS")
@@ -116,7 +121,6 @@ class Scanner:
         self.height = self.blockchain.getblockcount()
 
         self.db = redis.Redis(host=dbhost, port=6379, db=0)
-        #self.db.flushall()
         self.db.set(self.keyheight, self.height)
         self.first = self.db.get(self.keyfirst)
         self.last = self.db.get(self.keylast)
@@ -166,7 +170,7 @@ class Scanner:
         try:
             home = self.config['home']
         except:
-            home = 'localhost:5000'
+            home = self.default['home']
 
         url = {
             "chain": f"http://{home}/chain/{self.chain}",
