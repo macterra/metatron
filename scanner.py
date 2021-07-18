@@ -79,13 +79,11 @@ class ScannerDb():
         
 class Scanner:
     def __init__(self):
-        self.default = { 'home': 'localhost:5000' }
+        self.server = os.environ.get('METATRON_SERVER')
 
-        try:
-            with open('data/scanner.json', 'r') as f:
-                self.config = json.load(f)
-        except:
-            self.config = self.default
+        if not self.server:
+            print("missing METATRON_SERVER")
+            return
         
         if not xidb.checkIpfs():
             print("can't connect to IPFS")
@@ -163,16 +161,11 @@ class Scanner:
             "tx": { "txid": txid, "vout": n }
         }
 
-        try:
-            home = self.config['home']
-        except:
-            home = self.default['home']
-
         url = {
-            "chain": f"http://{home}/chain/{self.chain}",
-            "block": f"http://{home}/chain/{self.chain}/block/",
-            "tx": f"http://{home}/chain/{self.chain}/tx/",
-            "xid": f"http://{home}/versions/xid/"
+            "chain": f"http://{self.server}/chain/{self.chain}",
+            "block": f"http://{self.server}/chain/{self.chain}/block/",
+            "tx": f"http://{self.server}/chain/{self.chain}/tx/",
+            "xid": f"http://{self.server}/versions/xid/"
         }
 
         cert = {

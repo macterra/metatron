@@ -1,4 +1,4 @@
-. ./connect.sh
+. ./metatron.env
 
 export SCANNER_CHAIN=BTC
 export SCANNER_START=691459

@@ -13,8 +13,17 @@
                 "FLASK_APP": "vault.py",
                 "FLASK_ENV": "development",
                 "TSR_CONNECT": "http://scully:sw33tp0tat0@btc.metagamer.org:18331",
+                "TSR_EXPLORER": "https://openchains.info/coin/tesseract",
+                "TSR_EXPLORER_BL": "https://openchains.info/coin/tesseract/block/{blockhash}",
+                "TSR_EXPLORER_TX": "https://openchains.info/coin/tesseract/tx/{txid}",
                 "BTC_CONNECT": "http://scully:sw33tp0tat0@btc.metagamer.org:8332",
+                "BTC_EXPLORER": "https://blockstream.info",
+                "BTC_EXPLORER_BL": "https://blockstream.info/block/{blockhash}",
+                "BTC_EXPLORER_TX": "https://blockstream.info/tx/{txid}",          
                 "tBTC_CONNECT": "http://scully:sw33tp0tat0@btc.metagamer.org:18332",
+                "tBTC_EXPLORER": "https://blockstream.info/testnet",
+                "tBTC_EXPLORER_BL": "https://blockstream.info/testnet/block/{blockhash}",
+                "tBTC_EXPLORER_TX": "https://blockstream.info/testnet/tx/{txid}",
                 "SECRET_KEY": "scully:sw33tp0tat0"
             },
             "args": [

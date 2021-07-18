@@ -1,4 +1,4 @@
-. ./connect.sh
+. ./metatron.env
 
 export SCANNER_CHAIN=TSR
 export SCANNER_START=101000

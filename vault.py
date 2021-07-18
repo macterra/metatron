@@ -26,25 +26,6 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 bootstrap = Bootstrap(app)
 
 #print(app.config)
-config = {
-    "explorer": {
-        "TSR": {
-            "chain": "https://openchains.info/coin/tesseract/",
-            "block": "https://openchains.info/coin/tesseract/block/{blockhash}",
-            "tx": "https://openchains.info/coin/tesseract/tx/{txid}"
-        },
-        "BTC": {
-            "chain": "https://blockstream.info/",
-            "block": "https://blockstream.info/block/{blockhash}",
-            "tx": "https://blockstream.info/tx/{txid}"
-        },
-        "tBTC": {
-            "chain": "https://blockstream.info/testnet/",
-            "block": "https://blockstream.info/testnet/block/{blockhash}",
-            "tx": "https://blockstream.info/testnet/tx/{txid}"
-        }
-    }
-}
 
 @app.route("/")
 def index():
@@ -99,17 +80,17 @@ def ipfs(path):
 
 @app.route("/chain/<chain>")
 def chainExplorer(chain):
-    url = config['explorer'][chain]['chain']
+    url = os.environ.get(f"{chain}_EXPLORER")
     return redirect(url, 302)
 
 @app.route("/chain/<chain>/block/<blockhash>")
 def blockExplorer(chain, blockhash):
-    url = config['explorer'][chain]['block'].format(blockhash=blockhash)
+    url = os.environ.get(f"{chain}_EXPLORER_BL").format(blockhash=blockhash)
     return redirect(url, 302)
 
 @app.route("/chain/<chain>/tx/<txid>")
 def txExplorer(chain, txid):
-    url = config['explorer'][chain]['tx'].format(txid=txid)
+    url = os.environ.get(f"{chain}_EXPLORER_TX").format(txid=txid)
     return redirect(url, 302)      
 
 @app.route("/versions/xid/<xid>")
