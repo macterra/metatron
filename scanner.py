@@ -106,7 +106,7 @@ class Scanner:
             print(f"missing {self.chain}_CONNECT")
             return
 
-        dbhost = os.environ.get('SCANNER_DBHOST')
+        dbhost = os.environ.get('DB_HOST')
 
         if not dbhost:
             dbhost = 'localhost'
