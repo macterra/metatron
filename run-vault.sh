@@ -1,4 +1,4 @@
-. ./connect.sh
+. ./metatron.env
 
 export FLASK_APP=vault
 export FLASK_ENV=development

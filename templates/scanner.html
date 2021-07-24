@@ -10,6 +10,7 @@
         <tr>
             <th scope="col">chain</th>
             <th scope="col">time</th>
+            <th scope="col" class="text-right">scanned</th>
             <th scope="col" class="text-right">first</th>
             <th scope="col" class="text-right">last</th>
             <th scope="col" class="text-right">height</th>
@@ -17,12 +18,17 @@
     </thead>
 {% for chain in status %}
 {% set o = status[chain] %}
+{% set first = o.first | int %}
+{% set last = o.last | int %}
+{% set height = o.height | int %}
+{% set scanned = last - first %}
 <tr>
     <th scope="row">{{ chain }}</td>
     <td>{{ o.time }}</td>
-    <td class="text-right">{{ o.first }}</td>
-    <td class="text-right">{{ o.last }}</td>
-    <td class="text-right">{{ o.height }}</td>
+    <td class="text-right">{{ scanned }}</td>
+    <td class="text-right">{{ first }}</td>
+    <td class="text-right">{{ last }}</td>
+    <td class="text-right">{{ height }}</td>
 </tr>
 {% endfor %}
 </table>
