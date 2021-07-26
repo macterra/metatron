@@ -3,5 +3,6 @@ FROM python:3
 WORKDIR /app
 COPY portablize.py .
 
-CMD python portablize.py
+WORKDIR /data
 
+CMD python /app/portablize.py
