@@ -140,7 +140,7 @@ class Authorizer:
         outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
 
         rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
-        if self.chain == 'TSR':
+        if self.chain == 'TESS' or self.chain == 'TSR':
             sigtxn = self.blockchain.signrawtransaction(rawtxn) 
         else:
             sigtxn = self.blockchain.signrawtransactionwithwallet(rawtxn)
