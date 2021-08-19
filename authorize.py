@@ -7,7 +7,6 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from xidb import *
 
 magic = Decimal('0.00001111')
-txfee = Decimal('0.00002222')
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -59,7 +58,9 @@ class Authorizer:
         return self.balance 
         
     def getFee(self):
-        return txfee        
+        ret = self.blockchain.estimatesmartfee(1)
+        fee = ret['feerate']
+        return fee        
 
     def updateWallet(self):
         self.locked = 0
@@ -122,6 +123,8 @@ class Authorizer:
             print(f"claiming xid {xid}")
 
         amount = Decimal('0')
+        txfee = self.getFee()
+
         for funtxn in self.funds:
             inputs.append(funtxn)
             amount += funtxn['amount']
