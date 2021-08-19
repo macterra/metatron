@@ -6,8 +6,6 @@ from decimal import Decimal
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from xidb import *
 
-magic = Decimal('0.00001111')
-
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal): return float(obj)
@@ -55,7 +53,10 @@ class Authorizer:
         return self.chain 
         
     def getBalance(self):
-        return self.balance 
+        return self.balance
+
+    def getStake(self):
+        return Decimal('0.00001111')
         
     def getFee(self):
         ret = self.blockchain.estimatesmartfee(1)
@@ -63,7 +64,7 @@ class Authorizer:
         return fee        
 
     def updateWallet(self):
-        self.locked = 0
+        self.staked = 0
         self.balance = 0
 
         unspent = self.blockchain.listunspent()
@@ -78,7 +79,7 @@ class Authorizer:
                 if auth.isValid:
                     auth.utxo = tx
                     assets.append(auth)
-                    self.locked += tx['amount']
+                    self.staked += tx['amount']
                 else:
                     funds.append(tx)
                     self.balance += tx['amount']
@@ -123,15 +124,16 @@ class Authorizer:
             print(f"claiming xid {xid}")
 
         amount = Decimal('0')
+        stake = self.getStake()
         txfee = self.getFee()
 
         for funtxn in self.funds:
             inputs.append(funtxn)
             amount += funtxn['amount']
-            if amount > (magic + txfee):
+            if amount > (stake + txfee):
                 break
 
-        if amount < (magic + txfee):
+        if amount < (stake + txfee):
             print('not enough funds in account', amount)
             return
 
@@ -139,8 +141,8 @@ class Authorizer:
         nulldata = { "data": hexdata }
 
         changeAddr = self.blockchain.getnewaddress("auth", "bech32")
-        change = amount - magic - txfee
-        outputs = { "data": hexdata, authAddr: str(magic), changeAddr: change }
+        change = amount - stake - txfee
+        outputs = { "data": hexdata, authAddr: str(stake), changeAddr: change }
 
         rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
         if self.chain == 'TESS' or self.chain == 'TSR':
