@@ -57,3 +57,71 @@ Nodes can sync with each other by authorizing their version database on the bloc
 10. A new [metadoc](meta-v2.json) is created and added to IPFS.
 11. An auth txn is submitted that references the new metadoc and spends the txo from the last auth txn.
 12. The scanner discovers the new auth txn on the blockchain, verifies all the references are valid, creates a new [block-cert](block-cert-v3.json), adds it to IPFS, and updates the db so that the idx is mapped to the latest version.
+
+## Asset Type System
+
+The Metatron protocol described above is designed to establish ownership of an `xid`. 
+The owner of the xid can associate it with any (digital) information desired, so long as it conforms to the protocol.
+The Asset Type System is a set of conventions built on top of the protocol that enables the association between the xid and some other information in a self-descriptive way.
+For example the source code of the Metatron system itself (including this documentation) is authorized on the Metatron network as an instance of the git-repo type.
+
+Another example is the macterra agent asset which is accessible at 
+https://ipfs.io/ipfs/QmY5SeuArETTj1hy1UMz14KtPL3eM1hHJkRzimuSVzP8vR/macterra/
+
+![macterra](macterra.png)
+
+The json button at the bottom reveals the underlying data used to automatically generate the HTML for the agent page:
+
+``` json
+{
+    "name": "macterra",
+    "headline": "crypto-anarchist // engineer-scientist // extropian-transhumanist // pancritical-reasonablist // quantum-modal-realist // metamodern-stoic",
+    "image": "media/laser-eyes.jpg",        
+    "links": {
+        "github": "https://github.com/macterra",
+        "twitter": "https://twitter.com/macterra",
+        "keybase": "https://keybase.io/mcfadzean",
+        "metatron": "https://macterra.github.io/metatron/"
+    }
+}
+```
+
+The meta button at the bottom will navigate up one level to
+https://ipfs.io/ipfs/QmY5SeuArETTj1hy1UMz14KtPL3eM1hHJkRzimuSVzP8vR/
+
+
+![meta](macterra-meta.png)
+
+The json button at the bottom reveals the underlying data used to automatically generate the HTML for the metadata page:
+
+``` json
+{
+    "xid": "deec9958-c0a0-4090-bf98-9fa4ed9c2da7",
+    "home": "http://btc.metagamer.org:5000/versions/xid/",
+    "meta": "QmNLz6qU8KwVjqhnBTqgEE48pJVP2P3thqHDAYtVFyiHFB/asset",
+    "type": "QmYwmtqTNujtSs8aVyi1hVu7cbGdYNJFFy9QdoJJxYhmzD/agent",
+    "owner": "QmWZcJBMbL64RyLVwLmtRs4JkjHiAYJEeqxS7Rwzh2ran2/macterra",
+    "asset": "macterra"
+}
+```
+
+The xid `deec9958-c0a0-4090-bf98-9fa4ed9c2da7` is what is owned on the blockchain, and the only necessary constant across versions.
+
+The home `http://btc.metagamer.org:5000/versions/xid/` is the address of the Metatron system that authorized this version. It is used to access previous and possibly future versions of this asset, notably the most recent version.
+
+The meta `QmNLz6qU8KwVjqhnBTqgEE48pJVP2P3thqHDAYtVFyiHFB/asset` references the asset type that defines how to interpret the metadata.
+
+The type `QmYwmtqTNujtSs8aVyi1hVu7cbGdYNJFFy9QdoJJxYhmzD/agent` references the agent type that defines how to interpret the subfolder data, specified in the asset property `macterra` that also serves as the name of this asset.
+
+The owner `QmWZcJBMbL64RyLVwLmtRs4JkjHiAYJEeqxS7Rwzh2ran2/macterra` references an agent that owns this asset. Agent assets are distinguished by being self-owned, but necessarily by an earlier version of the agent.
+
+All types are assets, but not all assets are necessarily types. The macterra asset is an instance of the agent type, but is not a type itself. The agent asset is also a type.
+
+![](diagrams/assets.png)
+
+### asset
+
+An asset in the Metatron system is any information worth owning. 
+
+### type
+
