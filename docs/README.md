@@ -58,6 +58,27 @@ Nodes can sync with each other by authorizing their version database on the bloc
 11. An auth txn is submitted that references the new metadoc and spends the txo from the last auth txn.
 12. The scanner discovers the new auth txn on the blockchain, verifies all the references are valid, creates a new [block-cert](block-cert-v3.json), adds it to IPFS, and updates the db so that the idx is mapped to the latest version.
 
+## Metatron Node
+
+A Metatron node is a server running a number of interoperating services in docker containers. 
+
+![architecture](diagrams/metatron.png)
+
+### Vault
+
+The vault is the main UI for the system.
+The vault can be configured to connect to any number of blockchain nodes, using their built-in wallets to store and authorize assets.
+
+### Blockchain nodes
+
+Each blockchain node is a docker containerized version of a full node that validates transactions and blocks for a particular blockchain. 
+The diagram illustrates four blockchains, the mainnet and testnet chains for Bitcoin and Tesseract, though the Metatron system can support any number of blockchains.
+
+### Scanners
+
+A scanner is a background process that is configured to connect to a single blockchain node and scan each new block for Metatron transactions. 
+When a transaction is detected it is validated, and if it passes all the tests, the scanner generates an authorized version certificate, published it to IPFS, and updates the latest version entry in the local database.
+
 ## Asset Type System
 
 The Metatron protocol described above is designed to establish ownership of an `xid`. 
@@ -115,13 +136,9 @@ The type `QmYwmtqTNujtSs8aVyi1hVu7cbGdYNJFFy9QdoJJxYhmzD/agent` references the a
 
 The owner `QmWZcJBMbL64RyLVwLmtRs4JkjHiAYJEeqxS7Rwzh2ran2/macterra` references an agent that owns this asset. Agent assets are distinguished by being self-owned, but necessarily by an earlier version of the agent.
 
-All types are assets, but not all assets are necessarily types. The macterra asset is an instance of the agent type, but is not a type itself. The agent asset is also a type.
+All types are assets, but not all assets are types. The macterra asset is an instance of the agent type, but is not a type itself. The agent asset is also a type.
+
+In general, all assets have an xid, a type, and an owner. The type is an asset derived from the special type named `type`, and the owner is an `agent` asset.
 
 ![](diagrams/assets.png)
-
-### asset
-
-An asset in the Metatron system is any information worth owning. 
-
-### type
 
