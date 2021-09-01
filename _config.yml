@@ -3,20 +3,3 @@ source: docs
 theme: jekyll-theme-minimal
 
 repository: macterra/metatron
-
-plugins:
-- jekyll-github-metadata
-- jekyll-coffeescript
-- jekyll-default-layout
-- jekyll-optional-front-matter
-- jekyll-paginate
-- jekyll-readme-index
-- jekyll-titles-from-headings
-- jekyll-relative-links
-- jekyll-mentions
-- jekyll-redirect-from
-- jekyll-sitemap
-- jemoji
-- jekyll_pocket
-
-permalink: none
