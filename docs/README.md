@@ -1,5 +1,14 @@
 # Metatron
 
+The Metatron system is designed to establish an authorized version chain in a decentralized manner for any digital asset stored on IPFS.
+Since [IPFS](https://ipfs.io/) is designed to permanently publish information that is unchanging and unchangeable, anybody can publish a revision.
+Given an IPFS link, how can users discover the most recent authorized version, i.e. the revision that is designated as authorative by the current owner of the information, for example someone's resume?
+
+Metatron takes advantage of blockchain features to establish a single chain of authorized versions from a potential tree of unauthorized versions.
+It does so by associating the current version with an unspent transaction output (UTXO) on the blockchain. 
+Whoever has the private key to spend the UTXO has the right to authorize the next version.
+Since the blockchain ensures that a given UTXO can only be spent once, a single history of authorized versions can be established without any central authorities.
+
 ## The Extensible Identifier (xid)
 
 The system provides a way to establish ownership of 128-bit random numbers called `xid` (for eXtensible IDentifier)
@@ -7,7 +16,7 @@ The system provides a way to establish ownership of 128-bit random numbers calle
 The value of the xid must be a random [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier)
 - any UUID that can be compressed by zlib to less than its original length of 16 bytes will be considered invalid
 - the xid should be a pure indexical, it should be able to point to any digital content without bias, including nothing in the case it is retired or disabled
-- therefore the xid should contain no internal information (though it is always possible to encode encrypted information via the UUID5 standard)
+- therefore the xid should contain no internal information (though, to be fair, it is always possible to encode encrypted information via the UUID5 standard)
 
 The xid is associated with digital content by mapping it to a content identifier (CID) on IPFS
 - if the CID resolves to a directory, it must have a top-level file named `meta.json` that includes a top-level property named `xid`
@@ -69,6 +78,10 @@ A Metatron node is a server running a number of interoperating services in docke
 The vault is the main UI for the system.
 The vault can be configured to connect to any number of blockchain nodes, using their built-in wallets to store and authorize assets.
 
+The vault also acts as an asset explorer, listing all assets discovered and validated by the scanners.
+Using the explorer feature, the user can view the complete authorized version history of any asset.
+The explorer set of features could be split into its own application separate from the vault, separating concerns that require user authentication (vault) from those that may be accessed anonymously (explorer).
+
 ### Blockchain nodes
 
 Each blockchain node is a docker containerized version of a full node that validates transactions and blocks for a particular blockchain. 
@@ -77,7 +90,19 @@ The diagram illustrates four blockchains, the mainnet and testnet chains for Bit
 ### Scanners
 
 A scanner is a background process that is configured to connect to a single blockchain node and scan each new block for Metatron transactions. 
-When a transaction is detected it is validated, and if it passes all the tests, the scanner generates an authorized version certificate, published it to IPFS, and updates the latest version entry in the local database.
+When a transaction is detected and validated, the scanner generates an authorized version certificate, publishes it to IPFS, and updates the latest version entry in the local database (redis).
+Scanners also keep track of which blocks they have scanned in the local db so that when the system restarts it can pick up where it left off.
+
+### Futures
+
+Eventually we will want a reverse proxy front end such as nginx to hide the various service ports behind a single set of URLs on port 80.
+
+It will be useful to add metrics, logs, alerts, and general observability to the system, perhaps through TICK and ELK stacks running in containers.
+
+Other blockchains under consideration to expand the system:
+* Ravencoin
+* Ethereum
+* Cardano
 
 ## Asset Type System
 
