@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Agents{% endblock %}
+
+{% block app_content %}
+<h1>Agents</h1>
+
+<ul class="list-group">
+{% for agent in agents %}
+<li class="list-group-item">
+  <a href="/versions/xid/{{ agent.xid }}">{{ agent.meta.asset }}</a>
+</li>
+{% endfor %}
+</ul>
+
+<button type="button" class="btn btn-primary" onclick="location.href='/agents/import'">Import</button>
+<button type="button" class="btn btn-primary" onclick="location.href='/agents/debug'">Debug</button>
+
+{% endblock %}

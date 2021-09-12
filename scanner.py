@@ -34,6 +34,12 @@ class ScannerDb():
     
         self.db = redis.Redis(host=dbhost, port=6379, db=0)
 
+    def dump(self):
+        keys = self.db.keys("*")
+        for key in sorted(keys):
+            val = self.db.get(key)
+            print(key, val)
+
     def getStatus(self):
         keys = self.db.keys("scanner/*")
 
@@ -73,6 +79,31 @@ class ScannerDb():
                     #db.delete(xid)
 
         return sorted(assets, key=lambda version: version['meta']['asset'])
+
+    def getAgents(self):
+        axids = self.db.keys("agent/*")
+        agents = []
+
+        for axid in axids:
+            xid = self.db.get(axid)
+            cid = self.db.get(xid).decode().strip()
+            version = xidb.getMeta(cid)
+            if version:
+                meta = xidb.getMeta(version['cid'])
+                if 'asset' in meta:
+                    version['meta'] = meta
+                    agents.append(version)
+        return agents
+
+    def importAgents(self, authorizer):
+        authorizer.updateWallet()
+        for asset in authorizer.assets:
+            isAgent = asset.meta['type'].find("/agent") > 0
+            if isAgent:
+                xid = asset.meta['xid']
+                name = asset.meta['asset']
+                print(xid, name)
+                self.db.set(f"agent/{xid}", f"xid/{xid}")
 
     def flushall(self):
         self.db.flushall()

@@ -35,6 +35,23 @@ def index():
 def about():
     return render_template('about.html', version=version)
 
+@app.route("/agents")
+def agents():
+    db = ScannerDb()
+    return render_template('agents.html', agents=db.getAgents())
+
+@app.route("/agents/import")
+def importAgents():
+    db = ScannerDb()
+    db.importAgents(Authorizer('TESS'))
+    return redirect("/agents")
+
+@app.route("/agents/debug")
+def dbDump():
+    db = ScannerDb()
+    db.dump()
+    return redirect("/agents")
+
 @app.route("/explorer")
 def explorer():
     db = ScannerDb()
