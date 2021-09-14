@@ -89,9 +89,14 @@ class ScannerDb():
             cid = self.db.get(xid).decode().strip()
             version = xidb.getMeta(cid)
             if version:
-                meta = xidb.getMeta(version['cid'])
+                metacid = version['cid']
+                meta = xidb.getMeta(metacid)
                 if 'asset' in meta:
+                    name = meta['asset']
                     version['meta'] = meta
+                    agent = xidb.getAgent(metacid, name)
+                    version['agent'] = agent
+                    print(metacid, name, meta, agent)
                     agents.append(version)
         return agents
 

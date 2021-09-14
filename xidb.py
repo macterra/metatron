@@ -75,6 +75,17 @@ def getMeta(cid):
 
     return meta
 
+def getAgent(cid, name):
+    agent = None
+    ipfs = getIpfs()
+
+    try:
+        agent = json.loads(ipfs.cat(f"{cid}/{name}/agent.json"))
+    except:
+        pass
+
+    return agent
+
 def getVersions(cid):
     versions = []
     version = getMeta(cid)

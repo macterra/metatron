@@ -8,7 +8,10 @@
 <ul class="list-group">
 {% for agent in agents %}
 <li class="list-group-item">
+  <img src="https://ipfs.io/ipfs/{{ agent.cid }}/{{ agent.meta.asset }}/{{ agent.agent.image }}" width="120">
+  <br>
   <a href="/versions/xid/{{ agent.xid }}">{{ agent.meta.asset }}</a>
+  {{ agent.chain }}
 </li>
 {% endfor %}
 </ul>

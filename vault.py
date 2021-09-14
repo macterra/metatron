@@ -44,6 +44,9 @@ def agents():
 def importAgents():
     db = ScannerDb()
     db.importAgents(Authorizer('TESS'))
+    db.importAgents(Authorizer('TSR'))
+    db.importAgents(Authorizer('BTC'))
+    db.importAgents(Authorizer('tBTC'))
     return redirect("/agents")
 
 @app.route("/agents/debug")
