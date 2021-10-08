@@ -1,7 +1,11 @@
 {
     "name": "macterra",
     "headline": "crypto-anarchist // engineer-scientist // extropian-transhumanist // pancritical-reasonablist // quantum-modal-realist // metamodern-stoic",
-    "image": "media/laser-eyes.jpg",        
+    "image": "media/laser-eyes.jpg",
+    "credentials": {
+        "blockchain programmer": "https://programmingblockchain.com/certificates/94f72bb01341209ae799.txt",
+        "NFT developer": "https://opensea.io/assets/0x2e63de3d195685d38ce671cedac8475732c5d033/10"
+    },
     "links": {
         "github": "https://github.com/macterra",
         "twitter": "https://twitter.com/macterra",

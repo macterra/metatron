@@ -16,10 +16,19 @@
       <img src="{{ asset.image }}" class="card-img-top" alt="...">
       <div class="card-body">
         <h5 class="card-title">{{ asset.name }}</h5>
-        <p class="card-text">{{ asset.headline }}</p>      
+        <p class="card-text">{{ asset.headline }}</p>
+        {% if asset.links %} 
+        <h6 class="card-subtitle mb-2 text-muted">links</p>
         {% for link in asset.links %}
         <a href="{{ asset.links[link] }}" class="btn btn-primary">{{ link }}</a>
         {% endfor %}
+        {% endif %}
+        {% if asset.credentials %} 
+        <h6 class="card-subtitle mb-2 text-muted">credentials</p>
+        {% for credential in asset.credentials %}
+        <a href="{{ asset.credentials[credential] }}" class="btn btn-primary">{{ credential }}</a>
+        {% endfor %}
+        {% endif %}
       </div>
     </div>
 
