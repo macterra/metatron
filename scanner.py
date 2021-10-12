@@ -272,6 +272,19 @@ class Scanner:
 
         return self.addVersion(newTx)
 
+    def terminateTx(self, oldTx):
+        xid = oldTx.xid    
+        versionCid = self.db.get(f"xid/{xid}")
+        versionMeta = xidb.getMeta(versionCid)
+        
+        if oldTx.cid != versionMeta['cid']:
+            print("error: version does not match meta", oldTx.cid)
+            return
+
+        version = versionMeta['version'] + 1
+        oldTx.cid = "" # erasing cid will mark this asset as terminated by convention
+        return self.writeCert(oldTx, version, versionCid)
+
     def scanBlock(self, height):
         block_hash = self.blockchain.getblockhash(height)
         block = self.blockchain.getblock(block_hash)
@@ -285,11 +298,23 @@ class Scanner:
         txns = block['tx']
         for txid in txns:
             #print(txid)
-            print('.', end='', flush=True)
             tx = self.blockchain.getrawtransaction(txid, 1)
             newTx = AuthTx(tx)
             if newTx.isValid:
                 self.verifyTx(newTx)
+                print('+', end='', flush=True)
+            else:
+                for vin in tx['vin']:
+                    if not 'txid' in vin:                        
+                        continue # coinbase
+                    txin = self.blockchain.getrawtransaction(vin['txid'], 1)
+                    oldTx = AuthTx(txin)
+                    if oldTx.isValid:
+                        self.terminateTx(oldTx)
+                        print('x', end='', flush=True)
+                    else:
+                        print(',', end='', flush=True)
+                print('.', end='', flush=True)
         print()
         print(f"scanned {len(txns)} transactions", flush=True)
         
