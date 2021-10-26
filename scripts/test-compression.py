@@ -28,7 +28,7 @@ def test3(i, u):
     return zlen
 
 def testRandom():
-    for i in range(100):
+    for _ in range(100):
         test(uuid.uuid4())
 
 def testSynthetic():

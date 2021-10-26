@@ -7,3 +7,4 @@ launch.vscode
 data/
 _site/
 .sass-cache/
+venv/
