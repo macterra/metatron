@@ -8,3 +8,4 @@ data/
 _site/
 .sass-cache/
 venv/
+.vscode/
