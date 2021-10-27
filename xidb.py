@@ -8,6 +8,7 @@ import cid
 import binascii
 import shutil
 
+
 def getIpfs():
     connect = os.environ.get('IPFS_CONNECT')
 
@@ -16,28 +17,31 @@ def getIpfs():
     else:
         return ipfshttpclient.connect()
 
+
 def checkIpfs():
     for i in range(10):
         try:
             ipfs = getIpfs()
-            #print(ipfs.id())
+            # print(ipfs.id())
             return True
         except:
             print(i, "attempting to connect to IPFS...")
             time.sleep(1)
     return False
 
+
 def verifyXid(xid):
+  # Removed unnecessary else statement
     try:
-        u = uuid.UUID(xid)    
+        u = uuid.UUID(xid)
         z = zlib.compress(u.bytes)
         if len(z) > len(u.bytes):
             return str(u)
-        else:
-            print(f"invalid {xid} compresses to {len(z)}")
-            return None
+        print(f"invalid {xid} compresses to {len(z)}")
+        return None
     except:
         return None
+
 
 def getXid(cid):
     xid = None
@@ -58,8 +62,9 @@ def getXid(cid):
             except:
                 # print(f"error: unable to retrieve xid for {cid}")
                 return None
-        
+
     return verifyXid(xid)
+
 
 def getMeta(cid):
     meta = None
@@ -75,6 +80,7 @@ def getMeta(cid):
 
     return meta
 
+
 def getVersions(cid):
     versions = []
     version = getMeta(cid)
@@ -89,8 +95,9 @@ def getVersions(cid):
         else:
             version = None
 
-    versions.reverse()    
+    versions.reverse()
     return versions
+
 
 def addCert(cert):
     ipfs = getIpfs()
@@ -98,6 +105,7 @@ def addCert(cert):
     for item in res:
         if item['Name'] == cert:
             return item['Hash']
+
 
 def pin(cid):
     try:
@@ -108,6 +116,7 @@ def pin(cid):
         return True
     except:
         return False
+
 
 def encodeCid(hash):
     cid1 = cid.make_cid(hash)

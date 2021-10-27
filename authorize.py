@@ -6,11 +6,14 @@ from decimal import Decimal
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from xidb import *
 
+
 class Encoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Decimal): return float(obj)
+        if isinstance(obj, Decimal):
+            return float(obj)
 
-class AuthTx():    
+
+class AuthTx():
     def __init__(self, tx):
         self.tx = tx
         self.cid = None
@@ -28,10 +31,10 @@ class AuthTx():
         if data[0] != 0x6a:
             return False
         try:
-            if data[1] == 34: # len of CIDv0
+            if data[1] == 34:  # len of CIDv0
                 cid0 = cid.make_cid(0, cid.CIDv0.CODEC, data[2:])
                 self.cid = str(cid0)
-            elif data[1] == 36: # len of CIDv1
+            elif data[1] == 36:  # len of CIDv1
                 cid1 = cid.make_cid(data[2:])
                 cid0 = cid1.to_v0()
                 self.cid = str(cid0)
@@ -42,33 +45,33 @@ class AuthTx():
         self.xid = getXid(self.cid)
         return self.xid != None
 
+
 class Authorizer:
     def __init__(self, chain):
         self.chain = chain
         connect = os.environ.get(f"{chain}_CONNECT")
-        #print(f"connect={connect}")
+        # print(f"connect={connect}")
         self.blockchain = AuthServiceProxy(connect, timeout=10)
 
     def getChain(self):
-        return self.chain 
-        
+        return self.chain
+
     def getBalance(self):
         return self.balance
 
     def getStake(self):
         return Decimal('0.00001111')
-        
+
     def getFee(self):
         ret = self.blockchain.estimatesmartfee(1)
-        fee = ret['feerate']
-        return fee        
+        return ret['feerate']
 
     def updateWallet(self):
         self.staked = 0
         self.balance = 0
 
         unspent = self.blockchain.listunspent()
-        #print(unspent)
+        # print(unspent)
         funds = []
         assets = []
 
@@ -94,7 +97,7 @@ class Authorizer:
         return self.blockchain.getnewaddress("recv", "bech32")
 
     def authorize(self, cid):
-        print(f"authorizing {cid}")        
+        print(f"authorizing {cid}")
         authAddr = self.blockchain.getnewaddress("auth", "bech32")
         return self.transfer(cid, authAddr)
 
@@ -119,8 +122,8 @@ class Authorizer:
                     return
                 inputs.append(asset.utxo)
                 break
-            
-        if len(inputs) == 0:
+
+        if not inputs:
             print(f"claiming xid {xid}")
 
         amount = Decimal('0')
@@ -137,30 +140,32 @@ class Authorizer:
             print('not enough funds in account', amount)
             return
 
-        hexdata = encodeCid(cid)    
-        nulldata = { "data": hexdata }
+        hexdata = encodeCid(cid)
+        nulldata = {"data": hexdata}
 
         changeAddr = self.blockchain.getnewaddress("auth", "bech32")
         change = amount - stake - txfee
-        outputs = { "data": hexdata, authAddr: str(stake), changeAddr: change }
+        outputs = {"data": hexdata, authAddr: str(stake), changeAddr: change}
 
         rawtxn = self.blockchain.createrawtransaction(inputs, outputs)
-        if self.chain == 'TESS' or self.chain == 'TSR':
-            sigtxn = self.blockchain.signrawtransaction(rawtxn) 
+        if self.chain in ['TESS', 'TSR']:
+            sigtxn = self.blockchain.signrawtransaction(rawtxn)
         else:
             sigtxn = self.blockchain.signrawtransactionwithwallet(rawtxn)
         dectxn = self.blockchain.decoderawtransaction(sigtxn['hex'])
         print('dec', json.dumps(dectxn, indent=2, cls=Encoder))
-        
+
         txid = self.blockchain.sendrawtransaction(sigtxn['hex'])
         print('txid', txid)
         return txid
+
 
 def main():
     chain = sys.argv[1]
     authorizer = Authorizer(chain)
     for arg in sys.argv[2:]:
         authorizer.authorize(arg)
+
 
 if __name__ == "__main__":
     main()
