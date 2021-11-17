@@ -31,7 +31,6 @@ def checkIpfs():
 
 
 def verifyXid(xid):
-  # Removed unnecessary else statement
     try:
         u = uuid.UUID(xid)
         z = zlib.compress(u.bytes)
