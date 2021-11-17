@@ -95,10 +95,15 @@ def txExplorer(chain, txid):
 
 @app.route("/versions/xid/<xid>")
 def xidVersions(xid):
-    db = ScannerDb()
-    latest = db.getLatestVersion(xid)
-    versions = xidb.getVersions(latest)
-    return render_template('versions.html', xid=xid, versions=versions)
+    try:
+        db = ScannerDb()
+        latest = db.getLatestVersion(xid)
+        versions = xidb.getVersions(latest)
+        return render_template('versions.html', xid=xid, versions=versions)
+    except Exception as e:
+        print(e)
+        return redirect("/explorer")
+    
 
 @app.route("/versions/cid/<cid>")
 def cidVersions(cid):
@@ -178,6 +183,11 @@ def transfer(chain):
         flash('transfer cancelled')
         
     return redirect(f"/vault/{chain}")
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
 
 if __name__ == "__main__":
     db = ScannerDb()
