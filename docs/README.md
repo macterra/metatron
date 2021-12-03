@@ -2,7 +2,7 @@
 
 The Metatron system is designed to establish an authorized version chain in a decentralized manner for any digital asset stored on IPFS.
 Since [IPFS](https://ipfs.io/) is designed to permanently publish information that is unchanging and unchangeable, anybody can publish a revision.
-Given an IPFS link, how can users discover the most recent authorized version, i.e. the revision that is designated as authorative by the current owner of the information, for example someone's resume?
+Given an IPFS link, how can users discover the most recent authorized version, i.e. the revision that is designated as authoritative by the current owner of the information, for example someone's resume?
 
 Metatron takes advantage of blockchain features to establish a single chain of authorized versions from a potential tree of unauthorized versions.
 It does so by associating the current version with an unspent transaction output (UTXO) on the blockchain. 
@@ -60,7 +60,7 @@ Nodes can sync with each other by authorizing their version database on the bloc
 4. A blockchain scanner discovers the auth txn when it is confirmed on a block. The metadoc will be resolved from its CID on IPFS. The scanner will search its db for the idx in the metadoc but it won't be found since it is new. The scanner can confirm that the transaction inputs referenced in the auth txn are not auth txns. The first version of the block certification [block-cert](block-cert-v0.json) is created and added to IPFS. The idx is mapped to the CID of the block-cert in the db.
 5. The author creates a new revision of the [image](diagrams/verified-versions-v2.png), doc v2.
 6. The system updates the [metadoc](meta-v1.json) referencing the CID of the v2 of the doc and the CID of v1 of the metadoc. 
-7. The second version is authorized by submitting an auth txn to the blockchain that references the CID of v2 of the metadoc and spends the the UTXO from the first auth txn.
+7. The second version is authorized by submitting an auth txn to the blockchain that references the CID of v2 of the metadoc and spends the UTXO from the first auth txn.
 8. The blockchain scanner discovers the v2 auth txn when it is confirmed on a block. Again it finds the idx by resolving the metadoc from IPFS. This time it finds the idx in the db mapped to the first block-cert. The scanner can confirm that the new auth txn spends the auth txn referenced in the block-cert. If everything checks out a new [block-cert](block-cert-v1.json) is created and added to IPFS. The db is updated so that idx is now mapped to the new block-cert.
 9. The process is repeated for a 3rd version of the [image](diagrams/verified-versions-v3.png)
 10. A new [metadoc](meta-v2.json) is created and added to IPFS.
