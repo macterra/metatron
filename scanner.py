@@ -42,7 +42,7 @@ class ScannerDb():
         for key in keys:
             val = self.db.get(key)
             _, chain, prop = key.decode().split('/')
-            if not chain in status:
+            if chain not in status:
                 status[chain] = {}
             status[chain][prop] = val.decode()
 
@@ -84,7 +84,7 @@ class Scanner:
         if not self.server:
             print("missing METATRON_SERVER")
             return
-        
+
         if not xidb.checkIpfs():
             print("can't connect to IPFS")
             return
@@ -110,7 +110,7 @@ class Scanner:
 
         if not dbhost:
             dbhost = 'localhost'
-      
+
         self.blockchain = AuthServiceProxy(connect, timeout=30)
         self.height = self.blockchain.getblockcount()
 
@@ -127,13 +127,10 @@ class Scanner:
 
         start = os.environ.get('SCANNER_START')
 
-        if start:
-            start = int(start)
-        else:
-            start = self.first or self.height
-
+        start = int(start) if start else self.first or self.height
+        
         # check for change in start
-        if not self.last or not self.last or self.last < start or start < self.first:
+        if not self.last or self.last < start or start < self.first:
             self.first = start
             self.last = start-1 
             self.db.set(self.keyfirst, self.first)
@@ -209,18 +206,15 @@ class Scanner:
         return cert
 
     def addVersion(self, tx):
-        #print('addVersion', tx.cid)
         current = self.db.get(f"xid/{tx.xid}")
 
         if current:
             print("error, xid already claimed")
             return
 
-        #print("OK to add new version")
         return self.writeCert(tx, 1, "")        
 
     def updateVersion(self, oldTx, newTx):
-        # print('updateVersion', oldTx.cid, newTx.cid)
         
         if oldTx.xid != newTx.xid:
             print("error: ids do not match", oldTx.xid, newTx.xid)
@@ -236,10 +230,8 @@ class Scanner:
                 return
         else:
             versionCid = versionCid.decode()
-        #print('versionCid', versionCid)
         
         versionMeta = xidb.getMeta(versionCid)
-        #print('versionMeta', versionMeta)
         
         if versionMeta['cid'] == newTx.cid:
             print(f"warning: versionCid {versionCid} already assigned to xid {xid}")
@@ -253,7 +245,6 @@ class Scanner:
             print("error: version does not match meta", oldTx.cid)
             return
         
-        #print("OK to update version")
 
         version = versionMeta['version'] + 1
         return self.writeCert(newTx, version, versionCid)
@@ -263,7 +254,6 @@ class Scanner:
         txid = vin['txid']
         vout = vin['vout']
         
-        #print(f"verifyTx {txid} {vout}")
         if vout == 1:
             tx = self.blockchain.getrawtransaction(txid, 1)
             oldTx = AuthTx(tx)
@@ -284,7 +274,6 @@ class Scanner:
 
         txns = block['tx']
         for txid in txns:
-            #print(txid)
             print('.', end='', flush=True)
             tx = self.blockchain.getrawtransaction(txid, 1)
             newTx = AuthTx(tx)
@@ -314,6 +303,4 @@ def scanAll():
 
 if __name__ == "__main__":
     scanAll()
-            
-    #scanner = Scanner()
-    #scanner.scanBlock(102888)
+
